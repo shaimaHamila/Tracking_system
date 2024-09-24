@@ -29,7 +29,7 @@ process.on("SIGTERM", async () => {
 });
 
 app.get("/api/v1", (req: Request, res: Response) => {
-  res.send("Welcome to Express & backend is connected successfully 🥳");
+  res.send("Welcome to Express & backend is connected successfully 🥳🥳");
 });
 
 // setup swagger api docs
@@ -39,5 +39,5 @@ setupSwagger(app);
 app.use("/api/v1/auth", authRouter);
 
 app.listen(port, () => {
-  console.log(`Express is runnung at http://localhost:${port} 🥳`);
+  console.log(`Express is runnung attt http://localhost:${port} 🥳`);
 });
