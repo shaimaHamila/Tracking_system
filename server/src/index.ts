@@ -1,6 +1,5 @@
 import express, { Request, Response, Application } from "express";
 import dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import prisma from "./prisma";
@@ -29,8 +28,8 @@ process.on("SIGTERM", async () => {
   console.log("Prisma disconnected on server termination.");
 });
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to Express & TypeScript Server");
+app.get("/api/v1", (req: Request, res: Response) => {
+  res.send("Welcome to Express & backend is connected successfully 🥳");
 });
 
 // setup swagger api docs
