@@ -1,0 +1,9 @@
+dist/
+node_modules/
+logs/
+data/
+
+.env
+
+# Package lock 
+pnpm-lock.yaml
