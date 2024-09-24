@@ -29,7 +29,9 @@ process.on("SIGTERM", async () => {
 });
 
 app.get("/api/v1", (req: Request, res: Response) => {
-  res.send("Welcome to Express & backend is connected successfully 🥳🥳");
+  res.send(
+    "Welcome to Expresssssssssss & backend is connected successfully 🥳"
+  );
 });
 
 // setup swagger api docs
