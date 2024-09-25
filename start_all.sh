@@ -11,7 +11,7 @@ echo "[INFO] Preparing Backend infrastructure done."
 echo \n\n\n
 
 echo "[INFO] Preparing Frontend infrastructure ................"
-cd ../frontend/
+cd ../client/
 cat .env.example >> .env
 echo -e  >> .env
 echo -e VITE_BASE_URL=https://$(gh codespace view | awk '/Name/{print $2; exit}')-6001.app.github.dev >> .env
