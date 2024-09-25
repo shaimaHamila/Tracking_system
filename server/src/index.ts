@@ -13,7 +13,10 @@ const app: Application = express();
 // Middleware
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL || "http://localhost:3000"],
+    origin: [
+      `${process.env.FRONTEND_URL}`, // Allow requests from your frontend URL
+      "http://localhost:3000", // Allow requests from localhost:3000
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

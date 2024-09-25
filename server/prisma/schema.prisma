@@ -7,9 +7,160 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model user_role {
+  id        Int       @id @default(autoincrement())
+  roleName  String
+  users     userRole[] // This establishes the relationship with the join table
+}
+// Join table for many-to-many relationship
+model userRole {
+  userId   Int
+  roleId   Int
+  user     user       @relation(fields: [userId], references: [id])
+  role     user_role  @relation(fields: [roleId], references: [id])
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  firstName    String?
+  @@id([userId, roleId]) // Composite primary key
+}
+model user {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  firstName String?
+  lastName  String?
+  phone     String?
+  password  String
+
+  // This establishes the many-to-many relationship with user_role through UserRole
+  roles     userRole[] // No default value here
+  createdProjects project[]
+  projects project_user[]
+  assignedTickets ticket[]
+  comments comment[]
+  equipments equipment[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+}
+
+model project {
+  id Int @id @default(autoincrement())
+  name String 
+  description String? 
+  projectType projectType
+  createdById Int?
+  createdBy user?      @relation(fields: [createdById], references: [id]) 
+
+  users project_user[]
+  tickets ticket[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+}
+
+enum projectType {
+  INTERNAL
+  EXTERNAL
+}
+model project_user{
+  userId Int
+  projectId Int
+  user user @relation(fields: [userId], references: [id])
+  project project @relation(fields: [projectId], references: [id])
+  @@id([userId, projectId])
+}
+
+model ticket {
+  id Int @id @default(autoincrement())
+  title String
+  description String?
+
+  type ticketType
+  status ticket_status @relation(fields: [statusId], references: [id])
+  statusId Int
+  priority ticketPriority
+  assignedToId Int?
+  assignedTo user? @relation(fields: [assignedToId], references: [id])
+  projectId Int
+  project project @relation(fields: [projectId], references: [id])
+  comments comment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+enum ticketType {
+  BUG
+  FEATURE
+  CONSULTATION
+  REQUEST
+}
+model ticket_status{
+  id Int @id @default(autoincrement())
+  statusName String
+  tickets ticket[]
+}
+
+enum ticketPriority {
+  LOW         
+  MEDIUM      
+  HIGH        
+  CRITICAL    
+}
+model comment {
+  id Int @id @default(autoincrement())
+  text String
+  atachedFiles String[]
+
+  ticketId Int
+  ticket ticket @relation(fields: [ticketId], references: [id])
+  createdByUserId Int
+
+  createdby user @relation(fields: [createdByUserId], references: [id])
+  reatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model equipment{
+  id Int @id @default(autoincrement())
+  name String
+  serialNumber String
+  purchaseDate DateTime?
+  warrantyEndDate DateTime?
+  purchaseCost Float?
+  purchaseCompany String?
+  brand String?
+
+  category equipment_category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  status equipment_status @relation(fields: [statusId], references: [id])
+  statusId Int
+
+  assignedToId Int?
+  assignedTo user? @relation(fields: [assignedToId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model equipment_status{
+  id Int @id @default(autoincrement())
+  statusName String
+  equipment equipment[]
+}
+model equipment_category{
+  id Int @id @default(autoincrement())
+  categoryName String
+  equipments equipment[]
+}
+
+enum equipmentCondition {
+  OPERATIONAL
+  DAMAGED
+  UNDER_MAINTENANCE
+  REPAIRED
 }
