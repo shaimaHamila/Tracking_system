@@ -14,14 +14,8 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Create new user
-    const newUser = await prisma.user.create({
-      data: {
-        firstName,
-        email,
-      },
-    });
 
-    return res.json(newUser);
+    return res.json("newUser");
   } catch (error) {
     console.error("Error during user signup:", error);
     return res.status(500).json({ error: "Internal server error" });
