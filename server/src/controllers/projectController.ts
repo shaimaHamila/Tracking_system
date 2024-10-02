@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   CreateProjectValidator,
   GetProjectByTypeValidator,
+  UpdateProjectValidator,
 } from "../validators/ProjectValidator";
 import prisma from "../prisma";
 
@@ -151,6 +152,58 @@ export const getProjectById = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, data: project });
   } catch (error) {
     console.error("Error fetching project by ID:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Update Project
+export const updateProject = async (req: Request, res: Response) => {
+  const { error } = UpdateProjectValidator.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
+  }
+
+  try {
+    const { id } = req.params;
+    const { name, description, projectType, clientId, managers, teamMembers } =
+      req.body;
+
+    const existingProject = await prisma.project.findUnique({
+      where: { id: Number(id) },
+    });
+    if (!existingProject) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: { id: Number(id) },
+      data: {
+        name,
+        description,
+        clientId,
+        managers: managers ? { set: managers } : undefined,
+        teamMembers: teamMembers ? { set: teamMembers } : undefined,
+      },
+      include: {
+        client: true,
+        teamMembers: true,
+        managers: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: updatedProject,
+    });
+  } catch (error) {
+    console.error("Error updating project:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
