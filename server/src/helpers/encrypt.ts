@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import * as dotenv from "dotenv";
 
 dotenv.config();

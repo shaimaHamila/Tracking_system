@@ -30,7 +30,7 @@ model user {
   password  String
 
   // This establishes the many-to-many relationship with user_role through UserRole
-  roles     userRole[] // No default value here
+  roles     userRole[] 
   createdProjects project[]
   projects project_user[]
   assignedTickets ticket[]

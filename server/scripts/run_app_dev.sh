@@ -13,19 +13,19 @@ else
 fi
 
 # Sleep for a few seconds
-# sleep 3
+sleep 3
 
 # Seed the database
-# echo "Starting DB seeds deployment........................................................."
-# npx prisma db seed
+echo "Starting DB seeds deployment........................................................."
+npx prisma db seed
 
 # Check if seeding was successful
-# if [ $? -eq 0 ]; then
-#   echo "===========> Database seeding successful."
-# else
-#   echo "-----> Database seeding failed. Exiting."
-#   exit 1
-# fi
+if [ $? -eq 0 ]; then
+  echo "===========> Database seeding successful."
+else
+  echo "-----> Database seeding failed. Exiting."
+  exit 1
+fi
 
 # Sleep for a few seconds
 sleep 3
