@@ -8,38 +8,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 model user_role {
-  id        Int       @id @default(autoincrement())
-  roleName  String
-  users     userRole[] // This establishes the relationship with the join table
-}
-// Join table for many-to-many relationship
-model userRole {
-  userId   Int
-  roleId   Int
-  user     user       @relation(fields: [userId], references: [id])
-  role     user_role  @relation(fields: [roleId], references: [id])
+  id       Int     @id @default(autoincrement())
+  roleName String
 
-  @@id([userId, roleId]) // Composite primary key
+  // One-to-many relationship: a role can have many users
+  users    user[]
 }
+
 model user {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  firstName String?
-  lastName  String?
-  phone     String?
-  password  String
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  firstName    String?
+  lastName     String?
+  phone        String?
+  password     String
 
-  // This establishes the many-to-many relationship with user_role through UserRole
-  roles     userRole[] 
+  // Reference to a single role
+  roleId       Int
+  role         user_role @relation(fields: [roleId], references: [id])
+  test String?
   createdProjects project[]
   projects project_user[]
   assignedTickets ticket[]
   comments comment[]
   equipments equipment[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 }
 
 model project {

@@ -1,5 +1,5 @@
 import express from "express";
-import { signup } from "../controllers/authController";
+import { login, signup } from "../controllers/authController";
 
 const authRouter = express.Router();
 /**
@@ -45,5 +45,6 @@ const authRouter = express.Router();
  *         description: Internal server error
  */
 authRouter.post("/signup", signup);
+authRouter.post("/login", login);
 
 export default authRouter;
