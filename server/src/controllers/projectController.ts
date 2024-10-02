@@ -209,3 +209,30 @@ export const updateProject = async (req: Request, res: Response) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+// Delete Project
+export const deleteProject = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const existingProject = await prisma.project.findUnique({
+      where: { id: Number(id) },
+    });
+    if (!existingProject) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Project not found" });
+    }
+
+    await prisma.project.delete({ where: { id: Number(id) } });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
