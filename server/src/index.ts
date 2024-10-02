@@ -5,6 +5,7 @@ import cors from "cors";
 import prisma from "./prisma";
 import authRouter from "./routes/authRouter";
 import { setupSwagger } from "./swagger";
+import projectRouter from "./routes/projectRouter";
 //For env File
 dotenv.config();
 
@@ -40,6 +41,7 @@ setupSwagger(app);
 
 //Routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/projects", projectRouter);
 
 app.listen(port, () => {
   console.log(`Express is runnung attt http://localhost:${port} 🥳`);
