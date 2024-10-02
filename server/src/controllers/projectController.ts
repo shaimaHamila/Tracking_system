@@ -25,21 +25,43 @@ export const getProjectTypes = (_req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response) => {
   const { error } = CreateProjectValidator.validate(req.body);
   if (error) {
+    console.error("Error during project creation validation:", error);
     return res
       .status(400)
       .json({ success: false, message: error.details[0].message });
   }
+
   try {
-    const { name, description, projectType } = req.body;
-    // const userId =res.locals.decodedToken.id;
+    const { name, description, projectType, clientId, managers, teamMembers } =
+      req.body;
+
+    // Create a new project with client and managers, and optionally team members
     const newProject = await prisma.project.create({
       data: {
         name,
         description,
         projectType,
-        // userId,
+        clientId,
+        managers: {
+          create: managers.map((managerId: number) => ({
+            managerId,
+          })),
+        },
+        teamMembers: teamMembers
+          ? {
+              create: teamMembers.map((staffId: number) => ({
+                staffId,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        client: true,
+        managers: true,
+        teamMembers: true,
       },
     });
+
     return res.status(201).json({
       success: true,
       message: "Project successfully created",
@@ -67,28 +89,6 @@ export const gatAllProjects = async (req: Request, res: Response) => {
       success: true,
       message: "Projects fetched successfully",
       data: projects,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-};
-
-// Get Projects By Type
-
-const getProjectsByType = async (req: Request, res: Response) => {
-  const { error } = GetProjectByTypeValidator.validate(req.body);
-  try {
-    const internalProjects = await prisma.project.findMany({
-      where: {
-        projectType: ProjectType.INTERNAL,
-      },
-    });
-    return res.status(200).json({
-      success: true,
-      message: "Internal projects fetched successfully",
-      data: internalProjects,
     });
   } catch (error) {
     return res
