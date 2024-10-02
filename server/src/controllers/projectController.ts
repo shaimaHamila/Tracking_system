@@ -78,16 +78,43 @@ export const createProject = async (req: Request, res: Response) => {
 export const gatAllProjects = async (req: Request, res: Response) => {
   try {
     const projects = await prisma.project.findMany({
-      // include:{
-      //     createdBy: true,
-      //     managers: true,
-      //     teamMembers: true,
-      //     client: true,
-      // }
+      include: {
+        createdBy: true,
+        managers: true,
+        teamMembers: true,
+        client: true,
+      },
     });
     return res.status(200).json({
       success: true,
       message: "Projects fetched successfully",
+      data: projects,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Get Projects By Type
+export const getProjectsByType = async (req: Request, res: Response) => {
+  const { error } = GetProjectByTypeValidator.validate(req.body);
+  if (error) {
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
+  }
+  try {
+    const { projectType } = req.body;
+    const projects = await prisma.project.findMany({
+      where: {
+        projectType: projectType as ProjectType,
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: `${projectType} projects fetched successfully`,
       data: projects,
     });
   } catch (error) {
