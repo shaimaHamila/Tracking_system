@@ -2,7 +2,7 @@ import express from "express";
 import {
   createProject,
   deleteProject,
-  gatAllProjects,
+  getAllProjects,
   getProjectById,
   getProjectsByType,
   getProjectTypes,
@@ -13,10 +13,10 @@ const projectRouter = express.Router();
 
 projectRouter.get("/types", getProjectTypes);
 projectRouter.post("/", createProject);
-projectRouter.get("/", gatAllProjects);
+projectRouter.get("/all", getAllProjects);
 projectRouter.post("/type", getProjectsByType);
-projectRouter.get("/:id", getProjectById);
+projectRouter.get("/", getProjectById);
 projectRouter.put("/:id", updateProject);
-projectRouter.delete("/:id", deleteProject);
+projectRouter.delete("/", deleteProject);
 
 export default projectRouter;

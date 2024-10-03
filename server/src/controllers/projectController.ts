@@ -5,6 +5,7 @@ import {
   UpdateProjectValidator,
 } from "../validators/ProjectValidator";
 import prisma from "../prisma";
+import { validateUserRole } from "./roleController";
 
 export enum ProjectType {
   INTERNAL = "INTERNAL",
@@ -35,31 +36,81 @@ export const createProject = async (req: Request, res: Response) => {
   try {
     const { name, description, projectType, clientId, managers, teamMembers } =
       req.body;
+    // Parse IDs to ensure they are integers
+    const parsedClientId = parseInt(clientId, 10);
+    const parsedManagers = managers.map((managerId: any) =>
+      parseInt(managerId, 10)
+    );
+    const parsedTeamMembers = teamMembers
+      ? teamMembers.map((staffId: any) => parseInt(staffId, 10))
+      : [];
 
-    // Create a new project with client and managers, and optionally team members
+    // Validate the client
+    await validateUserRole(parsedClientId, "CLIENT");
+
+    // Validate managers and team members
+    for (const managerId of parsedManagers) {
+      await validateUserRole(managerId, "STAFF");
+    }
+
+    if (teamMembers) {
+      for (const staffId of parsedTeamMembers) {
+        await validateUserRole(staffId, "STAFF");
+      }
+    }
+
+    // Create the project in the database
     const newProject = await prisma.project.create({
       data: {
         name,
         description,
         projectType,
-        clientId,
+        clientId: parsedClientId,
         managers: {
-          create: managers.map((managerId: number) => ({
+          create: parsedManagers.map((managerId: number) => ({
             managerId,
           })),
         },
-        teamMembers: teamMembers
+        teamMembers: parsedTeamMembers
           ? {
-              create: teamMembers.map((staffId: number) => ({
+              create: parsedTeamMembers.map((staffId: number) => ({
                 staffId,
               })),
             }
           : undefined,
       },
       include: {
-        client: true,
-        managers: true,
-        teamMembers: true,
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        managers: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        teamMembers: {
+          include: {
+            teamMember: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -68,22 +119,51 @@ export const createProject = async (req: Request, res: Response) => {
       message: "Project successfully created",
       data: newProject,
     });
-  } catch (error) {
-    console.error("Error during project creation:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
+    });
   }
 };
-//Get all projects
-export const gatAllProjects = async (req: Request, res: Response) => {
+// Get all projects
+export const getAllProjects = async (req: Request, res: Response) => {
   try {
     const projects = await prisma.project.findMany({
       include: {
         createdBy: true,
-        managers: true,
-        teamMembers: true,
-        client: true,
+        managers: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        teamMembers: {
+          include: {
+            teamMember: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
     return res.status(200).json({
@@ -92,6 +172,7 @@ export const gatAllProjects = async (req: Request, res: Response) => {
       data: projects,
     });
   } catch (error) {
+    console.error("Error fetching projects:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -112,6 +193,16 @@ export const getProjectsByType = async (req: Request, res: Response) => {
       where: {
         projectType: projectType as ProjectType,
       },
+      include: {
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
     return res.status(200).json({
       success: true,
@@ -119,6 +210,7 @@ export const getProjectsByType = async (req: Request, res: Response) => {
       data: projects,
     });
   } catch (error) {
+    console.error("Error fetching projects by type:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -127,19 +219,50 @@ export const getProjectsByType = async (req: Request, res: Response) => {
 
 // Get Project by ID
 export const getProjectById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (isNaN(Number(id))) {
+  const { id } = req.query;
+  const parsedprojectId = parseInt(id as string, 10);
+
+  if (isNaN(Number(parsedprojectId))) {
     return res
       .status(400)
       .json({ success: false, message: "Invalid project ID" });
   }
   try {
     const project = await prisma.project.findUnique({
-      where: { id: Number(id) },
+      where: { id: parsedprojectId },
       include: {
-        client: true, // Include related data (optional)
-        teamMembers: true,
-        managers: true,
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        teamMembers: {
+          include: {
+            teamMember: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        managers: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -151,7 +274,6 @@ export const getProjectById = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: project });
   } catch (error) {
-    console.error("Error fetching project by ID:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -169,8 +291,7 @@ export const updateProject = async (req: Request, res: Response) => {
 
   try {
     const { id } = req.params;
-    const { name, description, projectType, clientId, managers, teamMembers } =
-      req.body;
+    const { name, description, clientId, managerIds, teamMemberIds } = req.body;
 
     const existingProject = await prisma.project.findUnique({
       where: { id: Number(id) },
@@ -187,13 +308,42 @@ export const updateProject = async (req: Request, res: Response) => {
         name,
         description,
         clientId,
-        managers: managers ? { set: managers } : undefined,
-        teamMembers: teamMembers ? { set: teamMembers } : undefined,
+        managers: managerIds ? { set: managerIds } : undefined,
+        teamMembers: teamMemberIds ? { set: teamMemberIds } : undefined,
       },
       include: {
-        client: true,
-        teamMembers: true,
-        managers: true,
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        teamMembers: {
+          include: {
+            teamMember: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        managers: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -212,11 +362,21 @@ export const updateProject = async (req: Request, res: Response) => {
 
 // Delete Project
 export const deleteProject = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
+  const { id } = req.query;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Project ID is required" });
+  }
+  const parsedprojectId = parseInt(id.toString(), 10);
+  if (isNaN(Number(parsedprojectId))) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid project ID" });
+  }
   try {
     const existingProject = await prisma.project.findUnique({
-      where: { id: Number(id) },
+      where: { id: parsedprojectId },
     });
     if (!existingProject) {
       return res
@@ -224,7 +384,7 @@ export const deleteProject = async (req: Request, res: Response) => {
         .json({ success: false, message: "Project not found" });
     }
 
-    await prisma.project.delete({ where: { id: Number(id) } });
+    await prisma.project.delete({ where: { id: parsedprojectId } });
 
     return res
       .status(200)
