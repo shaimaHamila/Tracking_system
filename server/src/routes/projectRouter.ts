@@ -16,7 +16,7 @@ projectRouter.post("/", createProject);
 projectRouter.get("/all", getAllProjects);
 projectRouter.post("/type", getProjectsByType);
 projectRouter.get("/", getProjectById);
-projectRouter.put("/:id", updateProject);
+projectRouter.put("/", updateProject);
 projectRouter.delete("/", deleteProject);
 
 export default projectRouter;
