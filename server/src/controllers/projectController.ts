@@ -34,6 +34,7 @@ export const createProject = async (req: Request, res: Response) => {
   }
 
   try {
+    //todo add createdby
     const { name, description, projectType, clientId, managers, teamMembers } =
       req.body;
     // Parse IDs to ensure they are integers
@@ -289,28 +290,143 @@ export const updateProject = async (req: Request, res: Response) => {
       .json({ success: false, message: error.details[0].message });
   }
 
-  try {
-    const { id } = req.params;
-    const { name, description, clientId, managerIds, teamMemberIds } = req.body;
+  const { id } = req.query;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Project ID is required" });
+  }
 
-    const existingProject = await prisma.project.findUnique({
-      where: { id: Number(id) },
-    });
-    if (!existingProject) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Project not found" });
+  const parsedProjectId = parseInt(id.toString(), 10);
+  if (isNaN(parsedProjectId)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid project ID" });
+  }
+
+  const existingProject = await prisma.project.findUnique({
+    where: { id: parsedProjectId },
+    include: {
+      managers: true, // Assuming an explicit relation table `managers`
+      teamMembers: true, // Assuming an explicit relation table `teamMembers`
+    },
+  });
+
+  if (!existingProject) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Project not found" });
+  }
+
+  try {
+    const { name, description, clientId, managers, teamMembers } = req.body;
+
+    // Prepare the data object for updating the project
+    const updateData: any = {};
+
+    // Include only provided fields in the update data
+    if (name) updateData.name = name;
+    if (description) updateData.description = description;
+    if (clientId) updateData.clientId = parseInt(clientId, 10);
+
+    // Step 1: Handle managers updates if provided
+    if (managers && managers.length > 0) {
+      try {
+        await Promise.all(
+          managers.map((managerId: number) =>
+            validateUserRole(managerId, "STAFF")
+          )
+        );
+      } catch (validationError: any) {
+        // Catch the validation error and return the response
+        return res.status(400).json({
+          success: false,
+          message: validationError.message,
+        });
+      }
+
+      const existingManagerIds = existingProject.managers.map(
+        (manager: any) => manager.managerId
+      );
+
+      // Determine managers to delete
+      const managersToDelete = existingManagerIds.filter(
+        (id) => !managers.includes(id)
+      );
+
+      // Determine managers to add
+      const managersToAdd = managers.filter(
+        (id: number) => !existingManagerIds.includes(id)
+      );
+
+      // Delete managers not in the updated list
+      await prisma.project_manager.deleteMany({
+        where: {
+          projectId: parsedProjectId,
+          managerId: { in: managersToDelete },
+        },
+      });
+
+      // Add new managers
+      await prisma.project_manager.createMany({
+        data: managersToAdd.map((managerId: number) => ({
+          projectId: parsedProjectId,
+          managerId,
+        })),
+      });
     }
 
+    // Step 2: Handle team members updates if provided
+    if (teamMembers && teamMembers.length > 0) {
+      try {
+        await Promise.all(
+          teamMembers.map((teamMemberId: number) =>
+            validateUserRole(teamMemberId, "STAFF")
+          )
+        );
+      } catch (validationError: any) {
+        // Catch the validation error and return the response
+        return res.status(400).json({
+          success: false,
+          message: validationError.message,
+        });
+      }
+
+      const existingTeamMemberIds = existingProject.teamMembers.map(
+        (teamMember: any) => teamMember.teamMemberId
+      );
+
+      // Determine team members to delete
+      const teamMembersToDelete = existingTeamMemberIds.filter(
+        (id) => !teamMembers.includes(id)
+      );
+
+      // Determine team members to add
+      const teamMembersToAdd = teamMembers.filter(
+        (id: number) => !existingTeamMemberIds.includes(id)
+      );
+
+      // Delete team members not in the updated list
+      await prisma.project_team.deleteMany({
+        where: {
+          projectId: parsedProjectId,
+          teamMemberId: { in: teamMembersToDelete },
+        },
+      });
+
+      // Add new team members
+      await prisma.project_team.createMany({
+        data: teamMembersToAdd.map((teamMemberId: number) => ({
+          projectId: parsedProjectId,
+          teamMemberId,
+        })),
+      });
+    }
+
+    // Step 3: Update the project with the dynamic updateData object
     const updatedProject = await prisma.project.update({
-      where: { id: Number(id) },
-      data: {
-        name,
-        description,
-        clientId,
-        managers: managerIds ? { set: managerIds } : undefined,
-        teamMembers: teamMemberIds ? { set: teamMemberIds } : undefined,
-      },
+      where: { id: parsedProjectId },
+      data: updateData,
       include: {
         client: {
           select: {
