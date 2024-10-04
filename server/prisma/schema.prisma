@@ -26,12 +26,13 @@ model user {
   // Reference to a single role
   roleId       Int
   role         user_role @relation(fields: [roleId], references: [id])
-  test String?
-  createdProjects project[]
-  projects project_user[]
+  createdProjects   project[] @relation("CreatedProjects")
+  projects project_team[]
+  managedProjects project_manager[]
   assignedTickets ticket[]
   comments comment[]
   equipments equipment[]
+  clients           project[] @relation("ClientProjects")
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -42,30 +43,40 @@ model project {
   id Int @id @default(autoincrement())
   name String 
   description String? 
-  projectType projectType
+  projectType ProjectType
   createdById Int?
-  createdBy user?      @relation(fields: [createdById], references: [id]) 
+  createdBy user?  @relation("CreatedProjects", fields: [createdById], references: [id]) 
+  clientId Int?
+  client user? @relation("ClientProjects", fields: [clientId], references: [id])
+  // Set cascading delete for related models
+  teamMembers    project_team[]  
+  managers       project_manager[]
+  tickets        ticket[]  
 
-  users project_user[]
-  tickets ticket[]
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?
 }
 
-enum projectType {
+enum ProjectType {
   INTERNAL
   EXTERNAL
 }
-model project_user{
-  userId Int
+model project_team{
+  teamMemberId Int
   projectId Int
-  user user @relation(fields: [userId], references: [id])
-  project project @relation(fields: [projectId], references: [id])
-  @@id([userId, projectId])
+  teamMember user @relation(fields: [teamMemberId], references: [id])
+  project        project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@id([teamMemberId, projectId])
 }
-
+model project_manager{
+  managerId Int
+  projectId Int
+  manager user @relation(fields: [managerId], references: [id])
+  project  project         @relation(fields: [projectId], references: [id], onDelete: Cascade)  
+  @@id([managerId, projectId])
+}
 model ticket {
   id Int @id @default(autoincrement())
   title String
@@ -78,7 +89,7 @@ model ticket {
   assignedToId Int?
   assignedTo user? @relation(fields: [assignedToId], references: [id])
   projectId Int
-  project project @relation(fields: [projectId], references: [id])
+  project  project  @relation(fields: [projectId], references: [id], onDelete: Cascade)                     
   comments comment[]
 
   createdAt DateTime @default(now())
