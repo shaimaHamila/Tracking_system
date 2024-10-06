@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Responses } from "../helpers/responses";
 import { createEquipmentValidator } from "../validators/EquipmentValidator";
+import { validateUserRole } from "./RoleController";
 
 export enum EquipmentCondition {
   OPERATIONAL = "OPERATIONAL",
@@ -31,13 +32,36 @@ export const createEquipment = async (req: Request, res: Response) => {
   }
 
   try {
+    const { categoryId, assignedToId, ...equipmentData } = req.body;
+
+    if (!categoryId) {
+      try {
+        await validateUserRole(assignedToId, "STAFF");
+      } catch (validationError: any) {
+        return Responses.BadRequest(res, validationError.message);
+      }
+    }
+
+    // Verify if the provided categoryId exists in the database
+    if (categoryId) {
+      const categoryExists = await prisma.equipmentCategory.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (!categoryExists) {
+        return Responses.BadRequest(
+          res,
+          "Invalid category ID: Category does not exist."
+        );
+      }
+    }
     const equipment = await prisma.equipment.create({
       data: {
-        ...req.body,
-        category: { connect: { id: req.body.categoryId } }, // Ensure categoryId exists and connect it
-        assignedTo: req.body.assignedToId
-          ? { connect: { id: req.body.assignedToId } }
-          : undefined, // Ensure assignedToId exists and connect it
+        ...equipmentData,
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
+        assignedTo: assignedToId
+          ? { connect: { id: assignedToId } }
+          : undefined,
       },
     });
     return Responses.CreateSucess(res, equipment);
@@ -126,7 +150,6 @@ export const updateEquipment = async (req: Request, res: Response) => {
         brand,
         categoryId,
         condition,
-        statusId,
         assignedToId,
       },
     });
