@@ -5,7 +5,7 @@ import {
   UpdateProjectValidator,
 } from "../validators/ProjectValidator";
 import prisma from "../prisma";
-import { validateUserRole } from "./roleController";
+import { validateUserRole } from "./RoleController";
 import { Responses } from "../helpers/responses";
 import { getUserFromToken } from "../helpers/getUserFromToken";
 

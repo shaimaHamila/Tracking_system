@@ -1,4 +1,4 @@
-export const InitUserRoles = async (prismaClient: any) => {
+export const InitEquipmentCategories = async (prismaClient: any) => {
   const categories = [
     { categoryName: "Desktops" },
     { categoryName: "Laptops" },
@@ -16,7 +16,7 @@ export const InitUserRoles = async (prismaClient: any) => {
   ];
   // Create multiple categories
   for (const category of categories) {
-    await prismaClient.equipment_category.upsert({
+    await prismaClient.equipmentCategory.upsert({
       where: { categoryName: category.categoryName }, // Assuming categoryName is unique
       update: {}, // No updates needed
       create: category, // Create new category if it doesn't exist

@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import prisma from "./prisma";
-import authRouter from "./routes/authRouter";
+import authRouter from "./routes/AuthRouter";
 import { setupSwagger } from "./swagger";
-import projectRouter from "./routes/projectRouter";
+import projectRouter from "./routes/ProjectRouter";
 //For env File
 dotenv.config();
 
