@@ -37,6 +37,8 @@ export const createProject = async (req: Request, res: Response) => {
     //todo add createdby
     const { name, description, projectType, clientId, managers, teamMembers } =
       req.body;
+    // const { user } = await getCurrentUserFromToken(userToken);
+
     // Parse IDs to ensure they are integers
     const parsedClientId = parseInt(clientId, 10);
     const parsedManagers = managers.map((managerId: any) =>
@@ -307,8 +309,8 @@ export const updateProject = async (req: Request, res: Response) => {
   const existingProject = await prisma.project.findUnique({
     where: { id: parsedProjectId },
     include: {
-      managers: true, // Assuming an explicit relation table `managers`
-      teamMembers: true, // Assuming an explicit relation table `teamMembers`
+      managers: true,
+      teamMembers: true,
     },
   });
 

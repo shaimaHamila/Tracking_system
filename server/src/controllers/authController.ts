@@ -6,28 +6,25 @@ import {
 import { encrypt } from "../helpers/encrypt";
 import prisma from "../prisma";
 
+import { TokenResultType } from "../types/TokenResultType";
+import { Responses } from "../helpers/responses";
+
+// User signup function
 export const signup = async (req: Request, res: Response) => {
   // Validate the user input
   const { error } = UserSignupValidator.validate(req.body);
   if (error) {
     console.error("Error during user signup validation:", error);
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+    return Responses.ValidationBadRequest(res, error);
   }
 
   try {
     const { firstName, lastName, email, password, roleId } = req.body;
 
     // Check if the user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+      return Responses.AlreadyExists(res, "User already exists.");
     }
 
     // Hash the password before storing it
@@ -62,38 +59,31 @@ export const signup = async (req: Request, res: Response) => {
       },
     });
 
-    // Return success response with user data and role information
-    return res.status(201).json({
-      success: true,
-      message: "User successfully created",
-      user: {
-        id: newUser.id,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        email: newUser.email,
-        createdAt: newUser.createdAt,
-        role: {
-          id: newUser.role.id,
-          roleName: newUser.role.roleName,
-        },
+    // Use structured success response
+    return Responses.CreateSucess(res, {
+      id: newUser.id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      createdAt: newUser.createdAt,
+      role: {
+        id: newUser.role.id,
+        roleName: newUser.role.roleName,
       },
     });
   } catch (error) {
     console.error("Error during user signup:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Internal server error.");
   }
 };
 
+// User login function
 export const login = async (req: Request, res: Response) => {
   // Validate the user input
   const { error } = UserLoginValidator.validate(req.body);
   if (error) {
     console.error("Error during user login validation:", error);
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+    return Responses.ValidationBadRequest(res, error);
   }
 
   try {
@@ -113,9 +103,7 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return Responses.NotFound(res, "User not found.");
     }
 
     // Check if the password is correct
@@ -123,22 +111,21 @@ export const login = async (req: Request, res: Response) => {
       password,
       user.password
     );
-
     if (!isPasswordCorrect) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid password" });
+      return Responses.Unauthorized(res, "Invalid password.");
     }
 
     // Generate JWT tokens
-    const accessToken = encrypt.generateToken(user);
-    const refreshToken = encrypt.generateRefreshToken(user);
+    const accessToken = encrypt.generateToken(user.id);
+    const refreshToken = encrypt.generateRefreshToken(user.id);
 
-    // Return success response with user data and role information
-    return res.status(200).json({
-      success: true,
-      message: "User successfully logged in",
-      user: {
+    // Construct the token result for response
+    const tokenResult: TokenResultType = { accessToken, refreshToken };
+
+    // Use structured login success response
+    return Responses.LoginSuccess(
+      res,
+      {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -148,14 +135,11 @@ export const login = async (req: Request, res: Response) => {
           id: user.role?.id,
           roleName: user.role?.roleName,
         },
-        accessToken,
-        refreshToken,
       },
-    });
+      tokenResult
+    );
   } catch (error) {
     console.error("Error during user login:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Internal server error.");
   }
 };
