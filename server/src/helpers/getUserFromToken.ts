@@ -2,7 +2,7 @@ import prisma from "../prisma";
 import { encrypt } from "./encrypt"; // Adjust the path based on your folder structure
 
 // Function to get the current user from a token
-export const getCurrentUserFromToken = async (token: string) => {
+export const getUserFromToken = async (token: string) => {
   try {
     if (!token) {
       return {
