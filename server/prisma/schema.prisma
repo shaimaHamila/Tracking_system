@@ -145,7 +145,6 @@ model equipment{
   categoryId        Int?
 
   condition  EquipmentCondition @default(OPERATIONAL)
-  statusId Int
 
   assignedTo user? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
   assignedToId Int?
