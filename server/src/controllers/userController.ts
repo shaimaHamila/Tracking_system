@@ -63,7 +63,6 @@ export const createUser = async (req: Request, res: Response) => {
     });
     return Responses.CreateSucess(res, user);
   } catch (error) {
-    console.error("Error creating user:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
@@ -237,7 +236,29 @@ export const updateUser = async (req: Request, res: Response) => {
     });
     return Responses.UpdateSucess(res, user);
   } catch (error) {
-    console.error("Error updating user:", error);
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Delete user
+export const deleteUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+    });
+    if (!user) {
+      return Responses.NotFound(res, "User not found.");
+    }
+
+    await prisma.user.delete({
+      where: { id: Number(id) },
+    });
+
+    return Responses.DeleteSuccess(res);
+  } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
