@@ -102,6 +102,17 @@ export const getAllEquipments = async (req: Request, res: Response) => {
       where: filters,
       skip,
       take,
+      include: {
+        category: true,
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
 
     // Get the total count of equipments with the same filters (for consistent pagination)
@@ -138,11 +149,10 @@ export const getEquipmentById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
     });
     if (!equipment) {
-      return Responses.NotFound(res, "Equipment not found."); // Adjusted response method
+      return Responses.NotFound(res, "Equipment not found.");
     }
-    return Responses.OperationSuccess(res, equipment); // Adjusted response method
+    return Responses.FetchSucess(res, equipment);
   } catch (error) {
-    console.error("Error fetching equipment by ID:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
@@ -160,7 +170,6 @@ export const updateEquipment = async (req: Request, res: Response) => {
     brand,
     categoryId,
     condition,
-    statusId,
     assignedToId,
   } = req.body;
 
