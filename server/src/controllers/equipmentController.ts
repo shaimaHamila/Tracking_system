@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
-import { Responses } from "../helpers/responses";
+import { Responses } from "../helpers/Responses";
 import {
   createEquipmentValidator,
   updateEquipmentValidator,
@@ -36,7 +36,12 @@ export const createEquipment = async (req: Request, res: Response) => {
 
     if (assignedToId) {
       try {
-        await validateUserRole(assignedToId, "STAFF");
+        await validateUserRole(assignedToId, [
+          "STAFF",
+          "ADMIN",
+          "SUPERADMIN",
+          "TECHNICAL_MANAGER",
+        ]);
       } catch (validationError: any) {
         return Responses.BadRequest(res, validationError.message);
       }
@@ -231,7 +236,6 @@ export const updateEquipment = async (req: Request, res: Response) => {
     });
     return Responses.UpdateSucess(res, equipment);
   } catch (error) {
-    console.error("Error updating equipment:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };

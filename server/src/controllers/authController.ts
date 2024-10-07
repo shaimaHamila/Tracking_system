@@ -3,11 +3,11 @@ import {
   UserLoginValidator,
   UserSignupValidator,
 } from "../validators/AuthValidator";
-import { encrypt } from "../helpers/encrypt";
+import { encrypt } from "../helpers/Encrypt";
 import prisma from "../prisma";
 
 import { TokenResultType } from "../types/TokenResultType";
-import { Responses } from "../helpers/responses";
+import { Responses } from "../helpers/Responses";
 
 // User signup function
 export const signup = async (req: Request, res: Response) => {

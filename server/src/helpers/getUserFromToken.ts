@@ -1,5 +1,5 @@
 import prisma from "../prisma";
-import { encrypt } from "./encrypt"; // Adjust the path based on your folder structure
+import { encrypt } from "./Encrypt"; // Adjust the path based on your folder structure
 
 // Function to get the current user from a token
 export const getUserFromToken = async (token: string) => {

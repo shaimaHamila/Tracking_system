@@ -6,8 +6,8 @@ import {
 } from "../validators/ProjectValidator";
 import prisma from "../prisma";
 import { validateUserRole } from "./RoleController";
-import { Responses } from "../helpers/responses";
-import { getUserFromToken } from "../helpers/getUserFromToken";
+import { Responses } from "../helpers/Responses";
+import { getUserFromToken } from "../helpers/GetUserFromToken";
 
 export enum ProjectType {
   INTERNAL = "INTERNAL",
