@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Responses } from "../helpers/responses";
-import { createEquipmentValidator } from "../validators/EquipmentValidator";
+import {
+  createEquipmentValidator,
+  updateEquipmentValidator,
+} from "../validators/EquipmentValidator";
 import { validateUserRole } from "./RoleController";
 
 export enum EquipmentCondition {
@@ -23,9 +26,7 @@ export const getEquipmentConditions = async (req: Request, res: Response) => {
 
 // Create new equipment
 export const createEquipment = async (req: Request, res: Response) => {
-  const { error } = createEquipmentValidator.validate(req.body, {
-    abortEarly: false,
-  });
+  const { error } = createEquipmentValidator.validate(req.body);
   if (error) {
     return Responses.ValidationBadRequest(res, error);
   }
@@ -33,7 +34,7 @@ export const createEquipment = async (req: Request, res: Response) => {
   try {
     const { categoryId, assignedToId, ...equipmentData } = req.body;
 
-    if (!categoryId) {
+    if (assignedToId) {
       try {
         await validateUserRole(assignedToId, "STAFF");
       } catch (validationError: any) {
@@ -147,6 +148,17 @@ export const getEquipmentById = async (req: Request, res: Response) => {
   try {
     const equipment = await prisma.equipment.findUnique({
       where: { id: Number(id) },
+      include: {
+        category: true,
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
     if (!equipment) {
       return Responses.NotFound(res, "Equipment not found.");
@@ -160,36 +172,64 @@ export const getEquipmentById = async (req: Request, res: Response) => {
 // Update equipment
 export const updateEquipment = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const {
-    name,
-    serialNumber,
-    purchaseDate,
-    warrantyEndDate,
-    purchaseCost,
-    purchaseCompany,
-    brand,
-    categoryId,
-    condition,
-    assignedToId,
-  } = req.body;
 
+  const { error } = updateEquipmentValidator.validate(req.body);
+
+  if (error) {
+    return Responses.ValidationBadRequest(res, error);
+  }
   try {
+    const { categoryId, assignedToId, ...updatedEquipmentData } = req.body;
+
+    if (assignedToId) {
+      try {
+        await validateUserRole(assignedToId, [
+          "STAFF",
+          "ADMIN",
+          "SUPERADMIN",
+          "TECHNICAL_MANAGER",
+        ]);
+      } catch (validationError: any) {
+        return Responses.BadRequest(res, validationError.message);
+      }
+    }
+
+    // Verify if the provided categoryId exists in the database
+    if (categoryId) {
+      const categoryExists = await prisma.equipmentCategory.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (!categoryExists) {
+        return Responses.BadRequest(
+          res,
+          "Invalid category ID: Category does not exist."
+        );
+      }
+    }
+
     const equipment = await prisma.equipment.update({
       where: { id: Number(id) },
       data: {
-        name,
-        serialNumber,
-        purchaseDate,
-        warrantyEndDate,
-        purchaseCost,
-        purchaseCompany,
-        brand,
-        categoryId,
-        condition,
-        assignedToId,
+        ...updatedEquipmentData,
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
+        assignedTo: assignedToId
+          ? { connect: { id: assignedToId } }
+          : undefined,
+      },
+      include: {
+        category: true,
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
-    return Responses.UpdateSucess(res, equipment); // Adjusted response method
+    return Responses.UpdateSucess(res, equipment);
   } catch (error) {
     console.error("Error updating equipment:", error);
     return Responses.InternalServerError(res, "Internal server error.");
@@ -201,12 +241,20 @@ export const deleteEquipment = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
+    // Check if equipment exists
+    const equipment = await prisma.equipment.findUnique({
+      where: { id: Number(id) },
+    });
+    if (!equipment) {
+      return Responses.NotFound(res, "Equipment not found.");
+    }
+
     await prisma.equipment.delete({
       where: { id: Number(id) },
     });
-    return Responses.DeleteSuccess(res); // Adjusted response method
+
+    return Responses.DeleteSuccess(res);
   } catch (error) {
-    console.error("Error deleting equipment:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
