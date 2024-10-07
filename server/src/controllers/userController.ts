@@ -125,7 +125,39 @@ export const getAllUsers = async (req: Request, res: Response) => {
     };
     return Responses.FetchPagedSucess(res, responsePayload);
   } catch (error) {
-    console.error("Error fetching users:", error);
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Get user by ID
+export const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        role: true,
+        equipments: {
+          select: {
+            id: true,
+            name: true,
+            serialNumber: true,
+            condition: true,
+          },
+        },
+      },
+    });
+    if (!user) {
+      return Responses.NotFound(res, "User not found.");
+    }
+    return Responses.FetchSucess(res, user);
+  } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
