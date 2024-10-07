@@ -64,3 +64,68 @@ export const createUser = async (req: Request, res: Response) => {
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
+
+// Get all users with filtering and pagination
+export const getAllUsers = async (req: Request, res: Response) => {
+  const { page, pageSize, firstName, roleId } = req.query;
+
+  const skip =
+    page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
+  const take = page && pageSize ? Number(pageSize) : undefined;
+
+  try {
+    // Construct the filter options for the `findMany` query
+    const filters = {
+      ...(firstName ? { firstName: { contains: String(firstName) } } : {}),
+      ...(roleId ? { roleId: Number(roleId) } : {}),
+    };
+
+    // Fetch user data with pagination and filtering
+    const users = await prisma.user.findMany({
+      where: filters,
+      skip,
+      take,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        role: true,
+        equipments: {
+          select: {
+            id: true,
+            name: true,
+            serialNumber: true,
+            condition: true,
+          },
+        },
+      },
+    });
+
+    // Get the total count of users with the same filters (for consistent pagination)
+    const totalCount = await prisma.user.count({
+      where: filters,
+    });
+
+    const responsePayload = {
+      data: users,
+      meta:
+        page && pageSize
+          ? {
+              totalCount,
+              totalPages: Math.ceil(totalCount / (take ?? 1)),
+              currentPage: Number(page),
+              pageSize: Number(pageSize),
+            }
+          : {
+              totalCount,
+            },
+    };
+    return Responses.FetchPagedSucess(res, responsePayload);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
