@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { Responses } from "../helpers/Responses";
 import prisma from "../prisma";
-import { createUserValidator } from "../validators/UserValidator";
+import {
+  createUserValidator,
+  updateUserValidator,
+} from "../validators/UserValidator";
 import { encrypt } from "../helpers/Encrypt";
 
 // Create new user
@@ -158,6 +161,83 @@ export const getUserById = async (req: Request, res: Response) => {
     }
     return Responses.FetchSucess(res, user);
   } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Update user
+export const updateUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const { error } = updateUserValidator.validate(req.body);
+
+  if (error) {
+    return Responses.ValidationBadRequest(res, error);
+  }
+
+  try {
+    const { roleId, equipmentIds, ...updatedUserData } = req.body;
+
+    // Validate if the provided roleId exists in the database
+    if (roleId) {
+      const roleExists = await prisma.user_role.findUnique({
+        where: { id: roleId },
+      });
+
+      if (!roleExists) {
+        return Responses.BadRequest(
+          res,
+          "Invalid role ID: Role does not exist."
+        );
+      }
+    }
+
+    // Check if all provided equipmentIds exist in the database
+    if (equipmentIds && equipmentIds.length > 0) {
+      const existingEquipment = await prisma.equipment.findMany({
+        where: { id: { in: equipmentIds } },
+        select: { id: true },
+      });
+
+      // If the number of existing equipment is less than expected, return an error
+      if (existingEquipment.length !== equipmentIds.length) {
+        return Responses.BadRequest(
+          res,
+          "Some equipment IDs are invalid or do not exist."
+        );
+      }
+    }
+
+    const user = await prisma.user.update({
+      where: { id: Number(id) },
+      data: {
+        ...updatedUserData,
+        role: roleId ? { connect: { id: roleId } } : undefined,
+        equipments: equipmentIds
+          ? { connect: equipmentIds.map((id: number) => ({ id })) }
+          : undefined,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        role: true,
+        equipments: {
+          select: {
+            id: true,
+            name: true,
+            serialNumber: true,
+            condition: true,
+          },
+        },
+      },
+    });
+    return Responses.UpdateSucess(res, user);
+  } catch (error) {
+    console.error("Error updating user:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
