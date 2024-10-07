@@ -17,7 +17,6 @@ export const getEquipmentConditions = async (req: Request, res: Response) => {
     const conditions = Object.values(EquipmentCondition);
     return Responses.OperationSuccess(res, conditions);
   } catch (error) {
-    console.error("Error fetching equipment conditions:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
@@ -63,6 +62,17 @@ export const createEquipment = async (req: Request, res: Response) => {
           ? { connect: { id: assignedToId } }
           : undefined,
       },
+      include: {
+        category: true,
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
     return Responses.CreateSucess(res, equipment);
   } catch (error) {
@@ -72,32 +82,49 @@ export const createEquipment = async (req: Request, res: Response) => {
 
 // Get all equipment with filtering and pagination
 export const getAllEquipments = async (req: Request, res: Response) => {
-  const { page = 1, pageSize = 10, condition } = req.query;
+  const { page, pageSize, serialNumber, condition } = req.query;
 
-  const skip = (Number(page) - 1) * Number(pageSize);
-  const take = Number(pageSize);
+  const skip =
+    page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
+  const take = page && pageSize ? Number(pageSize) : undefined;
 
   try {
+    // Construct the filter options for the `findMany` query
+    const filters = {
+      ...(serialNumber
+        ? { serialNumber: { equals: String(serialNumber) } }
+        : {}),
+      ...(condition ? { condition: condition as EquipmentCondition } : {}),
+    };
+
+    // Fetch equipment data with pagination and filtering
     const equipments = await prisma.equipment.findMany({
+      where: filters,
       skip,
       take,
-      // where: condition ? { condition } : {},
-    });
-    const totalCount = await prisma.equipment.count({
-      // where: condition ? { condition } : {},
     });
 
-    return Responses.FetchPagedSucess(res, {
+    // Get the total count of equipments with the same filters (for consistent pagination)
+    const totalCount = await prisma.equipment.count({
+      where: filters,
+    });
+
+    const responsePayload = {
       data: equipments,
-      meta: {
-        totalCount,
-        totalPages: Math.ceil(totalCount / take),
-        currentPage: Number(page),
-        pageSize: Number(pageSize),
-      },
-    }); // Adjusted response method
+      meta:
+        page && pageSize
+          ? {
+              totalCount,
+              totalPages: Math.ceil(totalCount / (take ?? 1)), // Calculate pages only when pagination is applied
+              currentPage: Number(page),
+              pageSize: Number(pageSize),
+            }
+          : {
+              totalCount,
+            },
+    };
+    return Responses.FetchPagedSucess(res, responsePayload);
   } catch (error) {
-    console.error("Error fetching all equipments:", error);
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
