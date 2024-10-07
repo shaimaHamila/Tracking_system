@@ -133,39 +133,36 @@ model comment {
 model equipment{
   id Int @id @default(autoincrement())
   name String
-  serialNumber String
+  serialNumber     String             @unique
   purchaseDate DateTime?
   warrantyEndDate DateTime?
   purchaseCost Float?
   purchaseCompany String?
   brand String?
 
-  category equipment_category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+    // Relationships
+  category          equipmentCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId        Int?
 
-  status equipment_status @relation(fields: [statusId], references: [id])
-  statusId Int
+  condition  EquipmentCondition @default(OPERATIONAL)
 
+  assignedTo user? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
   assignedToId Int?
-  assignedTo user? @relation(fields: [assignedToId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+
+  @@index([serialNumber], name: "idx_serialNumber")
 }
 
-model equipment_status{
+model equipmentCategory{
   id Int @id @default(autoincrement())
-  statusName String
-  equipment equipment[]
-}
-model equipment_category{
-  id Int @id @default(autoincrement())
-  categoryName String
+  categoryName     String             @unique
   equipments equipment[]
 }
 
-enum equipmentCondition {
+enum EquipmentCondition {
   OPERATIONAL
   DAMAGED
   UNDER_MAINTENANCE

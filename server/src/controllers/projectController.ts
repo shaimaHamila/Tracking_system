@@ -5,7 +5,9 @@ import {
   UpdateProjectValidator,
 } from "../validators/ProjectValidator";
 import prisma from "../prisma";
-import { validateUserRole } from "./roleController";
+import { validateUserRole } from "./RoleController";
+import { Responses } from "../helpers/Responses";
+import { getUserFromToken } from "../helpers/GetUserFromToken";
 
 export enum ProjectType {
   INTERNAL = "INTERNAL",
@@ -15,28 +17,22 @@ export enum ProjectType {
 export const getProjectTypes = (_req: Request, res: Response) => {
   // Convert the enum to a list of values
   const projectTypes = Object.values(ProjectType);
-
-  return res.status(200).json({
-    success: true,
-    message: "Project types fetched successfully",
-    data: projectTypes,
-  });
+  return Responses.FetchSucess(res, projectTypes);
 };
 
 //Create a new project
 export const createProject = async (req: Request, res: Response) => {
   const { error } = CreateProjectValidator.validate(req.body);
   if (error) {
-    console.error("Error during project creation validation:", error);
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+    return Responses.ValidationBadRequest(res, error);
   }
 
   try {
     //todo add createdby
     const { name, description, projectType, clientId, managers, teamMembers } =
       req.body;
+    // const { user } = await getUserFromToken(accessToken);
+
     // Parse IDs to ensure they are integers
     const parsedClientId = parseInt(clientId, 10);
     const parsedManagers = managers.map((managerId: any) =>
@@ -46,18 +42,23 @@ export const createProject = async (req: Request, res: Response) => {
       ? teamMembers.map((staffId: any) => parseInt(staffId, 10))
       : [];
 
-    // Validate the client
-    await validateUserRole(parsedClientId, "CLIENT");
-
-    // Validate managers and team members
-    for (const managerId of parsedManagers) {
-      await validateUserRole(managerId, "STAFF");
-    }
-
-    if (teamMembers) {
-      for (const staffId of parsedTeamMembers) {
-        await validateUserRole(staffId, "STAFF");
-      }
+    try {
+      await Promise.all([
+        // Validate the client
+        validateUserRole(parsedClientId, "CLIENT"),
+        // Validate managers
+        ...parsedManagers.map((managerId: number) =>
+          validateUserRole(managerId, "STAFF")
+        ),
+        // Validate team members if they exist
+        ...(teamMembers
+          ? parsedTeamMembers.map((staffId: number) =>
+              validateUserRole(staffId, "STAFF")
+            )
+          : []),
+      ]);
+    } catch (validationError: any) {
+      return Responses.BadRequest(res, validationError.message);
     }
 
     // Create the project in the database
@@ -115,16 +116,9 @@ export const createProject = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(201).json({
-      success: true,
-      message: "Project successfully created",
-      data: newProject,
-    });
+    return Responses.CreateSucess(res, newProject);
   } catch (error: any) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Internal server error",
-    });
+    return Responses.InternalServerError(res, error.message);
   }
 };
 // Get all projects
@@ -167,16 +161,9 @@ export const getAllProjects = async (req: Request, res: Response) => {
         },
       },
     });
-    return res.status(200).json({
-      success: true,
-      message: "Projects fetched successfully",
-      data: projects,
-    });
+    return Responses.FetchSucess(res, projects);
   } catch (error) {
-    console.error("Error fetching projects:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Error fetching projects.");
   }
 };
 
@@ -184,9 +171,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
 export const getProjectsByType = async (req: Request, res: Response) => {
   const { error } = GetProjectByTypeValidator.validate(req.body);
   if (error) {
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+    return Responses.ValidationBadRequest(res, error);
   }
   try {
     const { projectType } = req.body;
@@ -205,16 +190,12 @@ export const getProjectsByType = async (req: Request, res: Response) => {
         },
       },
     });
-    return res.status(200).json({
-      success: true,
-      message: `${projectType} projects fetched successfully`,
-      data: projects,
-    });
+    return Responses.FetchSucess(res, projects);
   } catch (error) {
-    console.error("Error fetching projects by type:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(
+      res,
+      "Error fetching projects by type."
+    );
   }
 };
 
@@ -224,9 +205,7 @@ export const getProjectById = async (req: Request, res: Response) => {
   const parsedprojectId = parseInt(id as string, 10);
 
   if (isNaN(Number(parsedprojectId))) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid project ID" });
+    return Responses.BadRequest(res, "Invalid project ID");
   }
   try {
     const project = await prisma.project.findUnique({
@@ -268,16 +247,12 @@ export const getProjectById = async (req: Request, res: Response) => {
     });
 
     if (!project) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Project not found" });
+      return Responses.NotFound(res, "Project not found");
     }
 
-    return res.status(200).json({ success: true, data: project });
+    return Responses.FetchSucess(res, project);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Error fetching project by ID.");
   }
 };
 
@@ -285,37 +260,29 @@ export const getProjectById = async (req: Request, res: Response) => {
 export const updateProject = async (req: Request, res: Response) => {
   const { error } = UpdateProjectValidator.validate(req.body);
   if (error) {
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+    return Responses.ValidationBadRequest(res, error);
   }
 
   const { id } = req.query;
   if (!id) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Project ID is required" });
+    return Responses.BadRequest(res, "Project ID is required");
   }
 
   const parsedProjectId = parseInt(id.toString(), 10);
   if (isNaN(parsedProjectId)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid project ID" });
+    return Responses.BadRequest(res, "Invalid project ID");
   }
 
   const existingProject = await prisma.project.findUnique({
     where: { id: parsedProjectId },
     include: {
-      managers: true, // Assuming an explicit relation table `managers`
-      teamMembers: true, // Assuming an explicit relation table `teamMembers`
+      managers: true,
+      teamMembers: true,
     },
   });
 
   if (!existingProject) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Project not found" });
+    return Responses.NotFound(res, "Project not found");
   }
 
   try {
@@ -328,7 +295,7 @@ export const updateProject = async (req: Request, res: Response) => {
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (clientId) updateData.clientId = parseInt(clientId, 10);
-
+    // ***
     // Step 1: Handle managers updates if provided
     if (managers && managers.length > 0) {
       try {
@@ -338,11 +305,7 @@ export const updateProject = async (req: Request, res: Response) => {
           )
         );
       } catch (validationError: any) {
-        // Catch the validation error and return the response
-        return res.status(400).json({
-          success: false,
-          message: validationError.message,
-        });
+        return Responses.BadRequest(res, validationError.message);
       }
 
       const existingManagerIds = existingProject.managers.map(
@@ -385,11 +348,7 @@ export const updateProject = async (req: Request, res: Response) => {
           )
         );
       } catch (validationError: any) {
-        // Catch the validation error and return the response
-        return res.status(400).json({
-          success: false,
-          message: validationError.message,
-        });
+        return Responses.BadRequest(res, validationError.message);
       }
 
       const existingTeamMemberIds = existingProject.teamMembers.map(
@@ -463,16 +422,9 @@ export const updateProject = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Project updated successfully",
-      data: updatedProject,
-    });
+    return Responses.UpdateSucess(res, updatedProject);
   } catch (error) {
-    console.error("Error updating project:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Error updating project.");
   }
 };
 
@@ -480,35 +432,24 @@ export const updateProject = async (req: Request, res: Response) => {
 export const deleteProject = async (req: Request, res: Response) => {
   const { id } = req.query;
   if (!id) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Project ID is required" });
+    return Responses.BadRequest(res, "Project ID is required");
   }
   const parsedprojectId = parseInt(id.toString(), 10);
   if (isNaN(Number(parsedprojectId))) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid project ID" });
+    return Responses.BadRequest(res, "Invalid project ID");
   }
   try {
     const existingProject = await prisma.project.findUnique({
       where: { id: parsedprojectId },
     });
     if (!existingProject) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Project not found" });
+      return Responses.NotFound(res, "Project not found");
     }
 
     await prisma.project.delete({ where: { id: parsedprojectId } });
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Project deleted successfully" });
+    return Responses.DeleteSuccess(res);
   } catch (error) {
-    console.error("Error deleting project:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return Responses.InternalServerError(res, "Error deleting project.");
   }
 };

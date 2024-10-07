@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import * as dotenv from "dotenv";
-
+import ms from "ms";
 dotenv.config();
 
 export class encrypt {
@@ -22,7 +22,7 @@ export class encrypt {
   static verifyToken(token: any) {
     if (!process.env.JWT_TOKEN_SECRET)
       throw new Error("TOKEN_SECRET is undefined");
-    return jwt.verify(token, process.env.JWT_TOKEN_SECRET);
+    return jwt.verify(token, process.env.JWT_TOKEN_SECRET) as jwt.JwtPayload;
   }
   static generateRefreshToken(tokenData: any) {
     if (!process.env.JWT_REFRESH_TOKEN_SECRET)
@@ -31,4 +31,8 @@ export class encrypt {
       expiresIn: process.env.JWT_REFRESH_EXP_IN,
     });
   }
+  static getEstimatedAccessTokenExp = () =>
+    new Date(Date.now() + ms(process.env.JWT_EXP_IN!));
+  static getEstimatedRefreshTokenExp = () =>
+    new Date(Date.now() + ms(process.env.JWT_REFRESH_EXP_IN!));
 }

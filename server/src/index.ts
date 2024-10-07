@@ -3,9 +3,11 @@ import dotenv from "dotenv";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import prisma from "./prisma";
-import authRouter from "./routes/authRouter";
+import authRouter from "./routes/AuthRouter";
 import { setupSwagger } from "./swagger";
-import projectRouter from "./routes/projectRouter";
+import projectRouter from "./routes/ProjectRouter";
+import equipmentRouter from "./routes/EquipmentRouter";
+import userRouter from "./routes/UserRouter";
 //For env File
 dotenv.config();
 
@@ -41,7 +43,9 @@ setupSwagger(app);
 
 //Routes
 app.use("/api/v1/auth", authRouter);
-app.use("/api/projects", projectRouter);
+app.use("/api/v1/project", projectRouter);
+app.use("/api/v1/equipment", equipmentRouter);
+app.use("/api/v1/user", userRouter);
 
 app.listen(port, () => {
   console.log(`Express is runnung attt http://localhost:${port} 🥳`);
