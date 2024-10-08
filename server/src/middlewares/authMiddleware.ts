@@ -3,7 +3,7 @@ import { Responses } from "../helpers/Responses";
 import { Encrypt } from "../helpers/Encrypt";
 import * as jwt from "jsonwebtoken";
 
-export const userAuthentication = async (
+export const authentication = async (
   req: Request,
   res: Response,
   next: NextFunction
