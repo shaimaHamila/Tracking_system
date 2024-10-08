@@ -3,11 +3,12 @@ import {
   UserLoginValidator,
   UserSignupValidator,
 } from "../validators/AuthValidator";
-import { encrypt } from "../helpers/Encrypt";
+import { Encrypt } from "../helpers/Encrypt";
 import prisma from "../prisma";
 
 import { TokenResultType } from "../types/TokenResultType";
 import { Responses } from "../helpers/Responses";
+import { Role } from "../types/Roles";
 
 // User signup function
 export const signup = async (req: Request, res: Response) => {
@@ -28,7 +29,7 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Hash the password before storing it
-    const hashedPassword = await encrypt.encryptpass(password);
+    const hashedPassword = await Encrypt.encryptpass(password);
 
     // Default role to 'STAFF' (ID: 2) if not provided
     const roleToAssign = roleId ? parseInt(roleId) : 2;
@@ -107,7 +108,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Check if the password is correct
-    const isPasswordCorrect = await encrypt.comparepassword(
+    const isPasswordCorrect = await Encrypt.comparepassword(
       password,
       user.password
     );
@@ -116,8 +117,14 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Generate JWT tokens
-    const accessToken = encrypt.generateToken(user.id);
-    const refreshToken = encrypt.generateRefreshToken(user.id);
+    const accessToken = Encrypt.generateToken({
+      id: user.id,
+      role: user.role?.roleName as Role,
+    });
+    const refreshToken = Encrypt.generateRefreshToken({
+      id: user.id,
+      role: user.role?.roleName as Role,
+    });
 
     // Construct the token result for response
     const tokenResult: TokenResultType = { accessToken, refreshToken };

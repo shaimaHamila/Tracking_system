@@ -5,7 +5,7 @@ import {
   createUserValidator,
   updateUserValidator,
 } from "../validators/UserValidator";
-import { encrypt } from "../helpers/Encrypt";
+import { Encrypt } from "../helpers/Encrypt";
 
 // Create new user
 export const createUser = async (req: Request, res: Response) => {
@@ -24,7 +24,7 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     // Hash the password before storing it
-    const hashedPassword = await encrypt.encryptpass(password);
+    const hashedPassword = await Encrypt.encryptpass(password);
 
     // Validate if the provided roleId exists in the database
     const roleExists = await prisma.user_role.findUnique({
