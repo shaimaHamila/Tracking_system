@@ -7,7 +7,7 @@ import {
 import prisma from "../prisma";
 import { validateUserRole } from "./RoleController";
 import { Responses } from "../helpers/Responses";
-import { getUserFromToken } from "../helpers/GetUserFromToken";
+import { getCurrentUser } from "../helpers/GetCurrentUser";
 
 export enum ProjectType {
   INTERNAL = "INTERNAL",
@@ -31,7 +31,17 @@ export const createProject = async (req: Request, res: Response) => {
     //todo add createdby
     const { name, description, projectType, clientId, managers, teamMembers } =
       req.body;
-    // const { user } = await getUserFromToken(accessToken);
+
+    // Get the current user's ID from the decoded token
+    const createdById = res.locals.decodedToken.id;
+
+    // Verify the current user exists and handle errors
+    let user;
+    try {
+      user = await getCurrentUser(parseInt(createdById, 10));
+    } catch (error: any) {
+      return Responses.BadRequest(res, error.message);
+    }
 
     // Parse IDs to ensure they are integers
     const parsedClientId = parseInt(clientId, 10);
@@ -68,6 +78,7 @@ export const createProject = async (req: Request, res: Response) => {
         description,
         projectType,
         clientId: parsedClientId,
+        createdById: user.id,
         managers: {
           create: parsedManagers.map((managerId: number) => ({
             managerId,
@@ -82,11 +93,21 @@ export const createProject = async (req: Request, res: Response) => {
           : undefined,
       },
       include: {
+        createdBy: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: true,
+          },
+        },
         client: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
+            email: true,
           },
         },
         managers: {

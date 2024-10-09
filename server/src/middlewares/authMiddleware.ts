@@ -9,8 +9,8 @@ export const authentication = async (
   next: NextFunction
 ) => {
   const header = req.headers.authorization;
-  if (!header) {
-    return Responses.Unauthorized(res);
+  if (!header || !header.startsWith("Bearer ")) {
+    return Responses.Unauthorized(res, "Invalid authorization format.");
   }
   const token = header.split(" ")[1];
 
