@@ -8,7 +8,7 @@ import prisma from "../prisma";
 
 import { TokenResultType } from "../types/TokenResultType";
 import { Responses } from "../helpers/Responses";
-import { Role } from "../types/Roles";
+import { RoleType } from "../types/Roles";
 
 // User signup function
 export const signup = async (req: Request, res: Response) => {
@@ -119,11 +119,11 @@ export const login = async (req: Request, res: Response) => {
     // Generate JWT tokens
     const accessToken = Encrypt.generateToken({
       id: user.id,
-      role: user.role?.roleName as Role,
+      role: user.role?.roleName as RoleType,
     });
     const refreshToken = Encrypt.generateRefreshToken({
       id: user.id,
-      role: user.role?.roleName as Role,
+      role: user.role?.roleName as RoleType,
     });
 
     // Construct the token result for response

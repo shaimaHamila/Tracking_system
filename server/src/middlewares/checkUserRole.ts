@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { Role } from "../types/Roles";
+import { Role, RoleType } from "../types/Roles";
 import { Responses } from "../helpers/Responses";
 import { TokenData } from "../helpers/Encrypt";
 
 export const userAuthorization =
-  (roles: Role[]) =>
+  (roles: RoleType[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userToken: TokenData | undefined = res.locals.decodedToken;
@@ -23,42 +23,13 @@ export const userAuthorization =
     }
   };
 
-// Helper Function to Add Admin Roles
-const withAdminRoles = (roles: Role[]): Role[] => {
-  return [...roles, "ADMIN", "SUPERADMIN"];
-};
-
 // Authorization Middlewares
-export const superAdminAuthorization = userAuthorization(["SUPERADMIN"]);
-export const adminAuthorization = userAuthorization(["ADMIN"]);
-
-export const adminOrStaffAuthorization = userAuthorization(
-  withAdminRoles(["STAFF"])
-);
-export const adminOrClientAuthorization = userAuthorization(
-  withAdminRoles(["CLIENT"])
-);
-export const adminOrTechnicalManagerAuthorization = userAuthorization(
-  withAdminRoles(["TECHNICAL_MANAGER"])
-);
-
-// Multi-Role Combinations without Admin and Super Admin
-export const staffOrClientAuthorization = userAuthorization([
-  "STAFF",
-  "CLIENT",
-]);
-export const staffOrTechnicalManagerAuthorization = userAuthorization([
-  "STAFF",
-  "TECHNICAL_MANAGER",
-]);
-export const clientOrTechnicalManagerAuthorization = userAuthorization([
-  "CLIENT",
-  "TECHNICAL_MANAGER",
-]);
-
-// All Possible Roles Combination Excluding Admin and Super Admin
-export const allRolesAuthorization = userAuthorization([
-  "STAFF",
-  "CLIENT",
-  "TECHNICAL_MANAGER",
+export const superAdminAuthorization = userAuthorization([Role.SUPERADMIN]);
+export const adminAuthorization = userAuthorization([Role.ADMIN]);
+export const allRoleAuthorization = userAuthorization([
+  Role.ADMIN,
+  Role.STAFF,
+  Role.CLIENT,
+  Role.TECHNICAL_MANAGER,
+  Role.SUPERADMIN,
 ]);
