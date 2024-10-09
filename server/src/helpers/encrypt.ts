@@ -2,12 +2,12 @@ import * as jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import * as dotenv from "dotenv";
 import ms from "ms";
-import { Role } from "../types/Roles";
+import { RoleType } from "../types/Roles";
 dotenv.config();
 
 export interface TokenData {
   id: number;
-  role: Role;
+  role: RoleType;
 }
 
 export class Encrypt {
