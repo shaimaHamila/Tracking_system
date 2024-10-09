@@ -17,7 +17,12 @@ import { Role } from "../types/Roles";
 
 const projectRouter = express.Router();
 
-projectRouter.get("/types", authentication, getProjectTypes);
+projectRouter.get(
+  "/types",
+  authentication,
+  adminAuthorization,
+  getProjectTypes
+);
 projectRouter.post(
   "/",
   authentication,
