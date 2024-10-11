@@ -28,8 +28,11 @@ model user {
   role         user_role @relation(fields: [roleId], references: [id])
   createdProjects   project[] @relation("CreatedProjects")
   projects project_team[]
+    // Projects the user is managing as a technical manager
+  techManagedProjects project[]         @relation("TechnicalManagerProjects")
   managedProjects project_manager[]
-  assignedTickets ticket[]
+  // Tickets
+  assignedTickets    user_ticket[]
   comments comment[]
   equipments equipment[]
   clients           project[] @relation("ClientProjects")
@@ -48,6 +51,11 @@ model project {
   createdBy user?  @relation("CreatedProjects", fields: [createdById], references: [id]) 
   clientId Int?
   client user? @relation("ClientProjects", fields: [clientId], references: [id])
+
+  // Technical manager for the project (optional)
+  technicalManagerId Int?
+  technicalManager  user?            @relation("TechnicalManagerProjects", fields: [technicalManagerId], references: [id])
+
   // Set cascading delete for related models
   teamMembers    project_team[]  
   managers       project_manager[]
@@ -86,8 +94,8 @@ model ticket {
   status ticket_status @relation(fields: [statusId], references: [id])
   statusId Int
   priority ticketPriority
-  assignedToId Int?
-  assignedTo user? @relation(fields: [assignedToId], references: [id])
+  //ssigned users
+  assignedUsers user_ticket[]
   projectId Int
   project  project  @relation(fields: [projectId], references: [id], onDelete: Cascade)                     
   comments comment[]
@@ -97,6 +105,15 @@ model ticket {
   deletedAt DateTime?
 }
 
+model user_ticket {
+  userId   Int
+  ticketId Int
+
+  user     user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket   ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@id([userId, ticketId]) 
+}
 enum ticketType {
   BUG
   FEATURE

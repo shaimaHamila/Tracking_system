@@ -7,6 +7,7 @@ export const getCurrentUser = async (userId: number) => {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: { role: true },
   });
 
   if (!user) {

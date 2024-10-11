@@ -8,11 +8,8 @@ import prisma from "../prisma";
 import { validateUserRole } from "./RoleController";
 import { Responses } from "../helpers/Responses";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
+import { ProjectType } from "../types/Project";
 
-export enum ProjectType {
-  INTERNAL = "INTERNAL",
-  EXTERNAL = "EXTERNAL",
-}
 // Controller to get the enum values
 export const getProjectTypes = (_req: Request, res: Response) => {
   // Convert the enum to a list of values
