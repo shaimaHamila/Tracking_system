@@ -107,14 +107,6 @@ export const createTicket = async (req: Request, res: Response) => {
         },
       },
       include: {
-        assignedTo: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
         project: true,
       },
     });

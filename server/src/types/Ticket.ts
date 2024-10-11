@@ -1,6 +1,6 @@
-export enum ticketStatus {
-  OPEN = "OPEN",
-  IN_PROGRESS = "IN_PROGRESS",
-  RESOLVED = "RESOLVED",
-  CLOSED = "CLOSED",
-}
+export const TicketStatus = {
+  OPEN: 1,
+  IN_PROGRESS: 2,
+  RESOLVED: 3,
+  CLOSED: 4,
+};
