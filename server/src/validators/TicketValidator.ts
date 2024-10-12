@@ -7,6 +7,5 @@ export const createTicketValidator = Joi.object({
     .valid("BUG", "FEATURE", "CONSULTATION", "REQUEST")
     .optional(),
   priority: Joi.string().optional(),
-  status: Joi.number().optional(),
   projectId: Joi.number().integer().required(),
 });
