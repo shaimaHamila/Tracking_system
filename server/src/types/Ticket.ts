@@ -4,3 +4,16 @@ export const TicketStatus = {
   RESOLVED: 3,
   CLOSED: 4,
 };
+export enum TicketPriority {
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  CRITICAL = "CRITICAL",
+}
+
+export enum TicketType {
+  BUG = "BUG",
+  FEATURE = "FEATURE",
+  CONSULTATION = "CONSULTATION",
+  REQUEST = "REQUEST",
+}

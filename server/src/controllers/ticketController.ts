@@ -6,19 +6,33 @@ import { createTicketValidator } from "../validators/TicketValidator";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Role } from "../types/Roles";
 import { ProjectType } from "../types/Project";
-
-export enum TicketPriority {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
-  CRITICAL = "CRITICAL",
-}
+import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
 
 // Get all ticket Priorities
-export const getTicketPriorities = async (req: Request, res: Response) => {
+export const getTicketPriorities = async (_req: Request, res: Response) => {
   try {
     const ticketTypes = Object.values(TicketPriority);
     return Responses.OperationSuccess(res, ticketTypes);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Get all ticket status
+export const getTicketStatuses = async (_req: Request, res: Response) => {
+  try {
+    const ticketStatuses = await prisma.ticket_status.findMany();
+    return Responses.OperationSuccess(res, ticketStatuses);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Get all ticket types
+export const getTicketTypes = async (_req: Request, res: Response) => {
+  try {
+    const ticketType = Object.values(TicketType);
+    return Responses.OperationSuccess(res, ticketType);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
@@ -68,11 +82,10 @@ export const createTicket = async (req: Request, res: Response) => {
       );
     }
     // Set default statusId and priority if they are not provided
-    const defaultStatusId = 1; // Assume 1 is the default status for 'New' tickets
+    const defaultStatusId = 1;
     const defaultPriority = TicketPriority.MEDIUM;
 
     // Use the provided values or default ones
-    const finalStatusId = statusId || defaultStatusId;
     const finalPriority = priority || defaultPriority;
 
     if (
@@ -100,14 +113,32 @@ export const createTicket = async (req: Request, res: Response) => {
       data: {
         ...ticketData,
         project: { connect: { id: projectId } },
-        status: { connect: { id: finalStatusId } },
+        status: { connect: { id: defaultStatusId } },
         priority: finalPriority,
         assignedUsers: {
           create: ticketData.assignedUsers,
         },
       },
       include: {
-        project: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        status: true,
+        assignedUsers: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
       },
     });
     return Responses.CreateSucess(res, ticket);
