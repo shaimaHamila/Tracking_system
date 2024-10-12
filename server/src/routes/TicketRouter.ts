@@ -8,7 +8,7 @@ import {
 import {
   createTicket,
   getTicketPriorities,
-  getTicketStatus,
+  getTicketStatuses,
   getTicketTypes,
 } from "../controllers/TicketController";
 import { Role } from "../types/Roles";
@@ -16,7 +16,7 @@ import { Role } from "../types/Roles";
 const ticketRouter = express.Router();
 
 ticketRouter.get("/priorities", authentication, getTicketPriorities);
-ticketRouter.get("/status", authentication, getTicketStatus);
+ticketRouter.get("/status", authentication, getTicketStatuses);
 ticketRouter.get("/types", authentication, getTicketTypes);
 
 ticketRouter.post(

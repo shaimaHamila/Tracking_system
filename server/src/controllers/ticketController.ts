@@ -19,10 +19,10 @@ export const getTicketPriorities = async (_req: Request, res: Response) => {
 };
 
 // Get all ticket status
-export const getTicketStatus = async (_req: Request, res: Response) => {
+export const getTicketStatuses = async (_req: Request, res: Response) => {
   try {
-    const ticketStatus = Object.values(TicketStatus);
-    return Responses.OperationSuccess(res, ticketStatus);
+    const ticketStatuses = await prisma.ticket_status.findMany();
+    return Responses.OperationSuccess(res, ticketStatuses);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
