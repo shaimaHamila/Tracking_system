@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Responses } from "../helpers/Responses";
-import { validateUserRole } from "./RoleController";
 import { createTicketValidator } from "../validators/TicketValidator";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Role } from "../types/Roles";
@@ -94,9 +93,9 @@ export const createTicket = async (req: Request, res: Response) => {
       projectExists.projectType === ProjectType.EXTERNAL
     ) {
       // Assign the project managers to the ticket
+
       ticketData.assignedUsers = [{ userId: projectExists.technicalManagerId }];
     }
-
     if (
       (user.role.roleName === Role.ADMIN ||
         user.role.roleName === Role.CLIENT) &&
@@ -105,8 +104,9 @@ export const createTicket = async (req: Request, res: Response) => {
       ticketData.assignedUsers = projectExists.managers.map((manager) => ({
         userId: manager.manager.id,
       }));
+    } else {
+      return Responses.BadRequest(res, "Bad Request.");
     }
-
     //statusId and priority if not exist then set default values
 
     const ticket = await prisma.ticket.create({
@@ -115,6 +115,9 @@ export const createTicket = async (req: Request, res: Response) => {
         project: { connect: { id: projectId } },
         status: { connect: { id: defaultStatusId } },
         priority: finalPriority,
+        createdBy: {
+          connect: { id: user.id },
+        },
         assignedUsers: {
           create: ticketData.assignedUsers,
         },

@@ -27,6 +27,9 @@ model user {
   roleId       Int
   role         user_role @relation(fields: [roleId], references: [id])
   createdProjects   project[] @relation("CreatedProjects")
+
+  createdTickets   ticket[] @relation("CreatedTickets")
+
   projects project_team[]
     // Projects the user is managing as a technical manager
   techManagedProjects project[]         @relation("TechnicalManagerProjects")
@@ -90,11 +93,13 @@ model ticket {
   title String
   description String?
 
-  type ticketType
+  type ticketType?
   status ticket_status @relation(fields: [statusId], references: [id])
   statusId Int
   priority ticketPriority
-  //ssigned users
+  createdById Int?
+  createdBy user?  @relation("CreatedTickets", fields: [createdById], references: [id]) 
+  //assigned users
   assignedUsers user_ticket[]
   projectId Int
   project  project  @relation(fields: [projectId], references: [id], onDelete: Cascade)                     
