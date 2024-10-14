@@ -26,8 +26,15 @@ export const createProject = async (req: Request, res: Response) => {
 
   try {
     //todo add createdby
-    const { name, description, projectType, clientId, managers, teamMembers } =
-      req.body;
+    const {
+      name,
+      description,
+      projectType,
+      clientId,
+      managers,
+      teamMembers,
+      technicalManagerId,
+    } = req.body;
 
     // Get the current user's ID from the decoded token
     const createdById = res.locals.decodedToken.id;
@@ -75,12 +82,15 @@ export const createProject = async (req: Request, res: Response) => {
         description,
         projectType,
         clientId: parsedClientId,
+        technicalManagerId: technicalManagerId ?? technicalManagerId,
         createdById: user.id,
-        managers: {
-          create: parsedManagers.map((managerId: number) => ({
-            managerId,
-          })),
-        },
+        managers: parsedManagers
+          ? {
+              create: parsedManagers.map((managerId: number) => ({
+                managerId,
+              })),
+            }
+          : undefined,
         teamMembers: parsedTeamMembers
           ? {
               create: parsedTeamMembers.map((staffId: number) => ({

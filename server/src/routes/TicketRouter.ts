@@ -23,7 +23,6 @@ ticketRouter.post(
   "/",
   authentication,
   userAuthorization([Role.ADMIN, Role.CLIENT, Role.STAFF]),
-  adminAuthorization,
   createTicket
 );
 
