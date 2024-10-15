@@ -10,7 +10,7 @@ export const CreateProjectValidator = Joi.object({
   name: Joi.string().required(),
   description: Joi.string().optional(),
   projectType: projectTypeEnum,
-  clientId: Joi.any().required(),
+  clientId: Joi.any().optional(),
 
   // If projectType is INTERNAL, managers are required
   managers: Joi.array()

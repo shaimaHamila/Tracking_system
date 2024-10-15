@@ -12,3 +12,5 @@ export enum Role {
   CLIENT = "CLIENT",
   TECHNICAL_MANAGER = "TECHNICAL_MANAGER",
 }
+// SUPERADMIN: 1, ADMIN: 2, STAFF: 3, CLIENT: 4, TECHNICAL_MANAGER: 5
+export type RoleId = 1 | 2 | 3 | 4 | 5;

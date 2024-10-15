@@ -21,8 +21,8 @@ export const InitUserRoles = async (prismaClient: any) => {
   });
 
   await prismaClient.user_role.upsert({
-    where: { id: 6 },
+    where: { id: 5 },
     update: {},
-    create: { id: 6, roleName: "TECHNICAL_MANAGER" },
+    create: { id: 5, roleName: "TECHNICAL_MANAGER" },
   });
 };

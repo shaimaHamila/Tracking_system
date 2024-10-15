@@ -9,6 +9,7 @@ import { validateUserRole } from "./RoleController";
 import { Responses } from "../helpers/Responses";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { ProjectType } from "../types/Project";
+import { Role } from "../types/Roles";
 
 // Controller to get the enum values
 export const getProjectTypes = (_req: Request, res: Response) => {
@@ -47,11 +48,6 @@ export const createProject = async (req: Request, res: Response) => {
       return Responses.BadRequest(res, error.message);
     }
 
-    // Parse IDs to ensure they are integers
-    const parsedClientId = parseInt(clientId, 10);
-    const parsedManagers = managers.map((managerId: any) =>
-      parseInt(managerId, 10)
-    );
     const parsedTeamMembers = teamMembers
       ? teamMembers.map((staffId: any) => parseInt(staffId, 10))
       : [];
@@ -59,15 +55,24 @@ export const createProject = async (req: Request, res: Response) => {
     try {
       await Promise.all([
         // Validate the client
-        validateUserRole(parsedClientId, "CLIENT"),
+        clientId ? validateUserRole(clientId, Role.CLIENT) : null,
+
+        // Validate the technical manager if provided
+        technicalManagerId
+          ? validateUserRole(technicalManagerId, Role.TECHNICAL_MANAGER)
+          : null,
+
         // Validate managers
-        ...parsedManagers.map((managerId: number) =>
-          validateUserRole(managerId, "STAFF")
-        ),
+        ...(managers
+          ? managers.map((managerId: number) =>
+              validateUserRole(managerId, Role.STAFF)
+            )
+          : []),
+
         // Validate team members if they exist
-        ...(teamMembers
+        ...(parsedTeamMembers.length
           ? parsedTeamMembers.map((staffId: number) =>
-              validateUserRole(staffId, "STAFF")
+              validateUserRole(staffId, Role.STAFF)
             )
           : []),
       ]);
@@ -81,12 +86,12 @@ export const createProject = async (req: Request, res: Response) => {
         name,
         description,
         projectType,
-        clientId: parsedClientId,
+        clientId: clientId,
         technicalManagerId: technicalManagerId ?? technicalManagerId,
         createdById: user.id,
-        managers: parsedManagers
+        managers: managers
           ? {
-              create: parsedManagers.map((managerId: number) => ({
+              create: managers.map((managerId: number) => ({
                 managerId,
               })),
             }
@@ -141,6 +146,14 @@ export const createProject = async (req: Request, res: Response) => {
             },
           },
         },
+        technicalManager: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -180,6 +193,14 @@ export const getAllProjects = async (req: Request, res: Response) => {
           },
         },
         client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        technicalManager: {
           select: {
             id: true,
             firstName: true,
@@ -271,6 +292,14 @@ export const getProjectById = async (req: Request, res: Response) => {
             },
           },
         },
+        technicalManager: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -314,7 +343,14 @@ export const updateProject = async (req: Request, res: Response) => {
   }
 
   try {
-    const { name, description, clientId, managers, teamMembers } = req.body;
+    const {
+      name,
+      description,
+      clientId,
+      managers,
+      teamMembers,
+      technicalManagerId,
+    } = req.body;
 
     // Prepare the data object for updating the project
     const updateData: any = {};
@@ -323,13 +359,30 @@ export const updateProject = async (req: Request, res: Response) => {
     if (name) updateData.name = name;
     if (description) updateData.description = description;
     if (clientId) updateData.clientId = parseInt(clientId, 10);
-    // ***
+    if (technicalManagerId)
+      updateData.technicalManagerId = parseInt(technicalManagerId, 10);
+
+    try {
+      await Promise.all([
+        // Validate the client
+        clientId ? validateUserRole(clientId, Role.CLIENT) : null,
+
+        // Validate the technical manager if provided
+        technicalManagerId
+          ? validateUserRole(technicalManagerId, Role.TECHNICAL_MANAGER)
+          : null,
+      ]);
+    } catch (validationError: any) {
+      return Responses.BadRequest(res, validationError.message);
+    }
+
     // Step 1: Handle managers updates if provided
     if (managers && managers.length > 0) {
       try {
         await Promise.all(
+          // Validate managers to update if provided
           managers.map((managerId: number) =>
-            validateUserRole(managerId, "STAFF")
+            validateUserRole(managerId, Role.STAFF)
           )
         );
       } catch (validationError: any) {
