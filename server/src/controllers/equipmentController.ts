@@ -234,7 +234,7 @@ export const updateEquipment = async (req: Request, res: Response) => {
         },
       },
     });
-    return Responses.UpdateSucess(res, equipment);
+    return Responses.UpdateSuccess(res, equipment);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }

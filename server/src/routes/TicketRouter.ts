@@ -2,7 +2,7 @@ import express from "express";
 
 import { authentication } from "../middlewares/authMiddleware";
 import {
-  adminAuthorization,
+  allRoleAuthorization,
   userAuthorization,
 } from "../middlewares/checkUserRole";
 import {
@@ -10,6 +10,7 @@ import {
   getTicketPriorities,
   getTicketStatuses,
   getTicketTypes,
+  updateTicket,
 } from "../controllers/TicketController";
 import { Role } from "../types/Roles";
 
@@ -25,5 +26,6 @@ ticketRouter.post(
   userAuthorization([Role.ADMIN, Role.CLIENT, Role.STAFF]),
   createTicket
 );
+ticketRouter.put("/:id", authentication, allRoleAuthorization, updateTicket);
 
 export default ticketRouter;

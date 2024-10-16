@@ -234,7 +234,7 @@ export const updateUser = async (req: Request, res: Response) => {
         },
       },
     });
-    return Responses.UpdateSucess(res, user);
+    return Responses.UpdateSuccess(res, user);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }

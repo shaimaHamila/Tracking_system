@@ -51,7 +51,7 @@ export namespace Responses {
       .json({ success: true, message: "Item(s) successfully deleted." });
   };
 
-  export const UpdateSucess = (response: Response, data?: any) => {
+  export const UpdateSuccess = (response: Response, data?: any) => {
     return response
       .status(201)
       .json({ success: true, message: "Data updated.", data });
