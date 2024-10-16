@@ -503,7 +503,7 @@ export const updateProject = async (req: Request, res: Response) => {
       },
     });
 
-    return Responses.UpdateSucess(res, updatedProject);
+    return Responses.UpdateSuccess(res, updatedProject);
   } catch (error) {
     return Responses.InternalServerError(res, "Error updating project.");
   }
