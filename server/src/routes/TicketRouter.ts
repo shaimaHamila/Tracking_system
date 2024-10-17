@@ -9,6 +9,7 @@ import {
   createTicket,
   deleteTicket,
   getAllTickets,
+  getTicketById,
   getTicketPriorities,
   getTicketStatuses,
   getTicketTypes,
@@ -31,4 +32,5 @@ ticketRouter.post(
 ticketRouter.put("/:id", authentication, allRoleAuthorization, updateTicket);
 ticketRouter.get("/", authentication, allRoleAuthorization, getAllTickets);
 ticketRouter.delete("/:id", authentication, allRoleAuthorization, deleteTicket);
+ticketRouter.get("/:id", authentication, allRoleAuthorization, getTicketById);
 export default ticketRouter;

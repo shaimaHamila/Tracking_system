@@ -555,6 +555,55 @@ const applyRoleBasedFilter = (
 };
 
 // Get ticket by id
+export const getTicketById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    return Responses.NotFound(res, "Ticket id is required");
+  }
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(id) },
+      include: {
+        status: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+            projectType: true,
+          },
+        },
+        assignedUsers: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!ticket) {
+      return Responses.NotFound(res, "Ticket not found");
+    }
+    return Responses.OperationSuccess(res, ticket);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Error fetching ticket");
+  }
+};
 
 // Delete Ticket
 export const deleteTicket = async (req: Request, res: Response) => {
