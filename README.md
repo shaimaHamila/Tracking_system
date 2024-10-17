@@ -72,6 +72,4 @@ npm start
 - Tickets CRUD
 - Equipmnts CRUD
 - Users CRUD
-- Upload images
 - Real time notification
-- Real time chat
