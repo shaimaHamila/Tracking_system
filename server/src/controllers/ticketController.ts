@@ -556,4 +556,50 @@ const applyRoleBasedFilter = (
 
 // Get ticket by id
 
-// Delete ticket
+// Delete Ticket
+export const deleteTicket = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    return Responses.NotFound(res, "Ticket id is required");
+  }
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(id) },
+      include: {
+        project: true,
+      },
+    });
+
+    if (!ticket) {
+      return Responses.NotFound(res, "Ticket not found");
+    }
+    const userId = res.locals.decodedToken.id;
+
+    // Verify the current user exists and handle errors
+    let user;
+    try {
+      user = await getCurrentUser(parseInt(userId, 10));
+    } catch (error: any) {
+      return Responses.BadRequest(res, error.message);
+    }
+
+    const isCreator = ticket.createdById === user.id;
+    const isAdmin = user.role.roleName === Role.ADMIN;
+
+    if (!isAdmin && !isCreator) {
+      return Responses.Forbidden(
+        res,
+        "You are not authorized to delete this ticket, onle admin or creator can delete the ticket"
+      );
+    }
+
+    // Proceed with deleting the ticket
+    await prisma.ticket.delete({
+      where: { id: Number(id) },
+    });
+
+    return Responses.DeleteSuccess(res);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Error deleting ticket");
+  }
+};
