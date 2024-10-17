@@ -341,7 +341,12 @@ export const updateProject = async (req: Request, res: Response) => {
   if (!existingProject) {
     return Responses.NotFound(res, "Project not found");
   }
-
+  if (
+    existingProject.projectType === ProjectType.INTERNAL &&
+    req.body.managers.length == 0
+  ) {
+    return Responses.BadRequest(res, "At least one manager is required");
+  }
   try {
     const {
       name,

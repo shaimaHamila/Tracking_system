@@ -41,9 +41,10 @@ export const GetProjectByTypeValidator = Joi.object({
 
 // Update Project Validator
 export const UpdateProjectValidator = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string().optional(),
   description: Joi.string().optional(),
   clientId: Joi.number().optional(),
+  technicalManagerId: Joi.number().optional(),
   managers: Joi.array().items(Joi.number().optional()).optional().messages({
     "array.base": "Managers should be an array of IDs",
   }),

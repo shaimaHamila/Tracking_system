@@ -7,6 +7,7 @@ import {
 } from "../middlewares/checkUserRole";
 import {
   createTicket,
+  getAllTickets,
   getTicketPriorities,
   getTicketStatuses,
   getTicketTypes,
@@ -27,5 +28,6 @@ ticketRouter.post(
   createTicket
 );
 ticketRouter.put("/:id", authentication, allRoleAuthorization, updateTicket);
+ticketRouter.get("/", authentication, allRoleAuthorization, getAllTickets);
 
 export default ticketRouter;
