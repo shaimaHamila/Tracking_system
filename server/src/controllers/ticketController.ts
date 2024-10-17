@@ -6,7 +6,7 @@ import {
   updateTicketValidator,
 } from "../validators/TicketValidator";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
-import { Role } from "../types/Roles";
+import { Role, RoleType } from "../types/Roles";
 import { ProjectType } from "../types/Project";
 import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
 import { isProjectManager } from "../helpers/IsProjectManager ";
@@ -196,20 +196,10 @@ export const updateTicket = async (req: Request, res: Response) => {
 
     // Delegate based on user role
     if (user.id === ticket.createdById) {
-      console.log(
-        "updateTicketByCreatorUsersssssssssssssssssssssssssssssssss",
-        ticket,
-        user
-      );
       return updateTicketByCreator(ticket.id, req, res);
     }
     //updateTicketByTechnicalManager
     else if (user.id === ticket.project.technicalManagerId) {
-      console.log(
-        "updateTicketByTechnicalManagerrsssssssssssssssssssssssssssssssss",
-        ticket,
-        user
-      );
       return updateTicketByTechnicalManager(ticket.id, req, res);
     }
     //updateTicketByProjectManager
@@ -217,11 +207,6 @@ export const updateTicket = async (req: Request, res: Response) => {
       isProjectManager(user, ticket.project) ||
       user.role.roleName === Role.ADMIN
     ) {
-      console.log(
-        "updateTicketByAdminOrProjectManagerssssssssssssssssssssssssssssss",
-        ticket,
-        user
-      );
       return updateTicketByAdminOrProjectManager(
         ticket.assignedUsers,
         ticket.id,
@@ -423,3 +408,152 @@ const updateTicketAssignedUsers = async (
     });
   }
 };
+
+// Get all tickets :
+// by project type | by creator | by status | by priority | by type | by assigned user | by project
+// they are all optinal
+// with pagination
+//who can see all the tickets?
+// If Admin can see all tickets
+// If TM can see all external project tickets
+// If staff or created by him can see all tickets assigned to him
+// If client can see all tickets of his projects
+export const getAllTickets = async (req: Request, res: Response) => {
+  const {
+    projectType,
+    statusId,
+    priority,
+    type,
+    assignedUserId,
+    projectId,
+    title,
+    page = "1",
+    pageSize = "10",
+  } = req.query as {
+    projectType?: string;
+    statusId?: string;
+    priority?: TicketPriority;
+    type?: TicketType;
+    assignedUserId?: string;
+    projectId?: string;
+    title?: string;
+    page?: string;
+    pageSize?: string;
+  };
+
+  // Set pagination variables
+  const take = Math.max(parseInt(pageSize, 10) || 10, 1);
+  const skip = (Math.max(parseInt(page, 10) || 1, 1) - 1) * take;
+
+  try {
+    const userId = res.locals.decodedToken.id; // Get user ID from token
+    const user = await getCurrentUser(userId);
+
+    const whereClause: any = {
+      ...(title && { title: { contains: title, mode: "insensitive" } }),
+      ...(projectId && { projectId: parseInt(projectId, 10) }),
+      ...(statusId && { statusId: parseInt(statusId, 10) }),
+      ...(priority && { priority }),
+      ...(type && { type }),
+      ...(projectType && { project: { projectType } }),
+      ...(assignedUserId && {
+        assignedUsers: {
+          some: { userId: parseInt(assignedUserId, 10) },
+        },
+      }),
+    };
+
+    // Apply role-based filtering
+    applyRoleBasedFilter(user.id, user.role.roleName as RoleType, whereClause);
+
+    // Fetch tickets and total count in parallel
+    const [tickets, totalTickets] = await Promise.all([
+      prisma.ticket.findMany({
+        where: whereClause,
+        include: {
+          status: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+              projectType: true,
+            },
+          },
+          assignedUsers: {
+            select: {
+              userId: true,
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+        skip,
+        take,
+      }),
+      prisma.ticket.count({ where: whereClause }),
+    ]);
+    return Responses.FetchPagedSucess(res, {
+      data: tickets,
+      meta: {
+        totalCount: totalTickets,
+        totalPages: Math.ceil(totalTickets / take),
+        currentPage: parseInt(page, 10),
+        pageSize: Math.ceil(totalTickets / take),
+      },
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Helper function to apply role-based filtering
+const applyRoleBasedFilter = (
+  userId: number,
+  userRole: RoleType,
+  whereClause: any
+) => {
+  switch (userRole) {
+    case Role.ADMIN:
+      // Admin can see all tickets
+      break;
+    case Role.TECHNICAL_MANAGER:
+      // TM can see only external project tickets
+      whereClause.project = {
+        ...whereClause.project,
+        projectType: ProjectType.EXTERNAL,
+      };
+      break;
+    case Role.STAFF:
+      // Staff can see tickets assigned to them or created by them
+      whereClause.OR = [
+        { createdById: userId },
+        { assignedUsers: { some: { userId: userId } } },
+      ];
+      break;
+    case Role.CLIENT:
+      // Client can see tickets related to their projects
+      whereClause.project = { ...whereClause.project, clientId: userId };
+      break;
+    default:
+      throw new Error("Unauthorized access");
+  }
+};
+
+// Get ticket by id
+
+// Delete ticket
