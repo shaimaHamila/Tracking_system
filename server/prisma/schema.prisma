@@ -140,7 +140,7 @@ enum ticketPriority {
 model comment {
   id Int @id @default(autoincrement())
   text String
-  atachedFiles String[]
+  attachedFiles String[]
 
   ticketId Int
   ticket ticket @relation(fields: [ticketId], references: [id])

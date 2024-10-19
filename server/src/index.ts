@@ -9,6 +9,7 @@ import projectRouter from "./routes/ProjectRouter";
 import equipmentRouter from "./routes/EquipmentRouter";
 import userRouter from "./routes/UserRouter";
 import ticketRouter from "./routes/TicketRouter";
+import commentRouter from "./routes/CommentRouter";
 //For env File
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/equipment", equipmentRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/ticket", ticketRouter);
+app.use("/api/v1/comment", commentRouter);
 
 app.listen(port, () => {
   console.log(`Express is runnung attt http://localhost:${port} 🥳`);
