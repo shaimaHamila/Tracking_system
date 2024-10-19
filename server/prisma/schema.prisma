@@ -147,7 +147,7 @@ model comment {
   createdByUserId Int
 
   createdby user @relation(fields: [createdByUserId], references: [id])
-  reatedAt DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 }

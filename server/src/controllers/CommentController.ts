@@ -6,7 +6,6 @@ import {
   createCommentValidator,
   updateCommentValidator,
 } from "../validators/CommentValidator";
-import { Res } from "tsoa";
 
 export const addComment = async (req: Request, res: Response) => {
   const { error } = createCommentValidator.validate(req.body);
@@ -123,6 +122,50 @@ export const updateComment = async (req: Request, res: Response) => {
     return Responses.InternalServerError(
       res,
       "An error occurred while editing the comment"
+    );
+  }
+};
+
+export const getCommentsByTicket = async (req: Request, res: Response) => {
+  const { ticketId } = req.params;
+  if (!ticketId) {
+    return Responses.BadRequest(res, "Tickrt ID is required");
+  }
+  try {
+    // Ensure the ticket exists before adding a comment
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(ticketId) },
+    });
+
+    if (!ticket) {
+      return Responses.NotFound(res, "Ticket not found");
+    }
+    const comments = await prisma.comment.findMany({
+      where: {
+        ticketId: Number(ticketId),
+      },
+      include: {
+        createdby: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return Responses.FetchSucess(res, comments);
+  } catch (error) {
+    console.error(error);
+    return Responses.InternalServerError(
+      res,
+      "An error occurred while fetching comments"
     );
   }
 };
