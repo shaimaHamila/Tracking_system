@@ -5,6 +5,7 @@ import { allRoleAuthorization } from "../middlewares/checkUserRole";
 
 import {
   addComment,
+  deleteComment,
   getCommentsByTicket,
   updateComment,
 } from "../controllers/CommentController";
@@ -19,5 +20,10 @@ commentRouter.get(
   allRoleAuthorization,
   getCommentsByTicket
 );
-
+commentRouter.put(
+  "/:commentId",
+  authentication,
+  allRoleAuthorization,
+  deleteComment
+);
 export default commentRouter;

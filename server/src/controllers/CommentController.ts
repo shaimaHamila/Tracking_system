@@ -143,6 +143,7 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
     const comments = await prisma.comment.findMany({
       where: {
         ticketId: Number(ticketId),
+        deletedAt: null,
       },
       include: {
         createdby: {
@@ -156,7 +157,7 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
       },
 
       orderBy: {
-        createdAt: "asc",
+        reatedAt: "asc",
       },
     });
 
@@ -166,6 +167,52 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
     return Responses.InternalServerError(
       res,
       "An error occurred while fetching comments"
+    );
+  }
+};
+
+export const deleteComment = async (req: Request, res: Response) => {
+  const { commentId } = req.params;
+  if (!commentId) {
+    return Responses.BadRequest(res, "Comment ID is required");
+  }
+
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: Number(commentId) },
+    });
+
+    if (!comment) {
+      return Responses.NotFound(res, "Comment not found");
+    }
+    // Get the current user's ID from the decoded token
+    const createdById = res.locals.decodedToken.id;
+
+    // Verify the current user exists and handle errors
+    let user;
+    try {
+      user = await getCurrentUser(parseInt(createdById, 10));
+    } catch (error: any) {
+      return Responses.BadRequest(res, error.message);
+    }
+    // Ensure the user can only delete their own comments or allow admins
+    if (comment.createdByUserId !== user.id) {
+      return Responses.Forbidden(res, "You can only delete your own comments");
+    }
+
+    // Soft delete the comment
+    await prisma.comment.update({
+      where: { id: Number(commentId) },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return Responses.DeleteSuccess(res);
+  } catch (error) {
+    return Responses.InternalServerError(
+      res,
+      "An error occurred while deleting the comment"
     );
   }
 };
