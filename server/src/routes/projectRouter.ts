@@ -15,45 +15,45 @@ import {
 } from "../middlewares/checkUserRole";
 import { Role } from "../types/Roles";
 
-const projectRouter = express.Router();
+const ProjectRouter = express.Router();
 
-projectRouter.get(
+ProjectRouter.get(
   "/types",
   authentication,
   adminAuthorization,
   getProjectTypes
 );
-projectRouter.post(
+ProjectRouter.post(
   "/",
   authentication,
   userAuthorization([Role.ADMIN]),
   createProject
 );
-projectRouter.get(
+ProjectRouter.get(
   "/all",
   authentication,
   userAuthorization([Role.ADMIN]),
   getAllProjects
 );
-projectRouter.post(
+ProjectRouter.post(
   "/type",
   authentication,
   adminAuthorization,
   getProjectsByType
 );
-projectRouter.get(
+ProjectRouter.get(
   "/",
   authentication,
   userAuthorization([Role.ADMIN]),
   getProjectById
 );
-projectRouter.put(
+ProjectRouter.put(
   "/",
   authentication,
   userAuthorization([Role.ADMIN, Role.STAFF, Role.TECHNICAL_MANAGER]),
   updateProject
 );
 
-projectRouter.delete("/", authentication, adminAuthorization, deleteProject);
+ProjectRouter.delete("/", authentication, adminAuthorization, deleteProject);
 
-export default projectRouter;
+export default ProjectRouter;
