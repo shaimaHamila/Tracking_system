@@ -151,6 +151,8 @@ export const createTicket =
           },
         },
       });
+      // Emit the ticketCreated event to all users in the "tickets" room
+      io.to("tickets").emit("ticketCreated", ticket);
       return Responses.CreateSucess(res, ticket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
