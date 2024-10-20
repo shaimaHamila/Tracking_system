@@ -3,17 +3,19 @@ import dotenv from "dotenv";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import prisma from "./prisma";
-import authRouter from "./routes/AuthRouter";
 import { setupSwagger } from "./swagger";
-import projectRouter from "./routes/ProjectRouter";
-import equipmentRouter from "./routes/EquipmentRouter";
-import userRouter from "./routes/UserRouter";
-import ticketRouter from "./routes/TicketRouter";
-import commentRouter from "./routes/CommentRouter";
+import SocketConnect from "../config/Socket";
+import AuthRouter from "./routes/AuthRouter";
+import ProjectRouter from "./routes/ProjectRouter";
+import CommentRouter from "./routes/CommentRouter";
+import EquipmentRouter from "./routes/EquipmentRouter";
+import TicketRouter from "./routes/TicketRouter";
+import UserRouter from "./routes/UserRouter";
 //For env File
 dotenv.config();
 
 const app: Application = express();
+const { server, io } = SocketConnect(app);
 
 // Middleware
 app.use(
@@ -44,13 +46,13 @@ app.get("/api/v1", (req: Request, res: Response) => {
 setupSwagger(app);
 
 //Routes
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/project", projectRouter);
-app.use("/api/v1/equipment", equipmentRouter);
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/ticket", ticketRouter);
-app.use("/api/v1/comment", commentRouter);
+app.use("/api/v1/auth", AuthRouter);
+app.use("/api/v1/project", ProjectRouter);
+app.use("/api/v1/equipment", EquipmentRouter);
+app.use("/api/v1/user", UserRouter);
+app.use("/api/v1/ticket", TicketRouter(io));
+app.use("/api/v1/comment", CommentRouter(io));
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Express is runnung attt http://localhost:${port} 🥳`);
 });

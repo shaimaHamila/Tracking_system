@@ -14,17 +14,17 @@ import {
 } from "../middlewares/checkUserRole";
 import { Role } from "../types/Roles";
 
-const userRouter = express.Router();
+const UserRouter = express.Router();
 
-userRouter.post("/", authentication, adminAuthorization, createUser);
-userRouter.get("/", authentication, allRoleAuthorization, getAllUsers);
-userRouter.get(
+UserRouter.post("/", authentication, adminAuthorization, createUser);
+UserRouter.get("/", authentication, allRoleAuthorization, getAllUsers);
+UserRouter.get(
   "/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.STAFF, Role.TECHNICAL_MANAGER]),
   getUserById
 );
-userRouter.put("/:id", authentication, allRoleAuthorization, updateUser);
-userRouter.delete("/:id", authentication, allRoleAuthorization, deleteUser);
+UserRouter.put("/:id", authentication, allRoleAuthorization, updateUser);
+UserRouter.delete("/:id", authentication, allRoleAuthorization, deleteUser);
 
-export default userRouter;
+export default UserRouter;

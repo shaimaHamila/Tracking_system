@@ -7,7 +7,7 @@ import {
   updateCommentValidator,
 } from "../validators/CommentValidator";
 
-export const addComment = async (req: Request, res: Response) => {
+export const addComment = (io: any) => async (req: Request, res: Response) => {
   const { error } = createCommentValidator.validate(req.body);
   if (error) {
     return Responses.ValidationBadRequest(res, error);
@@ -44,7 +44,7 @@ export const addComment = async (req: Request, res: Response) => {
     const newComment = await prisma.comment.create({
       data: {
         text,
-        atachedFiles: attachedFiles || [],
+        attachedFiles: attachedFiles || [],
         ticketId: Number(ticketId),
         createdByUserId: user.id,
       },
@@ -71,60 +71,61 @@ export const addComment = async (req: Request, res: Response) => {
   }
 };
 
-export const updateComment = async (req: Request, res: Response) => {
-  const { error } = updateCommentValidator.validate(req.body);
-  if (error) {
-    return Responses.ValidationBadRequest(res, error);
-  }
-  const { commentId } = req.query;
-  if (!commentId) {
-    return Responses.BadRequest(res, "Comment ID is required");
-  }
+export const updateComment =
+  (io: any) => async (req: Request, res: Response) => {
+    const { error } = updateCommentValidator.validate(req.body);
+    if (error) {
+      return Responses.ValidationBadRequest(res, error);
+    }
+    const { commentId } = req.query;
+    if (!commentId) {
+      return Responses.BadRequest(res, "Comment ID is required");
+    }
 
-  const { text, attachedFiles } = req.body;
+    const { text, attachedFiles } = req.body;
 
-  try {
-    // Get the current user's ID from the decoded token
-    const createdById = res.locals.decodedToken.id;
-
-    // Verify the current user exists and handle errors
-    let user;
     try {
-      user = await getCurrentUser(parseInt(createdById, 10));
-    } catch (error: any) {
-      return Responses.BadRequest(res, error.message);
+      // Get the current user's ID from the decoded token
+      const createdById = res.locals.decodedToken.id;
+
+      // Verify the current user exists and handle errors
+      let user;
+      try {
+        user = await getCurrentUser(parseInt(createdById, 10));
+      } catch (error: any) {
+        return Responses.BadRequest(res, error.message);
+      }
+
+      const comment = await prisma.comment.findUnique({
+        where: { id: Number(commentId) },
+      });
+
+      if (!comment) {
+        return Responses.NotFound(res, "Comment not found");
+      }
+
+      // Ensure the user can only edit their own comments
+      if (comment.createdByUserId !== user.id) {
+        return Responses.Forbidden(res, "You can only edit your own comments");
+      }
+
+      const updatedComment = await prisma.comment.update({
+        where: { id: Number(commentId) },
+        data: {
+          text: text || comment.text,
+          attachedFiles: attachedFiles || comment.attachedFiles,
+        },
+      });
+
+      return Responses.OperationSuccess(res, updatedComment);
+    } catch (error) {
+      console.error(error);
+      return Responses.InternalServerError(
+        res,
+        "An error occurred while editing the comment"
+      );
     }
-
-    const comment = await prisma.comment.findUnique({
-      where: { id: Number(commentId) },
-    });
-
-    if (!comment) {
-      return Responses.NotFound(res, "Comment not found");
-    }
-
-    // Ensure the user can only edit their own comments
-    if (comment.createdByUserId !== user.id) {
-      return Responses.Forbidden(res, "You can only edit your own comments");
-    }
-
-    const updatedComment = await prisma.comment.update({
-      where: { id: Number(commentId) },
-      data: {
-        text: text || comment.text,
-        atachedFiles: attachedFiles || comment.atachedFiles,
-      },
-    });
-
-    return Responses.OperationSuccess(res, updatedComment);
-  } catch (error) {
-    console.error(error);
-    return Responses.InternalServerError(
-      res,
-      "An error occurred while editing the comment"
-    );
-  }
-};
+  };
 
 export const getCommentsByTicket = async (req: Request, res: Response) => {
   const { ticketId } = req.params;
@@ -157,7 +158,7 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
       },
 
       orderBy: {
-        reatedAt: "asc",
+        createdAt: "asc",
       },
     });
 
@@ -171,48 +172,52 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteComment = async (req: Request, res: Response) => {
-  const { commentId } = req.params;
-  if (!commentId) {
-    return Responses.BadRequest(res, "Comment ID is required");
-  }
-
-  try {
-    const comment = await prisma.comment.findUnique({
-      where: { id: Number(commentId) },
-    });
-
-    if (!comment) {
-      return Responses.NotFound(res, "Comment not found");
+export const deleteComment =
+  (io: any) => async (req: Request, res: Response) => {
+    const { commentId } = req.params;
+    if (!commentId) {
+      return Responses.BadRequest(res, "Comment ID is required");
     }
-    // Get the current user's ID from the decoded token
-    const createdById = res.locals.decodedToken.id;
 
-    // Verify the current user exists and handle errors
-    let user;
     try {
-      user = await getCurrentUser(parseInt(createdById, 10));
-    } catch (error: any) {
-      return Responses.BadRequest(res, error.message);
-    }
-    // Ensure the user can only delete their own comments or allow admins
-    if (comment.createdByUserId !== user.id) {
-      return Responses.Forbidden(res, "You can only delete your own comments");
-    }
+      const comment = await prisma.comment.findUnique({
+        where: { id: Number(commentId) },
+      });
 
-    // Soft delete the comment
-    await prisma.comment.update({
-      where: { id: Number(commentId) },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+      if (!comment) {
+        return Responses.NotFound(res, "Comment not found");
+      }
+      // Get the current user's ID from the decoded token
+      const createdById = res.locals.decodedToken.id;
 
-    return Responses.DeleteSuccess(res);
-  } catch (error) {
-    return Responses.InternalServerError(
-      res,
-      "An error occurred while deleting the comment"
-    );
-  }
-};
+      // Verify the current user exists and handle errors
+      let user;
+      try {
+        user = await getCurrentUser(parseInt(createdById, 10));
+      } catch (error: any) {
+        return Responses.BadRequest(res, error.message);
+      }
+      // Ensure the user can only delete their own comments or allow admins
+      if (comment.createdByUserId !== user.id) {
+        return Responses.Forbidden(
+          res,
+          "You can only delete your own comments"
+        );
+      }
+
+      // Soft delete the comment
+      await prisma.comment.update({
+        where: { id: Number(commentId) },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      return Responses.DeleteSuccess(res);
+    } catch (error) {
+      return Responses.InternalServerError(
+        res,
+        "An error occurred while deleting the comment"
+      );
+    }
+  };

@@ -10,20 +10,24 @@ import {
   updateComment,
 } from "../controllers/CommentController";
 
-const commentRouter = express.Router();
+const CommentRouter = (io: any) => {
+  const router = express.Router();
 
-commentRouter.post("/", authentication, allRoleAuthorization, addComment);
-commentRouter.put("/", authentication, allRoleAuthorization, updateComment);
-commentRouter.get(
-  "/:ticketId",
-  authentication,
-  allRoleAuthorization,
-  getCommentsByTicket
-);
-commentRouter.put(
-  "/:commentId",
-  authentication,
-  allRoleAuthorization,
-  deleteComment
-);
-export default commentRouter;
+  router.post("/", authentication, allRoleAuthorization, addComment(io));
+  router.put("/", authentication, allRoleAuthorization, updateComment(io));
+  router.get(
+    "/:ticketId",
+    authentication,
+    allRoleAuthorization,
+    getCommentsByTicket
+  );
+  router.put(
+    "/:commentId",
+    authentication,
+    allRoleAuthorization,
+    deleteComment(io)
+  );
+  return router;
+};
+
+export default CommentRouter;

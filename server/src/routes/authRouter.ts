@@ -1,7 +1,7 @@
 import express from "express";
 import { login, signup } from "../controllers/AuthController";
 
-const authRouter = express.Router();
+const AuthRouter = express.Router();
 /**
  * @swagger
  * /api/v1/auth/signup:
@@ -44,7 +44,7 @@ const authRouter = express.Router();
  *       500:
  *         description: Internal server error
  */
-authRouter.post("/signup", signup);
-authRouter.post("/login", login);
+AuthRouter.post("/signup", signup);
+AuthRouter.post("/login", login);
 
-export default authRouter;
+export default AuthRouter;

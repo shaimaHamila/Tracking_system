@@ -11,42 +11,42 @@ import { authentication } from "../middlewares/authMiddleware";
 import { userAuthorization } from "../middlewares/checkUserRole";
 import { Role } from "../types/Roles";
 
-const equipmentRouter = express.Router();
+const EquipmentRouter = express.Router();
 
 userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
-  equipmentRouter.get("/conditions", authentication, getEquipmentConditions);
-equipmentRouter.post(
+  EquipmentRouter.get("/conditions", authentication, getEquipmentConditions);
+EquipmentRouter.post(
   "/",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   createEquipment
 );
-equipmentRouter.get(
+EquipmentRouter.get(
   "/all",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
 
   getAllEquipments
 );
-equipmentRouter.get(
+EquipmentRouter.get(
   "/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
 
   getEquipmentById
 );
-equipmentRouter.put(
+EquipmentRouter.put(
   "/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
 
   updateEquipment
 );
-equipmentRouter.delete(
+EquipmentRouter.delete(
   "/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   deleteEquipment
 );
 
-export default equipmentRouter;
+export default EquipmentRouter;
