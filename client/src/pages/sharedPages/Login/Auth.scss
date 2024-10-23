@@ -1,0 +1,31 @@
+@import "../../../styles/general/responsive.scss";
+// This is a shared scss file for the signup login and tarking-order pages.
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  @include respond(md) {
+    grid-template-columns: 1fr;
+  }
+
+  &--image {
+    width: 50vw;
+    height: 100vh;
+    object-fit: cover;
+    border-radius: 8px;
+    flex: 0 0 auto;
+    @include respond(md) {
+      display: none;
+      margin-top: 5rem;
+    }
+
+    @include respond(sm) {
+      display: none;
+    }
+  }
+  &--form {
+    margin: auto;
+    width: 100%;
+    overflow-y: auto;
+    height: 100vh;
+  }
+}

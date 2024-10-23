@@ -1,0 +1,47 @@
+/* 
+     0-600px: Phone
+     600-900px:  Tablet portrait mode
+     900-1200px:  Tablet landscape
+     [1200 - 1800] : Our normal styles
+     1800px + : Big desktop 
+    */
+
+/*
+    $breakpoint argument choices ::
+    - phone
+    - tab-port
+    - tab-land
+    - big-desktop
+    */
+// 1em = 16px
+
+@mixin respond($breakpoint) {
+  @if $breakpoint == sm {
+    // 600 / 16
+    @media (max-width: 37.5em) {
+      //600px
+      @content;
+    }
+  }
+
+  @if $breakpoint == md {
+    @media (max-width: 56.25em) {
+      //900px
+      @content;
+    }
+  }
+
+  @if $breakpoint == lg {
+    @media (max-width: 75em) {
+      //1200px
+      @content;
+    }
+  }
+
+  @if $breakpoint == xl {
+    @media (min-width: 112.5em) {
+      //1800px
+      @content;
+    }
+  }
+}
