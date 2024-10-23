@@ -6,7 +6,7 @@ const Login = () => {
       <img className='auth-page--image' src='./png/loginImage.png' alt='login Image' />
       <div className='auth-page--content'>
         <div className='auth-page--form'>
-          <LoginForm onLogin={(data) => console.log(data)} />
+          <LoginForm onLogin={(data) => console.log("login", data)} />
         </div>
       </div>
     </div>
