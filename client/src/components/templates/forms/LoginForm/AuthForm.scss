@@ -1,0 +1,73 @@
+// This is a shared scss file for the signup login and tarking-order pages form.
+
+.auth-form {
+  padding: 6rem 1rem 3rem 1rem;
+  width: 80%;
+  // width: 500px;
+  margin: auto;
+  @media (min-width: 1453px) {
+    //900px
+    width: 550px;
+  }
+  &--logo-container {
+    text-align: center;
+  }
+  &--logo {
+    width: 16rem;
+  }
+  &--title {
+    text-align: center;
+    margin-top: 1rem !important;
+    margin-bottom: 2.5rem !important;
+
+    &-sub {
+      color: var(--gray-500);
+      max-width: 500px;
+    }
+  }
+  &--row {
+    column-gap: 1rem;
+    flex-wrap: wrap;
+    flex-direction: row;
+    display: flex;
+    align-items: flex-end;
+
+    &-item {
+      flex: 1;
+      width: -webkit-fill-available;
+      min-width: fit-content;
+    }
+  }
+  .ant-form-vertical .ant-form-item-label {
+    padding: 0rem;
+  }
+  .ant-form-vertical .ant-form-item-label > label {
+    font-weight: 500;
+  }
+  &--forgot-psw {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    &-link {
+      color: var(--primary-500) !important;
+      font-weight: 500;
+    }
+  }
+  &--submit-btn {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+    font-weight: 600;
+  }
+  &--text {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+  }
+  &--textLink {
+    color: var(--primary-500) !important;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+}

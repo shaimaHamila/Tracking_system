@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import "./App.scss";
-import Login from "./pages/Login/Login";
+import Login from "./pages/sharedPages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import { store } from "./store/store";
 import { useEffect } from "react";
@@ -12,14 +11,9 @@ function App() {
   console.log(import.meta.env.VITE_ENVIRONMENT);
   return (
     <>
-      <h1>React-client</h1>
-      <div>
-        <div></div>
-      </div>
-      <p className='read-the-docs'></p>
-
       <Routes>
         <Route path='/' element={<Login />}></Route>
+        <Route path='/login' element={<Login />}></Route>
         <Route path='/signup' element={<Signup />}></Route>
       </Routes>
     </>
