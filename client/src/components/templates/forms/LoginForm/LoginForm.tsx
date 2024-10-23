@@ -24,10 +24,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         <img className='auth-form--logo' src='./png/logo-light.png' alt='Astrolab Logo' />
       </div>
 
-      <Title className='auth-form--title' level={3}>
+      <Title className='auth-form--title' level={1}>
         {"Log in"}
       </Title>
-
+      <Title className='auth-form--subtitle' level={5}>
+        Welcom back! Please login to your account.
+      </Title>
       <Form onFinish={handleSubmit} style={{ marginTop: "1rem" }} layout='vertical' size='large'>
         <Form.Item
           label='Email'
@@ -75,7 +77,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             {"Forgot your password ?"}
           </Link>
         </div>
-        <Button className='auth-form--submit-btn' block htmlType='submit' type='primary' size={"large"}>
+        <Button className='auth-form--submit-btn' color='default' block htmlType='submit' type='primary' size={"large"}>
           {"Log in"}
         </Button>
       </Form>
