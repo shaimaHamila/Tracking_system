@@ -6,9 +6,10 @@ import Title from "antd/es/typography/Title";
 import "./AuthForm.scss";
 interface LoginFormProps {
   onLogin: (login: { email: string; password: string }) => void;
+  loading?: boolean;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, loading = false }) => {
   const navigate = useNavigate();
   const [login, setLogin] = useState({ email: "", password: "" });
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -77,7 +78,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             {"Forgot your password ?"}
           </Link>
         </div>
-        <Button className='auth-form--submit-btn' color='default' block htmlType='submit' type='primary' size={"large"}>
+        <Button
+          loading={loading}
+          className='auth-form--submit-btn'
+          color='default'
+          block
+          htmlType='submit'
+          type='primary'
+          size={"large"}
+        >
           {"Log in"}
         </Button>
       </Form>

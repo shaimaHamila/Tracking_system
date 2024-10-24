@@ -1,4 +1,4 @@
-# Client with React TypeScript, Redux Toolkit, Axios, Routing, Docker, Prettier, socket client
+# Client with React TypeScript, React query, Axios, Routing, Docker, Prettier, socket client
 
 ## Features
 
