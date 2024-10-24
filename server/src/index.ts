@@ -20,12 +20,14 @@ const { server, io } = SocketConnect(app);
 // Middleware
 app.use(
   cors({
-    origin: [
-      `${process.env.FRONTEND_URL}`, // Allow requests from your frontend URL
-      "http://localhost:3000", // Allow requests from localhost:3000
-    ],
+    // origin: true,
+    // origin: [
+    //   `${process.env.FRONTEND_URL}`, // Allow requests from your frontend URL
+    //   "http://localhost:3000", // Allow requests from localhost:3000
+    // ],
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    // credentials: true,
   })
 );
 app.use(bodyParser.json());
