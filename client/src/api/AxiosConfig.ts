@@ -2,6 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_BASE_URL}/api/v1`,
+  withCredentials: false,
 });
 
 api.interceptors.response.use(
@@ -13,13 +14,11 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
 
       window.location.href = "/login";
-      await api.get("/auth/logout");
     }
     if (error.response.status === 500) {
       localStorage.removeItem("token");
 
       window.location.href = "/login";
-      await api.get("/auth/logout");
     }
     return Promise.reject(error);
   },

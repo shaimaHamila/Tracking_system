@@ -1,16 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
 import { LoginForm } from "../../../components/templates/forms/LoginForm/LoginForm";
 import "./Auth.scss";
-import api from "../../../api/AxiosConfig";
-import axios from "axios";
+import { useLogin } from "../../../features/auth/AuthHooks";
 const Login = () => {
-  const { mutate, isPending, isError, error, data } = useMutation({
-    mutationFn: (loginData) => axios.post("http://localhost:6001/api/v1/auth/login", loginData).then((res) => res.data),
-  });
-  const handleLogin = (loginData: any) => {
-    mutate(loginData);
-  };
+  // const { mutate, isPending } = useMutation({
+  //   mutationFn: (loginData) => api.post("/auth/login", loginData).then((res) => res.data),
+  // });
+  // const handleLogin = (loginData: any) => {
+  //   mutate(loginData);
+  // };
+  const { mutate: login, isPending } = useLogin();
 
+  const handleLogin = (credentials: any) => {
+    login(credentials);
+  };
   return (
     <div className='auth-page'>
       <img className='auth-page--image' src='./png/loginImage.png' alt='login Image' />

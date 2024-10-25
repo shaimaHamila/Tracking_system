@@ -104,16 +104,13 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return Responses.NotFound(res, "User not found.");
+      return Responses.BadRequest(res, "User not found.");
     }
 
     // Check if the password is correct
-    const isPasswordCorrect = await Encrypt.comparepassword(
-      password,
-      user.password
-    );
+    const isPasswordCorrect = Encrypt.comparepassword(password, user.password);
     if (!isPasswordCorrect) {
-      return Responses.Unauthorized(res, "Invalid password.");
+      return Responses.BadRequest(res, "Invalid password.");
     }
 
     // Generate JWT tokens
