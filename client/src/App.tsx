@@ -8,6 +8,7 @@ import Tickets from "./pages/Tickets/Tickets";
 import Equipments from "./pages/Equipments/Equipments";
 import Users from "./pages/Users/Users";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import MyProfile from "./pages/MyProfile/MyProfile";
 function App() {
   console.log(import.meta.env.VITE_ENVIRONMENT);
   return (
@@ -22,6 +23,8 @@ function App() {
           <Route path='projects' element={<Projects />} />
           <Route path='tickets' element={<Tickets />} />
           <Route path='equipments' element={<Equipments />} />
+          <Route path='profile' element={<MyProfile />} />
+          <Route path='*' element={<h1>Not Found</h1>} />
         </Route>
       </Routes>
     </>

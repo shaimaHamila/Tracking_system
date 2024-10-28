@@ -24,38 +24,36 @@ const SideBar: React.FC<SideMenuProps> = ({ menuItems, collapsed, onCollapse, wi
   const location = useLocation();
   const [selectedKey, setSelectedKey] = useState(location.pathname);
   return (
-    <Layout>
-      <Sider
-        className='side-menu--container ant-layout-sider'
-        collapsible
-        collapsed={collapsed}
-        onCollapse={onCollapse}
-        collapsedWidth='60'
-        width={width}
-      >
-        <div className='side-menu'>
-          <div className='side-menu--header'>
-            <img
-              className={`side-menu--header-logo${collapsed ? "-expanded" : ""}`}
-              src={collapsed ? "../png/logo-icon.png" : "../png/logo-dark.png"}
-              alt='Astrolab logo'
-              style={{ maxWidth: collapsed ? "2rem" : "10rem", transition: "max-width 0.3s ease" }}
-            />
-          </div>
-          <Menu
-            selectedKeys={[selectedKey]}
-            theme='dark'
-            mode='inline'
-            onClick={(item) => {
-              navigate(item.key.toString());
-              setSelectedKey(item.key.toString());
-            }}
-            items={menuItems as MenuProps["items"]}
-            className='side-menu--menu'
+    <Layout.Sider
+      className='side-menu--container ant-layout-sider'
+      collapsible
+      collapsed={collapsed}
+      onCollapse={onCollapse}
+      collapsedWidth='60'
+      width={width}
+    >
+      <div className='side-menu'>
+        <div className='side-menu--header'>
+          <img
+            className={`side-menu--header-logo${collapsed ? "-expanded" : ""}`}
+            src={collapsed ? "../png/logo-icon.png" : "../png/logo-dark.png"}
+            alt='Astrolab logo'
+            style={{ maxWidth: collapsed ? "2rem" : "10rem", transition: "max-width 0.3s ease" }}
           />
         </div>
-      </Sider>
-    </Layout>
+        <Menu
+          selectedKeys={[selectedKey]}
+          theme='dark'
+          mode='inline'
+          onClick={(item) => {
+            navigate(item.key.toString());
+            setSelectedKey(item.key.toString());
+          }}
+          items={menuItems as MenuProps["items"]}
+          className='side-menu--menu'
+        />
+      </div>
+    </Layout.Sider>
   );
 };
 
