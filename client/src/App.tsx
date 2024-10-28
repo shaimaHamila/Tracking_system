@@ -7,6 +7,7 @@ import Projects from "./pages/Projects/Projects";
 import Tickets from "./pages/Tickets/Tickets";
 import Equipments from "./pages/Equipments/Equipments";
 import Users from "./pages/Users/Users";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 function App() {
   console.log(import.meta.env.VITE_ENVIRONMENT);
   return (
@@ -17,13 +18,10 @@ function App() {
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/' element={<MainLayout />}>
           <Route path='users' element={<Users />} />
+          <Route path='dashboard' element={<AdminDashboard />} />
           <Route path='projects' element={<Projects />} />
           <Route path='tickets' element={<Tickets />} />
-          <Route
-            path='
-          equipments'
-            element={<Equipments />}
-          />
+          <Route path='equipments' element={<Equipments />} />
         </Route>
       </Routes>
     </>
