@@ -1,0 +1,24 @@
+.table-container {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  &--header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    &-actions {
+      flex-wrap: nowrap;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      &-search {
+        min-width: 290px;
+      }
+    }
+  }
+}
+@media (max-width: 460px) {
+  .table-container--header-actions {
+    flex-wrap: wrap;
+  }
+}

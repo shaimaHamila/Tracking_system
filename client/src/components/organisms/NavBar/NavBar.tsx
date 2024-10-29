@@ -1,6 +1,6 @@
 import { Header } from "antd/es/layout/layout";
 import "./NavBar.scss";
-import { Avatar, Dropdown, Flex, Menu, MenuProps } from "antd";
+import { Avatar, Dropdown, Flex, MenuProps } from "antd";
 import React from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import Notification from "../../molecules/Notification/Notification";
