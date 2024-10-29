@@ -27,6 +27,7 @@
       font-size: 0.875rem;
       font-weight: 500;
       color: var(--gray-900);
+      margin-bottom: 4px;
     }
   }
   .header--right-section {
@@ -35,6 +36,6 @@
     justify-content: flex-end;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 3rem;
+    gap: 2rem;
   }
 }

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Badge, Dropdown } from "antd";
+import { Badge, Dropdown, Flex, Typography } from "antd";
 import { IoNotifications } from "react-icons/io5";
 import colors from "../../../styles/colors/colors";
 import "./Notification.scss";
 
+const { Text } = Typography;
 import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
 interface UserItem {
   id: number;
@@ -105,8 +106,11 @@ const Notification: React.FC = () => {
       trigger={["click"]}
       placement='bottomRight'
     >
-      <Badge count={notificationCount} offset={[6, 1]}>
-        <IoNotifications size={20} style={{ cursor: "pointer", color: colors.secondary[500] }} />
+      <Badge count={notificationCount} offset={[6, 1]} style={{ cursor: "pointer" }}>
+        <Flex style={{ cursor: "pointer" }} gap={"0.25rem"}>
+          <Text strong>Notifications</Text>
+          <IoNotifications size={20} style={{ color: colors.secondary[500] }} />
+        </Flex>
       </Badge>
     </Dropdown>
   );
