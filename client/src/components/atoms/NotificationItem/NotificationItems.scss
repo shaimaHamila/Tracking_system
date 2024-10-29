@@ -1,0 +1,33 @@
+.notifications {
+  width: 350px;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--white);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+
+  &-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+  &-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0px -1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--gray-50);
+  }
+  &-container {
+    max-height: 450px;
+    overflow-y: auto;
+  }
+  &-list {
+    display: flex;
+    cursor: pointer;
+    padding: 0.75rem 0.5rem !important;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+  }
+}
