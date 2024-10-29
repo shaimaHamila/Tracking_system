@@ -1,6 +1,6 @@
 import { Header } from "antd/es/layout/layout";
 import "./NavBar.scss";
-import { Avatar, Dropdown, Menu } from "antd";
+import { Avatar, Dropdown, Flex, Menu } from "antd";
 import React from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import Notification from "../../molecules/Notification/Notification";
@@ -17,7 +17,7 @@ const NavBar: React.FC<NavBarProps> = ({ userImg, userName, pageName, pageIcon, 
   const menu = (
     <Menu>
       <Menu.Item key='profile' icon={<FaUser />}>
-        <a href='/profile'>View My Profile</a>
+        <a href='/profile'>{userName ? userName : "Mon profil"}</a>
       </Menu.Item>
       <Menu.Item key='logout' icon={<FaSignOutAlt />} onClick={logout}>
         Logout
@@ -35,21 +35,20 @@ const NavBar: React.FC<NavBarProps> = ({ userImg, userName, pageName, pageIcon, 
       </div>
 
       <div className='header--right-section'>
-        {/* Notification Icon */}
         <Notification />
 
-        {/* User Dropdown */}
         <Dropdown overlay={menu} trigger={["click"]}>
           <div className='header--user' style={{ cursor: "pointer" }}>
-            <h3 className='header--user-name'>
-              {userName ? userName : "Mon profil"}
+            <Flex align='center'>
+              <h3 className='header--user-name'>Me</h3>
               <RiArrowDropDownLine />
-            </h3>
-            {userImg ? (
-              <Avatar src={userImg} size={34} style={{ backgroundColor: "#fde3cf", color: "#f56a00" }} />
-            ) : (
-              <Avatar icon={<FaUser />} size={34} style={{ backgroundColor: "#fde3cf", color: "#f56a00" }} />
-            )}
+            </Flex>
+            <Avatar
+              icon={<FaUser />}
+              src={userImg}
+              size={34}
+              style={{ backgroundColor: "#f3eae2", color: "#755c42" }}
+            />
           </div>
         </Dropdown>
       </div>
