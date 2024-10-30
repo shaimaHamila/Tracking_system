@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import ForgotPassword from "./pages/ForgetPassword/ForgetPassword";
@@ -9,8 +9,12 @@ import Equipments from "./pages/Equipments/Equipments";
 import Users from "./pages/Users/Users";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import MyProfile from "./pages/MyProfile/MyProfile";
+import { useCurrentUser } from "./features/user/UserHooks";
+import { Loading } from "./components/atoms/Loading/Loading";
 function App() {
-  console.log(import.meta.env.VITE_ENVIRONMENT);
+  const { data: currentUser, isLoading, isError } = useCurrentUser();
+  if (isLoading) return <Loading />;
+  if (isError) return <Navigate to='/login' />;
   return (
     <>
       <Routes>

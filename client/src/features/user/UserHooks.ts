@@ -1,25 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import api from "../../api/AxiosConfig";
 
-const fetchCurrentUser = async () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    throw new Error("No token found");
-  }
-  const { data } = await api.get("/api/current-user", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return data;
-};
-
 export const useCurrentUser = () => {
-  return useQuery("currentUser", fetchCurrentUser, {
-    staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Keep the cache alive for 10 minutes
-    retry: false, // Disable retry if there's an error (like unauthenticated user)
-  });
+  return useQuery(
+    "currentUser",
+    async () => {
+      const { data } = await api.get("/api/current-user");
+      return data;
+    },
+    {
+      staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
+      cacheTime: 10 * 60 * 1000, // Keep the cache alive for 10 minutes
+      retry: false, // Disable retry if there's an error (like unauthenticated user)
+    },
+  );
 };
 
 export const useUsers = () => {
