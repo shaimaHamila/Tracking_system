@@ -1,6 +1,6 @@
 #! /bin/bash
 echo "[INFO] Preparing Backend infrastructure ................"
-cd backend/
+cd ./server/
 cat .env.example >> .env
 echo -e  >> .env
 echo -e FRONTEND_URL=$(gp url 3000) >> .env
@@ -12,7 +12,7 @@ echo "[INFO] Preparing Backend infrastructure done."
 echo \n\n\n
 
 echo "[INFO] Preparing Frontend infrastructure ................"
-cd ../client/
+cd ./client/
 
 cat .env.example >> .env
 echo -e  >> .env

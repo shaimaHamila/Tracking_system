@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { UploadOutlined, UserOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import { Layout, Menu, MenuProps } from "antd";
 
-const { Sider } = Layout;
 import "./SideBar.scss";
 import { useLocation, useNavigate } from "react-router-dom";
 type MenuItem = {

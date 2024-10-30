@@ -1,7 +1,7 @@
 #! /bin/bash
 
 echo "[INFO] Preparing Backend infrastructure ................"
-cd server/ || { echo "[ERROR] Failed to enter server directory."; exit 1; }
+cd ./server/ || { echo "[ERROR] Failed to enter server directory."; exit 1; }
 
 # Check if .env exists; if so, overwrite it
 if [ -f .env ]; then
@@ -30,7 +30,7 @@ echo "[INFO] Preparing Backend infrastructure done."
 echo -e "\n\n\n"
 
 echo "[INFO] Preparing Frontend infrastructure ................"
-cd ../client/ || { echo "[ERROR] Failed to enter client directory."; exit 1; }
+cd ./client/ || { echo "[ERROR] Failed to enter client directory."; exit 1; }
 
 # Check if .env exists; if so, overwrite it
 if [ -f .env ]; then

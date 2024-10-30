@@ -11,7 +11,9 @@ const ForgotPassword = () => {
   const handleChange = (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setResetReqPsw({ ...resetReqPsw, [field]: event.target.value });
   };
-  const handleResetPasswordReq = (data: any) => {};
+  const handleResetPasswordReq = (data: any) => {
+    console.log(data);
+  };
 
   return (
     <div className='auth-page'>
