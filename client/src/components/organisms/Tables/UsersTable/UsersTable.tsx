@@ -62,6 +62,24 @@ const columns: TableProps<DataType>["columns"] = [
   },
 ];
 
+const UserTable: React.FC = () => {
+  return (
+    <div>
+      <TableHeader
+        onSearchChange={(searchedId) => console.log(searchedId)}
+        onClickBtn={() => console.log("clicked")}
+        btnText={"Add user"}
+        totalItems={10}
+        totalItemsText={"Total users:"}
+        searchPlaceholder={"Search by name"}
+      />
+      <Table<DataType> columns={columns} dataSource={data} />
+    </div>
+  );
+};
+
+export default UserTable;
+
 const data: DataType[] = [
   {
     key: "1",
@@ -85,22 +103,3 @@ const data: DataType[] = [
     tags: ["cool", "teacher"],
   },
 ];
-
-const UserTable: React.FC = () => {
-  return (
-    <div>
-      <TableHeader
-        onSearchChange={function (searchedId: string): void {
-          throw new Error("Function not implemented.");
-        }}
-        onClickBtn={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        btnText={"Add user"}
-      />
-      <Table<DataType> columns={columns} dataSource={data} />
-    </div>
-  );
-};
-
-export default UserTable;
