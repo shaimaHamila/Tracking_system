@@ -69,17 +69,23 @@ export const createUser = async (req: Request, res: Response) => {
 
 // Get all users with filtering and pagination
 export const getAllUsers = async (req: Request, res: Response) => {
-  const { page, pageSize, firstName, roleId } = req.query;
+  const { page, pageSize, firstName, roleIds } = req.query;
 
   const skip =
     page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
   const take = page && pageSize ? Number(pageSize) : undefined;
 
+  const parsedRoleIds = roleIds
+    ? Array.isArray(roleIds)
+      ? roleIds.map(Number)
+      : [Number(roleIds)]
+    : undefined;
+
   try {
     // Construct the filter options for the `findMany` query
     const filters = {
       ...(firstName ? { firstName: { contains: String(firstName) } } : {}),
-      ...(roleId ? { roleId: Number(roleId) } : {}),
+      ...(parsedRoleIds ? { roleId: { in: parsedRoleIds } } : {}),
     };
 
     // Fetch user data with pagination and filtering
