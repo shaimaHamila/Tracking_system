@@ -1,16 +1,16 @@
 import React from "react";
 import { Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
-import { Content } from "antd/es/layout/layout";
-import colors from "../../../../styles/colors/colors";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
+import { Role } from "../../../../types/Role";
+import { Project } from "../../../../types/Project";
 
 interface DataType {
   key: string;
   name: string;
-  age: number;
-  address: string;
-  tags: string[];
+  email: string;
+  role: Role;
+  projects: Partial<Project>[];
 }
 
 const columns: TableProps<DataType>["columns"] = [
@@ -21,41 +21,27 @@ const columns: TableProps<DataType>["columns"] = [
     render: (text) => <a>{text}</a>,
   },
   {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    title: "Role",
+    dataIndex: "role",
+    key: "role",
   },
   {
-    title: "Tags",
-    key: "tags",
-    dataIndex: "tags",
-    render: (_, { tags }) => (
-      <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
+    title: "Projects",
+    key: "projects",
+    dataIndex: "projects",
   },
   {
     title: "Action",
     key: "action",
-    render: (_, record) => (
+    render: () => (
       <Space size='middle'>
-        <a>Invite {record.name}</a>
+        <a>View</a>
+        <a>Edit</a>
         <a>Delete</a>
       </Space>
     ),
@@ -84,22 +70,32 @@ const data: DataType[] = [
   {
     key: "1",
     name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
+    email: "test@gmail.com",
+    role: {
+      id: 2,
+      roleName: "ADMIN",
+    },
+    projects: [],
   },
   {
     key: "2",
     name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
+    email: "test@gmail.com",
+
+    role: {
+      id: 3,
+      roleName: "STAFF",
+    },
+    projects: [],
   },
   {
     key: "3",
     name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
+    email: "test@gmail.com",
+    role: {
+      id: 4,
+      roleName: "CLIENT",
+    },
+    projects: [],
   },
 ];
