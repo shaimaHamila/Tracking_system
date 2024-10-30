@@ -16,6 +16,22 @@ Run the Script Again: After giving it execution permissions, run the script as b
 ./start_all.sh
 ```
 
+## RUN project on git gitpod
+
+### Make the Script Executable
+
+Run the following command to add execute permissions:
+
+```sh
+chmod +x start_all_gitpod.sh
+```
+
+Run the Script Again: After giving it execution permissions, run the script as before:
+
+```sh
+./start_all_gitpod.sh
+```
+
 ## Running the Project Using Docker
 
 ### 1.Backend Setup:
