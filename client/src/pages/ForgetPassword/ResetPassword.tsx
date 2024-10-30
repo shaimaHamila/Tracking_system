@@ -28,7 +28,7 @@ const ResetPassword = () => {
       newPassword: resetPsw.newPassword,
       resetPasswordToken: resetPasswordToken!,
     };
-
+    console.log(data);
     // store.dispatch(resetPassword(data));
   };
 

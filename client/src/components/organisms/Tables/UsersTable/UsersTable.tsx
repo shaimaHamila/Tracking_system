@@ -1,5 +1,5 @@
 import React from "react";
-import { Space, Table, Tag } from "antd";
+import { Space, Table } from "antd";
 import type { TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
 import { Role } from "../../../../types/Role";
