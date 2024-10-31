@@ -20,8 +20,8 @@ const useClientRoutes = () => {
         <Route path='dashboard' element={<ClientDashboard />} />
 
         {/* Add more nested routes here if needed */}
+        {sharedRoutes}
       </Route>
-      {sharedRoutes}
       <Route
         path='*'
         element={

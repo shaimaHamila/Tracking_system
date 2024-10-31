@@ -1,22 +1,46 @@
-import { Tabs, TabsProps } from "antd";
+import { notification, Tabs, TabsProps } from "antd";
 import { LiaUser, LiaUserCogSolid, LiaUserTieSolid } from "react-icons/lia";
 import UserTable from "../../components/organisms/Tables/UsersTable/UsersTable";
 import { User } from "../../types/User";
-const Users = () => {
+import { useFetchUsers } from "../../features/user/UserHooks";
+import { useState } from "react";
+const Users: React.FC = () => {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const { data, status, isError } = useFetchUsers({
+    pageSize,
+    page,
+  });
+  console.log("Fetched data:", data);
+
+  if (isError) {
+    notification.error({
+      message: "Failed to fetch users please try again",
+    });
+  }
+
   const onChange = (key: string) => {
     console.log(key);
   };
   const renderUserTable = (addBtnText: string) => (
     <UserTable
-      users={data}
-      status={"idle"}
-      totalUsers={0}
+      users={data?.data || []}
+      status={status}
+      totalUsers={data?.meta?.totalCount || 0}
       onViewUser={(user: User) => console.log(user)}
       onUpdateUser={(user: User) => console.log(user)}
       onDeleteUser={(id: string) => console.log(id)}
-      limitUsersPerPage={10}
-      onPageChange={(page: number) => console.log(page)}
-      handlePageSizeChange={(current: number, pageSize) => console.log(current, pageSize)}
+      limitUsersPerPage={pageSize}
+      onPageChange={(newPage: number) => {
+        setPage(newPage);
+        console.log("Page changed to:", newPage);
+      }}
+      handlePageSizeChange={(newPageSize) => {
+        setPageSize(newPageSize);
+        setPage(1);
+        console.log("Page size changed to:", newPageSize);
+      }}
       addNewUser={() => console.log(`Add new ${addBtnText.toLowerCase()}`)}
       addBtnText={addBtnText}
       onSearchChange={(searchedName: string) => console.log(searchedName)}
@@ -53,51 +77,3 @@ const Users = () => {
 };
 
 export default Users;
-
-const data: any[] = [
-  {
-    id: 1,
-    firstName: "John",
-    lastName: "Brown",
-    email: "test@gmail.com",
-    role: {
-      id: 2,
-      roleName: "ADMIN",
-    },
-    projects: [{ id: 1, name: "Project 1" }],
-  },
-  {
-    id: 2,
-    firstName: "John",
-    lastName: "Brown",
-    email: "test@gmail.com",
-
-    role: {
-      id: 3,
-      roleName: "STAFF",
-    },
-    projects: [
-      { id: 1, name: "Project 1" },
-      { id: 2, name: "Project 2" },
-      { id: 3, name: "Project 3" },
-      { id: 4, name: "Project 4" },
-      { id: 4, name: "Project 5" },
-      { id: 4, name: "Project 6" },
-      { id: 4, name: "Project 7" },
-    ],
-  },
-  {
-    id: 3,
-    firstName: "John",
-    lastName: "Brown",
-    email: "test@gmail.com",
-    role: {
-      id: 4,
-      roleName: "CLIENT",
-    },
-    projects: [
-      { id: 1, name: "Project 1" },
-      { id: 2, name: "Project 2" },
-    ],
-  },
-];
