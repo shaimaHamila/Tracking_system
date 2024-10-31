@@ -17,14 +17,14 @@ interface UserTableRow {
 }
 interface UserTableProps {
   users: User[];
-  status: "idle" | "loading" | "failed";
+  status: "error" | "success" | "pending";
   totalUsers: number;
   onViewUser: (user: User) => void;
   onUpdateUser: (user: User) => void;
   onDeleteUser: (id: string) => void;
   limitUsersPerPage: number;
   onPageChange: (page: number) => void;
-  handlePageSizeChange: (current: number, pageSize: number) => void;
+  handlePageSizeChange: (pageSize: number) => void;
   addNewUser: () => void;
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
@@ -85,18 +85,18 @@ const UserTable: React.FC<UserTableProps> = ({
       render: (role) => {
         let tagColor;
         switch (role.roleName) {
-          // case RoleName.ADMIN:
-          //   tagColor = "volcano";
-          //   break;
+          case RoleName.ADMIN:
+            tagColor = "volcano";
+            break;
           case RoleName.STAFF:
             tagColor = "processing";
             break;
-          // case RoleName.CLIENT:
-          //   tagColor = "gold";
-          //   break;
-          // case RoleName.TECHNICAL_MANAGER:
-          //   tagColor = "purple";
-          //   break;
+          case RoleName.CLIENT:
+            tagColor = "gold";
+            break;
+          case RoleName.TECHNICAL_MANAGER:
+            tagColor = "purple";
+            break;
           default:
             tagColor = "default";
         }
@@ -107,27 +107,31 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Projects",
       key: "projects",
       dataIndex: "projects",
-      width: "30%",
-      render: (projects) => {
-        const displayedProjects = projects.slice(0, 3);
-        const remainingProjects = projects.length - displayedProjects.length;
+      render: (projects: Partial<Project>[]) => {
+        // Check if there are no projects
+        if (projects.length === 0) {
+          return <div>--</div>;
+        } else {
+          const displayedProjects = projects.slice(0, 3);
+          const remainingProjects = projects.length - displayedProjects.length;
 
-        return (
-          <div>
-            {displayedProjects.map((project: Partial<Project>) => (
-              <Tag bordered={false} key={project.id} color='default' style={{ marginBottom: "5px" }}>
-                {project.name}
-              </Tag>
-            ))}
-            {remainingProjects > 0 && (
-              <Tooltip title={projects.map((project: Partial<Project>) => project.name).join(", ")}>
-                <Tag bordered={false} color='default'>
-                  +{remainingProjects} more
+          return (
+            <div>
+              {displayedProjects.map((project: Partial<Project>) => (
+                <Tag bordered={false} key={project.id} color='default' style={{ marginBottom: "5px" }}>
+                  {project.name}
                 </Tag>
-              </Tooltip>
-            )}
-          </div>
-        );
+              ))}
+              {remainingProjects > 0 && (
+                <Tooltip title={projects.map((project: Partial<Project>) => project.name).join(", ")}>
+                  <Tag bordered={false} color='default'>
+                    +{remainingProjects} more
+                  </Tag>
+                </Tooltip>
+              )}
+            </div>
+          );
+        }
       },
     },
 
@@ -172,7 +176,7 @@ const UserTable: React.FC<UserTableProps> = ({
   ];
   const onPageSizeChange = (_current: number, size: number) => {
     setPageSize(size);
-    handlePageSizeChange(_current, size);
+    handlePageSizeChange(size);
   };
   const [tableHeight, setTableHeight] = useState(300);
   const ref = useRef<HTMLDivElement>(null);
@@ -181,7 +185,7 @@ const UserTable: React.FC<UserTableProps> = ({
     if (ref.current) {
       const { top } = ref.current.getBoundingClientRect();
       // Adjust TABLE_HEADER_HEIGHT according to your actual header height.
-      const TABLE_HEADER_HEIGHT = 55;
+      const TABLE_HEADER_HEIGHT = 160;
       setTableHeight(window.innerHeight - top - TABLE_HEADER_HEIGHT - 100);
     }
   }, [ref]);
@@ -196,12 +200,12 @@ const UserTable: React.FC<UserTableProps> = ({
         searchPlaceholder={"Search by name"}
       />
       <Table<UserTableRow>
-        loading={status == "loading"}
+        loading={status == "pending"}
         rowKey='id'
         columns={columns}
         dataSource={tableContent}
         pagination={false}
-        scroll={{ y: tableHeight, x: 700 }}
+        scroll={{ y: tableHeight, x: 600 }}
       />
       <Pagination
         style={{ margin: "26px", textAlign: "right", justifyContent: "flex-end" }}

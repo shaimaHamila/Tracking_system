@@ -22,8 +22,8 @@ const useStaffRoutes = () => {
         <Route path='equipments' element={<Equipments />} />
 
         {/* Add more nested routes here if needed */}
+        {sharedRoutes}
       </Route>
-      {sharedRoutes}
       <Route
         path='*'
         element={
