@@ -5,7 +5,7 @@ import { User } from "../../types/User";
 interface FetchUsersRequest {
   pageSize?: number | null;
   page?: number | null;
-  roleid?: string | null;
+  roleId?: number | null;
   firstName?: string | null;
 }
 interface FetchUsersResponse {
@@ -30,12 +30,12 @@ export const useCurrentUser = (token: string) => {
 };
 
 // Fetch users
-export const useFetchUsers = ({ pageSize, page, roleid, firstName }: FetchUsersRequest) => {
+export const useFetchUsers = ({ pageSize, page, roleId, firstName }: FetchUsersRequest) => {
   return useQuery<FetchUsersResponse>({
-    queryKey: ["user/fetchUsers", pageSize, page, roleid, firstName],
+    queryKey: ["user/fetchUsers", pageSize, page, roleId, firstName],
     queryFn: async () => {
       const { data } = await api.get<FetchUsersResponse>("/user", {
-        params: { pageSize, page, roleid, firstName },
+        params: { pageSize, page, roleId, firstName },
       });
       console.log("aaaaa", data);
 

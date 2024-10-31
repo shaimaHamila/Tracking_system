@@ -85,18 +85,18 @@ const UserTable: React.FC<UserTableProps> = ({
       render: (role) => {
         let tagColor;
         switch (role.roleName) {
-          // case RoleName.ADMIN:
-          //   tagColor = "volcano";
-          //   break;
+          case RoleName.ADMIN:
+            tagColor = "volcano";
+            break;
           case RoleName.STAFF:
             tagColor = "processing";
             break;
-          // case RoleName.CLIENT:
-          //   tagColor = "gold";
-          //   break;
-          // case RoleName.TECHNICAL_MANAGER:
-          //   tagColor = "purple";
-          //   break;
+          case RoleName.CLIENT:
+            tagColor = "gold";
+            break;
+          case RoleName.TECHNICAL_MANAGER:
+            tagColor = "purple";
+            break;
           default:
             tagColor = "default";
         }

@@ -1,27 +1,42 @@
 import { notification, Tabs, TabsProps } from "antd";
-import { LiaUser, LiaUserCogSolid, LiaUserTieSolid } from "react-icons/lia";
+import { LiaUser, LiaUserCogSolid, LiaUserShieldSolid, LiaUserTieSolid } from "react-icons/lia";
 import UserTable from "../../components/organisms/Tables/UsersTable/UsersTable";
 import { User } from "../../types/User";
 import { useFetchUsers } from "../../features/user/UserHooks";
 import { useState } from "react";
+import { RoleId, RolesId } from "../../types/Role";
+import "./User.scss";
 const Users: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [roleId, setRoleId] = useState(RolesId.STAFF); // Default to STAFF
+  const [firstName, setFirstName] = useState<string | null>(null);
 
   const { data, status, isError } = useFetchUsers({
     pageSize,
     page,
+    roleId,
+    firstName,
   });
-  console.log("Fetched data:", data);
 
   if (isError) {
     notification.error({
       message: "Failed to fetch users please try again",
     });
   }
-
+  // Map tab keys to role IDs
+  const roleMap: Record<string, RoleId> = {
+    "1": RolesId.STAFF,
+    "2": RolesId.CLIENT,
+    "3": RolesId.TECHNICAL_MANAGER,
+    "4": RolesId.ADMIN,
+  };
   const onChange = (key: string) => {
-    console.log(key);
+    const newRoleId = roleMap[key];
+    setRoleId(newRoleId);
+    setPage(1); // Reset to the first page when role changes
+    setFirstName(null); // Reset search
+    console.log("Selected role ID:", newRoleId);
   };
   const renderUserTable = (addBtnText: string) => (
     <UserTable
@@ -34,16 +49,16 @@ const Users: React.FC = () => {
       limitUsersPerPage={pageSize}
       onPageChange={(newPage: number) => {
         setPage(newPage);
-        console.log("Page changed to:", newPage);
       }}
       handlePageSizeChange={(newPageSize) => {
         setPageSize(newPageSize);
         setPage(1);
-        console.log("Page size changed to:", newPageSize);
       }}
       addNewUser={() => console.log(`Add new ${addBtnText.toLowerCase()}`)}
       addBtnText={addBtnText}
-      onSearchChange={(searchedName: string) => console.log(searchedName)}
+      onSearchChange={(searchedName: string) => {
+        setFirstName(searchedName == "" ? null : searchedName);
+      }}
     />
   );
 
@@ -69,7 +84,7 @@ const Users: React.FC = () => {
     {
       key: "4",
       label: "Admins",
-      icon: <LiaUserCogSolid />,
+      icon: <LiaUserShieldSolid />,
       children: renderUserTable("Add new admin"),
     },
   ];
