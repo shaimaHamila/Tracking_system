@@ -1,5 +1,4 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./main.scss";
@@ -13,11 +12,9 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <ConfigProvider theme={antdThemeConfig}>
-          <App />
-        </ConfigProvider>
-      </BrowserRouter>
+      <ConfigProvider theme={antdThemeConfig}>
+        <App />
+      </ConfigProvider>
       <ReactQueryDevtools initialIsOpen position='right' buttonPosition='bottom-right' />
     </QueryClientProvider>
   </React.StrictMode>,

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import api from "../../api/AxiosConfig";
 import { notification } from "antd";
+import { User } from "../../types/User";
 
 interface Credentials {
   email: string;
@@ -8,28 +9,32 @@ interface Credentials {
 }
 
 interface UserResponse {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    token: string;
-  };
+  accessToken: string;
+  refreshToken: string;
+  data: User;
+  message: string;
+  succss: boolean;
 }
 export const useLogin = () => {
   return useMutation<UserResponse, Error, Credentials>({
     mutationFn: async (credentials) => {
       const res = await api.post<UserResponse>("/auth/login", credentials);
+      console.log(res.data);
       return res.data;
     },
     onSuccess: (data) => {
-      localStorage.setItem("token", data.user.token); // Store the token
+      localStorage.setItem("accessToken", data.accessToken);
+      console.log(data);
       // Additional logic on success (e.g., redirect, show a message)
+      notification.success({
+        message: data.message,
+        description: "Welcome back",
+      });
     },
-    onError: (error) => {
-      console.error("Login failed:", error);
+    onError: (error: any) => {
       notification.error({
         message: "Login Failed",
-        description: error?.message || "An unknown error occurred. Please try again.",
+        description: error.response?.data?.message || "Invalid email or password",
       });
     },
   });

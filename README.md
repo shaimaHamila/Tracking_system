@@ -16,7 +16,7 @@ Run the Script Again: After giving it execution permissions, run the script as b
 ./start_all.sh
 ```
 
-## RUN project on git gitpod
+## RUN project on gitpod
 
 ### Make the Script Executable
 

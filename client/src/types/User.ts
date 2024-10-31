@@ -1,4 +1,5 @@
 import { Equipment } from "./Equipment";
+import { Project } from "./Project";
 import { Role } from "./Role";
 
 export type User = {
@@ -9,5 +10,6 @@ export type User = {
   phone: string;
   createdAt: Date;
   role: Role;
-  equipments: Equipment[];
+  equipments: Partial<Equipment>[];
+  projects: Partial<Project>[];
 };
