@@ -6,6 +6,7 @@ import {
   updateUserValidator,
 } from "../validators/UserValidator";
 import { Encrypt } from "../helpers/Encrypt";
+import { getCurrentUser } from "../helpers/GetCurrentUser";
 
 // Create new user
 export const createUser = async (req: Request, res: Response) => {
@@ -109,6 +110,20 @@ export const getAllUsers = async (req: Request, res: Response) => {
             condition: true,
           },
         },
+        projects: {
+          // Add this section to include the projects
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -157,6 +172,76 @@ export const getUserById = async (req: Request, res: Response) => {
             name: true,
             serialNumber: true,
             condition: true,
+          },
+        },
+        projects: {
+          // Add this section to include the projects
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!user) {
+      return Responses.NotFound(res, "User not found.");
+    }
+    return Responses.FetchSucess(res, user);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+//Get current user
+export const fetchCurrentUser = async (req: Request, res: Response) => {
+  try {
+    // Get the current user's ID from the decoded token
+    const currentUserId = res.locals.decodedToken.id;
+
+    // Verify the current user exists and handle errors
+    let currentUser;
+    try {
+      currentUser = await getCurrentUser(parseInt(currentUserId, 10));
+    } catch (error: any) {
+      return Responses.BadRequest(res, error.message);
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: Number(currentUser?.id) },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        role: true,
+        equipments: {
+          select: {
+            id: true,
+            name: true,
+            serialNumber: true,
+            condition: true,
+          },
+        },
+        projects: {
+          // Add this section to include the projects
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
           },
         },
       },
@@ -236,6 +321,20 @@ export const updateUser = async (req: Request, res: Response) => {
             name: true,
             serialNumber: true,
             condition: true,
+          },
+        },
+        projects: {
+          // Add this section to include the projects
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
           },
         },
       },

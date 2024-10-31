@@ -2,6 +2,7 @@ import express from "express";
 import {
   createUser,
   deleteUser,
+  fetchCurrentUser,
   getAllUsers,
   getUserById,
   updateUser,
@@ -18,6 +19,7 @@ const UserRouter = express.Router();
 
 UserRouter.post("/", authentication, adminAuthorization, createUser);
 UserRouter.get("/", authentication, allRoleAuthorization, getAllUsers);
+UserRouter.get("/current-user", authentication, fetchCurrentUser);
 UserRouter.get(
   "/:id",
   authentication,

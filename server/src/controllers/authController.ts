@@ -104,7 +104,7 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return Responses.BadRequest(res, "User not found.");
+      return Responses.BadRequest(res, "Invalid email.");
     }
 
     // Check if the password is correct

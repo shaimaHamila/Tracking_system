@@ -5,14 +5,14 @@ export const useCurrentUser = () => {
   return useQuery(
     "currentUser",
     async () => {
-      const { data } = await api.get("/api/current-user");
+      const { data } = await api.get("/user/current-user");
       return data;
     },
-    {
-      staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
-      cacheTime: 10 * 60 * 1000, // Keep the cache alive for 10 minutes
-      retry: false, // Disable retry if there's an error (like unauthenticated user)
-    },
+    // {
+    //   staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
+    //   cacheTime: 10 * 60 * 1000,
+    //   retry: false,
+    // },
   );
 };
 
