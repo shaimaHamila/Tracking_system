@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RolesId } from "./types/Role";
 
 function App() {
-  const token = localStorage.getItem("accessToken"); // Retrieve token from local storage
+  const token = localStorage.getItem("accessToken");
 
   // Fetch current user data
   const {
@@ -21,43 +21,40 @@ function App() {
     queryKey: ["user/current-user"],
     queryFn: async () => {
       const response = await api.get("/user/current-user");
-      return response.data; // Return the user data
+      return response.data.data;
     },
-    enabled: !!token, // Only fetch current user if token exists
+    enabled: !!token,
   });
 
-  // Define routes based on roles
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    localStorage.removeItem("accessToken");
+    console.error("Error fetching current user:", error);
+  }
+
   const publicRoutes = usePublicRoutes();
   const adminRoutes = useAdminRoutes();
   const staffRoutes = useStaffRoutes();
   const clientRoutes = useClientRoutes();
   const techManagerRoutes = useTechManagerRoutes();
 
-  // Handle loading and error states
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error) {
-    // Handle error state (optional)
-    console.error("Error fetching current user:", error);
-    return <div>Error loading user information.</div>;
-  }
-
   return (
     <Router>
       {!currentUser || !token ? (
-        // Render public routes if user is not authenticated
         publicRoutes
+      ) : currentUser.role.id === RolesId.ADMIN ? (
+        adminRoutes
+      ) : currentUser.role.id === RolesId.STAFF ? (
+        staffRoutes
+      ) : currentUser.role.id === RolesId.CLIENT ? (
+        clientRoutes
+      ) : currentUser.role.id === RolesId.TECHNICAL_MANAGER ? (
+        techManagerRoutes
       ) : (
-        // Render protected routes based on user role
-        <Routes>
-          {currentUser.role.id === RolesId.ADMIN && adminRoutes}
-          {currentUser.role.id === RolesId.STAFF && staffRoutes}
-          {currentUser.role.id === RolesId.CLIENT && clientRoutes}
-          {currentUser.role.id === RolesId.TECHNICAL_MANAGER && techManagerRoutes}
-          <Route path='*' element={<Navigate to='/not-found' />} />
-        </Routes>
+        <Route path='*' element={<Navigate to='/not-found' />} />
       )}
     </Router>
   );
