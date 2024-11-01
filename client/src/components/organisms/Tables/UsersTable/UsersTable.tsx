@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button, Pagination, Popconfirm, Space, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
-import { Role, RoleName } from "../../../../types/Role";
+import { Role, RoleId, RoleName, RolesId } from "../../../../types/Role";
 import { Project } from "../../../../types/Project";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi";
 import { User } from "../../../../types/User";
@@ -28,6 +28,7 @@ interface UserTableProps {
   addNewUser: () => void;
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
+  onRoleFilterChange: (roleId: RoleId | null) => void;
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -43,6 +44,7 @@ const UserTable: React.FC<UserTableProps> = ({
   handlePageSizeChange,
   limitUsersPerPage,
   status,
+  onRoleFilterChange,
 }) => {
   const [pageSize, setPageSize] = useState<number>(limitUsersPerPage);
   const [tableContent, setTableContent] = useState<UserTableRow[]>([]);
@@ -59,7 +61,10 @@ const UserTable: React.FC<UserTableProps> = ({
     }));
     setTableContent(_tableContent);
   }, [users]);
-  console.log("users", users);
+
+  const handleRoleFilterChange = (roleId: RoleId | null) => {
+    onRoleFilterChange(roleId); // Trigger data fetch or update based on selected role
+  };
 
   const columns: TableProps<UserTableRow>["columns"] = [
     {
@@ -72,7 +77,7 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (text) => <a>{text}</a>,
+      render: (text) => <>{text}</>,
     },
     {
       title: "Email",
@@ -83,6 +88,19 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Role",
       dataIndex: "role",
       key: "role",
+      filters: [
+        { text: "Admin", value: RolesId.ADMIN }, // Use RoleId values here
+        { text: "Staff", value: RolesId.STAFF },
+        { text: "Client", value: RolesId.CLIENT },
+        { text: "Technical Manager", value: RolesId.TECHNICAL_MANAGER },
+      ],
+      filterMultiple: false,
+      onFilter: (value, record) => {
+        console.log("record", record);
+        if (!value) handleRoleFilterChange(null);
+        return record.role.id === value;
+      },
+
       render: (role) => {
         let tagColor;
         switch (role.roleName) {
@@ -116,7 +134,6 @@ const UserTable: React.FC<UserTableProps> = ({
         } else {
           const displayedProjects = projects.slice(0, 3);
           const remainingProjects = projects.length - displayedProjects.length;
-          console.log("displayedProjects", displayedProjects);
 
           return (
             <div style={{ marginRight: "1rem" }}>
@@ -220,7 +237,7 @@ const UserTable: React.FC<UserTableProps> = ({
         columns={columns}
         dataSource={tableContent}
         pagination={false}
-        scroll={{ y: tableHeight, x: 600 }}
+        scroll={{ y: tableHeight, x: 800 }}
       />
       <Pagination
         style={{ margin: "26px", textAlign: "right", justifyContent: "flex-end" }}

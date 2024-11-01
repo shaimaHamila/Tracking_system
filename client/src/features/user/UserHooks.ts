@@ -37,8 +37,6 @@ export const useFetchUsers = ({ pageSize, page, roleId, firstName }: FetchUsersR
       const { data } = await api.get<FetchUsersResponse>("/user", {
         params: { pageSize, page, roleId, firstName },
       });
-      console.log("aaaaa", data);
-
       return data;
     },
     staleTime: 5 * 60 * 1000,
