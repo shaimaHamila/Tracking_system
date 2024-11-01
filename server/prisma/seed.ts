@@ -1,4 +1,5 @@
 import prisma from "../src/prisma";
+import { InitAdmin } from "./seeds/admin.seed";
 import { InitEquipmentCategories } from "./seeds/equipment-category.seed";
 import { InitTicketStatus } from "./seeds/ticket-status.seed";
 import { InitUserRoles } from "./seeds/user-role.seed";
@@ -12,6 +13,9 @@ async function main() {
 
   // Initialize ticket statuses
   await InitTicketStatus(prisma);
+
+  //Initialize admin
+  await InitAdmin(prisma);
 }
 
 // Execute the main function

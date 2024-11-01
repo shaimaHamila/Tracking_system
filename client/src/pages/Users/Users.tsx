@@ -5,7 +5,6 @@ import { User } from "../../types/User";
 import { useFetchUsers } from "../../features/user/UserHooks";
 import { useState } from "react";
 import { RoleId, RolesId } from "../../types/Role";
-import "./User.scss";
 const Users: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
