@@ -2,12 +2,6 @@ import { LoginForm } from "../../components/templates/forms/LoginForm/LoginForm"
 import "./Auth.scss";
 import { useLogin } from "../../features/auth/AuthHooks";
 const Login = () => {
-  // const { mutate, isPending } = useMutation({
-  //   mutationFn: (loginData) => api.post("/auth/login", loginData).then((res) => res.data),
-  // });
-  // const handleLogin = (loginData: any) => {
-  //   mutate(loginData);
-  // };
   const { mutate: login, isPending } = useLogin();
 
   const handleLogin = (credentials: any) => {

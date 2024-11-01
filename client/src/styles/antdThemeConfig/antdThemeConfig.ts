@@ -1,6 +1,6 @@
 export const antdThemeConfig = {
   token: {
-    colorPrimary: "#033946",
+    colorPrimary: "#9b7a57",
     fontFamilyCode: "Inter",
   },
   components: {

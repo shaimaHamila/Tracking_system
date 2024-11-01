@@ -25,10 +25,7 @@ function App() {
     },
     enabled: !!token,
   });
-
-  if (isLoading) {
-    return <Loading />;
-  }
+  console.log("Loading", isLoading);
 
   if (error) {
     localStorage.removeItem("accessToken");
@@ -42,21 +39,27 @@ function App() {
   const techManagerRoutes = useTechManagerRoutes();
 
   return (
-    <Router>
-      {!currentUser || !token ? (
-        publicRoutes
-      ) : currentUser.role.id === RolesId.ADMIN ? (
-        adminRoutes
-      ) : currentUser.role.id === RolesId.STAFF ? (
-        staffRoutes
-      ) : currentUser.role.id === RolesId.CLIENT ? (
-        clientRoutes
-      ) : currentUser.role.id === RolesId.TECHNICAL_MANAGER ? (
-        techManagerRoutes
+    <>
+      {isLoading ? (
+        <Loading />
       ) : (
-        <Route path='*' element={<Navigate to='/not-found' />} />
+        <Router>
+          {!currentUser || !token ? (
+            publicRoutes
+          ) : currentUser.role.id === RolesId.ADMIN ? (
+            adminRoutes
+          ) : currentUser.role.id === RolesId.STAFF ? (
+            staffRoutes
+          ) : currentUser.role.id === RolesId.CLIENT ? (
+            clientRoutes
+          ) : currentUser.role.id === RolesId.TECHNICAL_MANAGER ? (
+            techManagerRoutes
+          ) : (
+            <Route path='*' element={<Navigate to='/not-found' />} />
+          )}
+        </Router>
       )}
-    </Router>
+    </>
   );
 }
 
