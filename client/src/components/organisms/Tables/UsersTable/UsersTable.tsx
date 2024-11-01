@@ -59,6 +59,7 @@ const UserTable: React.FC<UserTableProps> = ({
     }));
     setTableContent(_tableContent);
   }, [users]);
+  console.log("users", users);
 
   const columns: TableProps<UserTableRow>["columns"] = [
     {
@@ -107,18 +108,32 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Projects",
       key: "projects",
       dataIndex: "projects",
-      render: (projects: Partial<Project>[]) => {
+      render: (projects) => {
         // Check if there are no projects
-        if (projects.length === 0) {
+
+        if (projects.length == 0) {
           return <div>--</div>;
         } else {
           const displayedProjects = projects.slice(0, 3);
           const remainingProjects = projects.length - displayedProjects.length;
+          console.log("displayedProjects", displayedProjects);
 
           return (
-            <div>
-              {displayedProjects.map((project: Partial<Project>) => (
-                <Tag bordered={false} key={project.id} color='default' style={{ marginBottom: "5px" }}>
+            <div style={{ marginRight: "1rem" }}>
+              {displayedProjects.map(({ project }: { project: Partial<Project> }) => (
+                <Tag
+                  style={{
+                    marginBottom: "5px",
+                    marginRight: "5px",
+                    maxWidth: "150px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "normal",
+                  }}
+                  bordered={false}
+                  key={project.id}
+                  color='default'
+                >
                   {project.name}
                 </Tag>
               ))}

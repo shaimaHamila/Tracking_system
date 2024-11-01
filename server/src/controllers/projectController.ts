@@ -382,7 +382,7 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 
     // Step 1: Handle managers updates if provided
-    if (managers && managers.length > 0) {
+    if (managers && managers?.length > 0) {
       try {
         await Promise.all(
           // Validate managers to update if provided
