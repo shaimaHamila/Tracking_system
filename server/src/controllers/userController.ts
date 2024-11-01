@@ -109,7 +109,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
           },
         },
         projects: {
-          // Add this section to include the projects
           select: {
             project: {
               select: {
