@@ -1,133 +1,88 @@
-import React, { useState } from "react";
+import React from "react";
 import "./CreateUserForm.scss";
-import { Button, Card, Form, Input, Select } from "antd";
+import { Button, Card, Flex, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { User } from "../../../../types/User";
+import { RolesId } from "../../../../types/Role";
 const { Option } = Select;
-const CreateUserForm: React.FC = () => {
-  const [form] = Form.useForm();
-  const [role, setRole] = useState("");
 
-  // Dummy data for selections
-  const clientProjects = [
-    { id: 1, name: "Client Project A" },
-    { id: 2, name: "Client Project B" },
-  ];
-  const staffProjects = [
-    { id: 1, name: "Staff Project A" },
-    { id: 2, name: "Staff Project B" },
-  ];
-  const equipmentOptions = [
-    { id: 1, name: "Laptop" },
-    { id: 2, name: "Monitor" },
-    { id: 3, name: "Keyboard" },
-  ];
+interface CreateUserFormProps {
+  onCreateUser: (user: Partial<User>) => void;
+}
+
+const CreateUserForm: React.FC<CreateUserFormProps> = ({ onCreateUser }) => {
+  const [userForm] = Form.useForm();
+
+  const handleFormSubmit = (values: Partial<User>) => {
+    onCreateUser(values);
+    userForm.resetFields();
+  };
   return (
-    <Form form={form} layout='vertical' size='large' style={{ marginTop: "0.5rem" }}>
+    <Form form={userForm} layout='vertical' autoComplete='off' className='user-form' onFinish={handleFormSubmit}>
       <div className='user-form'>
         <Card bordered={false}>
           {/* Basic Fields */}
-          <Form.Item
-            label='First Name'
-            name='firstName'
-            rules={[{ required: true, message: "Please enter first name" }]}
-          >
-            <Input placeholder='Enter first name' />
-          </Form.Item>
+          <Flex gap={16} wrap>
+            <Form.Item
+              className='user-form--input'
+              label='First Name'
+              name='firstName'
+              rules={[{ required: true, message: "Please enter first name" }]}
+            >
+              <Input placeholder='Enter first name' />
+            </Form.Item>
 
-          <Form.Item label='Last Name' name='lastName' rules={[{ required: true, message: "Please enter last name" }]}>
-            <Input placeholder='Enter last name' />
-          </Form.Item>
+            <Form.Item
+              className='user-form--input'
+              label='Last Name'
+              name='lastName'
+              style={{ width: "50%" }}
+              rules={[{ required: true, message: "Please enter last name" }]}
+            >
+              <Input placeholder='Enter last name' />
+            </Form.Item>
+          </Flex>
+          <Flex gap={16} wrap>
+            <Form.Item
+              className='user-form--input'
+              label='Email'
+              name='email'
+              rules={[{ required: true, type: "email", message: "Please enter a valid email" }]}
+            >
+              <Input placeholder='Enter email' />
+            </Form.Item>
+            <Form.Item label='Phone Number' name='phoneNumber' className='user-form--input'>
+              <Input placeholder='Enter phone number (optional)' />
+            </Form.Item>
+          </Flex>
+          <Flex gap={16} wrap>
+            <Form.Item
+              className='user-form--input'
+              label='Password'
+              name='password'
+              rules={[{ required: true, message: "Please enter password" }]}
+            >
+              <Input.Password placeholder='Enter password' />
+            </Form.Item>
 
-          <Form.Item
-            label='Email'
-            name='email'
-            rules={[{ required: true, type: "email", message: "Please enter a valid email" }]}
-          >
-            <Input placeholder='Enter email' />
-          </Form.Item>
-
-          <Form.Item label='Phone Number' name='phoneNumber'>
-            <Input placeholder='Enter phone number (optional)' />
-          </Form.Item>
-
-          <Form.Item label='Password' name='password' rules={[{ required: true, message: "Please enter password" }]}>
-            <Input.Password placeholder='Enter password' />
-          </Form.Item>
-
-          {/* Role Selection */}
-          <Form.Item label='Role' name='role' rules={[{ required: true, message: "Please select a role" }]}>
-            <Select placeholder='Select role' onChange={(value) => setRole(value)}>
-              <Option value='admin'>Admin</Option>
-              <Option value='staff'>Staff</Option>
-              <Option value='techManager'>Tech Manager</Option>
-            </Select>
-          </Form.Item>
-
-          {/* Conditional Fields */}
-          {role === "admin" && (
-            <Form.Item label='Client Project (Optional)' name='clientProjectId'>
-              <Select placeholder='Select client project'>
-                {clientProjects.map((project) => (
-                  <Option key={project.id} value={project.id}>
-                    {project.name}
-                  </Option>
-                ))}
+            <Form.Item
+              className='user-form--input'
+              label='Role'
+              name='roleId'
+              rules={[{ required: true, message: "Please select a role" }]}
+            >
+              <Select placeholder='Select role'>
+                <Option value={RolesId.ADMIN}>Admin</Option>
+                <Option value={RolesId.STAFF}>Staff</Option>
+                <Option value={RolesId.CLIENT}>Client</Option>
+                <Option value={RolesId.TECHNICAL_MANAGER}>Technical Manager</Option>
               </Select>
             </Form.Item>
-          )}
+          </Flex>
 
-          {role === "staff" && (
-            <>
-              <Form.Item label='Projects Working On' name='staffProjects'>
-                <Select mode='multiple' placeholder='Select projects'>
-                  {staffProjects.map((project) => (
-                    <Option key={project.id} value={project.id}>
-                      {project.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label='Equipment Used' name='staffEquipment'>
-                <Select mode='multiple' placeholder='Select equipment'>
-                  {equipmentOptions.map((equipment) => (
-                    <Option key={equipment.id} value={equipment.id}>
-                      {equipment.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </>
-          )}
-
-          {role === "techManager" && (
-            <>
-              <Form.Item label='Project' name='techManagerProject'>
-                <Select placeholder='Select project'>
-                  {clientProjects.map((project) => (
-                    <Option key={project.id} value={project.id}>
-                      {project.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label='Equipment Used' name='techManagerEquipment'>
-                <Select mode='multiple' placeholder='Select equipment'>
-                  {equipmentOptions.map((equipment) => (
-                    <Option key={equipment.id} value={equipment.id}>
-                      {equipment.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </>
-          )}
-
-          {/* Submit Button */}
-          <div className='user-form--submit-btn' style={{ marginTop: "1.5rem" }}>
-            <Button loading={false} icon={<PlusOutlined />} size='large' type='primary' htmlType='submit' shape='round'>
-              Submit Order
+          <div className='user-form--submit-btn'>
+            <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
+              Add user
             </Button>
           </div>
         </Card>

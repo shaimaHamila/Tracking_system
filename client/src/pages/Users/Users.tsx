@@ -67,7 +67,7 @@ const Users: React.FC = () => {
         isOpen={isDrawerOpen}
         handleClose={() => setIsDrawerOpen(false)}
         title={"Create User"}
-        content={<CreateUserForm />}
+        content={<CreateUserForm onCreateUser={(user) => console.log(user)} />}
       />
     </>
   );
