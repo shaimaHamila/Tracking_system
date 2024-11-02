@@ -7,15 +7,17 @@ import { RoleId, RolesId } from "../../types/Role";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateUserForm from "../../components/templates/forms/CreateUserForm/CreateUserForm";
 import UpdateUserForm from "../../components/templates/forms/UpdateUserForm/UpdateUserForm";
+import UserDetails from "../../components/templates/UserDetails/UserDetails";
 
 const Users: React.FC = () => {
   const [isCreateUserDrawerOpen, setCreateUserDrawerOpen] = useState(false);
   const [isUpdateUserDrawerOpen, setUpdateUserDrawerOpen] = useState(false);
+  const [isViewUserDrawerOpen, setViewUserDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [roleId, setRoleId] = useState<RolesId | null>(null); // Default to no specific role
   const [firstName, setFirstName] = useState<string | null>(null);
-
+  const [clickedUser, setClickedUser] = useState<Partial<User> | null>(null);
   const { data, status, isError } = useFetchUsers({
     pageSize,
     page,
@@ -35,11 +37,16 @@ const Users: React.FC = () => {
         users={data?.data || []}
         status={status}
         totalUsers={data?.meta?.totalCount || 0}
-        onViewUser={(user: User) => {
-          console.log(user);
-          // setCreateUserDrawerOpen(true);
+        onCreateUser={() => {
+          console.log("Add new user");
+          setCreateUserDrawerOpen(true);
         }}
-        onUpdateUser={(user: User) => {
+        onViewUser={(user) => {
+          console.log(user);
+          setClickedUser(user);
+          setViewUserDrawerOpen(true);
+        }}
+        onUpdateUser={(user) => {
           console.log(user);
           setUpdateUserDrawerOpen(true);
         }}
@@ -51,10 +58,6 @@ const Users: React.FC = () => {
         handlePageSizeChange={(newPageSize) => {
           setPageSize(newPageSize);
           setPage(1);
-        }}
-        addNewUser={() => {
-          console.log("Add new user");
-          setCreateUserDrawerOpen(true);
         }}
         addBtnText={"Add new user"}
         onSearchChange={(searchedName: string) => {
@@ -74,8 +77,15 @@ const Users: React.FC = () => {
       <DrawerComponent
         isOpen={isUpdateUserDrawerOpen}
         handleClose={() => setUpdateUserDrawerOpen(false)}
-        title={"Create User"}
+        title={"Update User"}
         content={<UpdateUserForm onUpdateUser={(user) => console.log(user)} />}
+      />
+
+      <DrawerComponent
+        isOpen={isViewUserDrawerOpen}
+        handleClose={() => setViewUserDrawerOpen(false)}
+        title={"Create User"}
+        content={<UserDetails user={clickedUser} />}
       />
     </>
   );

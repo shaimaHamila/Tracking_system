@@ -12,4 +12,8 @@ export type User = {
   role: Role;
   equipments: Partial<Equipment>[];
   projects: Partial<Project>[];
+  createdProjects: Partial<Project>[];
+  techManagedProjects: Partial<Project>[];
+  managedProjects: Partial<Project>[];
+  clientProjects: Partial<Project>[];
 };

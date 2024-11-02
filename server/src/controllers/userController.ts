@@ -121,6 +121,53 @@ export const getAllUsers = async (req: Request, res: Response) => {
             },
           },
         },
+        createdProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        techManagedProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        managedProjects: {
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            manager: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        clientProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
 

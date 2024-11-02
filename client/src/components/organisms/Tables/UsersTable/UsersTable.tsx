@@ -19,13 +19,13 @@ interface UserTableProps {
   users: User[];
   status: "error" | "success" | "pending";
   totalUsers: number;
+  onCreateUser: () => void;
   onViewUser: (user: User) => void;
   onUpdateUser: (user: User) => void;
   onDeleteUser: (id: string) => void;
   limitUsersPerPage: number;
   onPageChange: (page: number) => void;
   handlePageSizeChange: (pageSize: number) => void;
-  addNewUser: () => void;
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
   onRoleFilterChange: (roleId: RoleId | null) => void;
@@ -40,7 +40,7 @@ const UserTable: React.FC<UserTableProps> = ({
   onPageChange,
   onSearchChange,
   addBtnText,
-  addNewUser,
+  onCreateUser,
   handlePageSizeChange,
   limitUsersPerPage,
   status,
@@ -225,7 +225,7 @@ const UserTable: React.FC<UserTableProps> = ({
     <div ref={ref} style={{ height: "100%", overflow: "auto" }}>
       <TableHeader
         onSearchChange={(searchedName) => onSearchChange(searchedName)}
-        onClickBtn={addNewUser}
+        onClickBtn={onCreateUser}
         btnText={addBtnText}
         totalItems={totalUsers}
         totalItemsText={"Total users:"}
