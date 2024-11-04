@@ -8,6 +8,7 @@ import { formatDateWithoutTime } from "../../../helpers/date";
 import RoleTag from "../../atoms/RoleTag/RoleTag";
 import { Project } from "../../../types/Project";
 import { Equipment } from "../../../types/Equipment";
+import ConditionTag from "../../atoms/ConditionTag/ConditionTag";
 
 const { Title, Text } = Typography;
 
@@ -87,6 +88,9 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
       title: "Condition",
       dataIndex: "condition",
       key: "condition",
+      render: (condition) => {
+        return <ConditionTag condition={condition} />;
+      },
     },
   ];
   return (
