@@ -1,0 +1,17 @@
+.user-details-cards--container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.user-details-card {
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  &-info {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}

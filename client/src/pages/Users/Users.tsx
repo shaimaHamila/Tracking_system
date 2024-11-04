@@ -68,6 +68,7 @@ const Users: React.FC = () => {
           setPage(1); // Reset to the first page when role changes
         }}
       />
+
       <DrawerComponent
         isOpen={isCreateUserDrawerOpen}
         handleClose={() => setCreateUserDrawerOpen(false)}
@@ -84,7 +85,7 @@ const Users: React.FC = () => {
       <DrawerComponent
         isOpen={isViewUserDrawerOpen}
         handleClose={() => setViewUserDrawerOpen(false)}
-        title={"Create User"}
+        title={"User Details"}
         content={<UserDetails user={clickedUser} />}
       />
     </>

@@ -5,7 +5,7 @@ import "./NotificationItems.scss";
 import Title from "antd/es/typography/Title";
 import { MdOutlineDoneAll } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
-import formatDate from "../../../helpers/date";
+import { formatDate } from "../../../helpers/date";
 interface UserItem {
   id: number;
   firstName: string;

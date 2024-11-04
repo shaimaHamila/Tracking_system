@@ -2,10 +2,11 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button, Pagination, Popconfirm, Space, Table, Tag, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
-import { Role, RoleId, RoleName, RolesId } from "../../../../types/Role";
+import { Role, RoleId, RolesId } from "../../../../types/Role";
 import { Project } from "../../../../types/Project";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi";
 import { User } from "../../../../types/User";
+import RoleTag from "../../../atoms/RoleTag/RoleTag";
 
 interface UserTableRow {
   id: number;
@@ -102,24 +103,7 @@ const UserTable: React.FC<UserTableProps> = ({
       },
 
       render: (role) => {
-        let tagColor;
-        switch (role.roleName) {
-          case RoleName.ADMIN:
-            tagColor = "volcano";
-            break;
-          case RoleName.STAFF:
-            tagColor = "processing";
-            break;
-          case RoleName.CLIENT:
-            tagColor = "gold";
-            break;
-          case RoleName.TECHNICAL_MANAGER:
-            tagColor = "purple";
-            break;
-          default:
-            tagColor = "default";
-        }
-        return <Tag color={tagColor}>{role.roleName}</Tag>;
+        return <RoleTag role={role} />;
       },
     },
     {
@@ -134,10 +118,11 @@ const UserTable: React.FC<UserTableProps> = ({
         } else {
           const displayedProjects = projects.slice(0, 3);
           const remainingProjects = projects.length - displayedProjects.length;
+          console.log("projects", projects);
 
           return (
             <div style={{ marginRight: "1rem" }}>
-              {displayedProjects.map(({ project }: { project: Partial<Project> }) => (
+              {displayedProjects.map((project: Partial<Project>) => (
                 <Tag
                   style={{
                     marginBottom: "5px",
@@ -237,7 +222,7 @@ const UserTable: React.FC<UserTableProps> = ({
         columns={columns}
         dataSource={tableContent}
         pagination={false}
-        scroll={{ y: tableHeight, x: 800 }}
+        scroll={{ y: tableHeight, x: "max-content" }}
       />
       <Pagination
         style={{ margin: "26px", textAlign: "right", justifyContent: "flex-end" }}

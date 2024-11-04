@@ -1,9 +1,13 @@
 import React from "react";
 import "./UserDetails.scss";
-import { Card, Avatar, Empty, Typography, Divider, List } from "antd";
+import { Card, Avatar, Typography, Divider, List, Alert, Flex, Table, TableProps } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { User } from "../../../types/User";
 import { RolesId } from "../../../types/Role";
+import { formatDateWithoutTime } from "../../../helpers/date";
+import RoleTag from "../../atoms/RoleTag/RoleTag";
+import { Project } from "../../../types/Project";
+import { Equipment } from "../../../types/Equipment";
 
 const { Title, Text } = Typography;
 
@@ -13,97 +17,137 @@ interface UserDetailsProps {
 
 const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
   // Helper function to render a section title with a divider
-  const renderSectionTitle = (title: string) => <Divider orientation='left'>{title}</Divider>;
-
+  console.log("aaaaaaaaaaaaaaaaa", user);
   if (!user) {
     return (
       <Card className='user-details-card'>
-        <Empty description='No user details available' />
+        <Alert message='Error please reload the page' type='error' />
       </Card>
     );
   }
+  const getProjectsData = () => {
+    switch (user.role?.id) {
+      case RolesId.CLIENT:
+        return { title: "Client Projects", data: user.clientProjects };
+      case RolesId.STAFF:
+        return { title: "Assigned Projects", data: user.projects };
+      case RolesId.TECHNICAL_MANAGER:
+        return { title: "Technical Managed Projects", data: user.techManagedProjects };
+      case RolesId.ADMIN:
+        return { title: "Admin Created Projects", data: user.createdProjects };
+      default:
+        return { title: "Projects", data: [] };
+    }
+  };
 
-  return user ? (
-    <Card className='user-details-card'>
-      <div className='user-details-header'>
-        <Avatar size={80} icon={<UserOutlined />} />
-        <div className='user-details-header-info'>
-          <Title level={4}>
-            {user.firstName} {user.lastName}
-          </Title>
-          <Text type='secondary'>{user.role?.roleName}</Text>
-        </div>
-      </div>
+  const { title: projectTitle, data: projectData } = getProjectsData();
+  const projecTableColumns: TableProps<Partial<Project>>["columns"] = [
+    {
+      title: "",
+      key: "number",
+      width: 50,
+      render: (_, _record, index) => index + 1,
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => formatDateWithoutTime(date),
+    },
+  ];
 
-      <div className='user-details-info'>
-        <Text strong>Email:</Text> <Text>{user.email}</Text>
-        <Text strong>Phone:</Text> <Text>{user.phone || "N/A"}</Text>
-        <Text strong>Role:</Text> <Text>{user.role?.roleName}</Text>
-        {/* <Text strong>Joined:</Text> <Text>{user.createdAt?.toDateString()}</Text> */}
-      </div>
+  const equipmentTableColumns: TableProps<Partial<Equipment>>["columns"] = [
+    {
+      title: "",
+      key: "number",
+      width: 50,
+      render: (_, _record, index) => index + 1,
+    },
+    {
+      title: "Serial Number",
+      dataIndex: "serialNumber",
+      key: "serialNumber",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Category",
+      dataIndex: ["category", "categoryName"],
+      key: "category",
+    },
+    {
+      title: "Condition",
+      dataIndex: "condition",
+      key: "condition",
+    },
+  ];
+  return (
+    <div className='user-details-cards--container'>
+      <Card title='General info' className='user-details-card'>
+        <Flex align-item='center' gap={40} wrap>
+          <div className='user-details-card-header'>
+            <Avatar size={64} icon={<UserOutlined />} />
+            <div className='user-details-header-info'>
+              <Title level={4}>
+                {user.firstName} {user.lastName}
+              </Title>
+              <Text strong>Email:</Text> <Text copyable>{user.email}</Text>
+            </div>
+          </div>
 
-      {/* Render additional details based on user role */}
-      {user.role?.id === RolesId.CLIENT && (
-        <>
-          {renderSectionTitle("Client Projects")}
-          <List
-            size='small'
-            dataSource={user.projects || []}
-            renderItem={(project) => <List.Item>{project.name}</List.Item>}
-            locale={{ emptyText: "No projects found" }}
-          />
-        </>
-      )}
-
+          <div className='user-details-card-info'>
+            <Flex vertical gap={16}>
+              <Text strong>Phone:</Text> <Text>{user.phone || "N/A"}</Text>
+            </Flex>
+            <Flex vertical gap={16}>
+              <Text strong>Role:</Text> <RoleTag role={user?.role} />
+            </Flex>
+            <Flex vertical gap={16}>
+              <Text strong>Joined:</Text> <Text> {formatDateWithoutTime(user?.createdAt)} </Text>
+            </Flex>
+          </div>
+        </Flex>
+      </Card>
       {user.role?.id === RolesId.STAFF && (
-        <>
-          {renderSectionTitle("Staff Projects")}
-          <List
-            size='small'
-            dataSource={user.projects || []}
-            renderItem={(project) => <List.Item>{project.name}</List.Item>}
-            locale={{ emptyText: "Not assigned to any project" }}
+        <Card title='Managed Projects as a Project manager'>
+          <Table
+            dataSource={user?.managedProjects}
+            columns={projecTableColumns}
+            rowKey='id'
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
           />
-
-          {renderSectionTitle("Managed Projects")}
-          <List
-            size='small'
-            dataSource={user.managedProjects || []}
-            renderItem={(project) => <List.Item>{project.name}</List.Item>}
-            locale={{ emptyText: "No managed projects" }}
-          />
-
-          {renderSectionTitle("Assigned Equipment")}
-          <List
-            size='small'
-            dataSource={user.equipments || []}
-            renderItem={(equipment) => <List.Item>{equipment.name}</List.Item>}
-            locale={{ emptyText: "No equipment assigned" }}
-          />
-        </>
+        </Card>
       )}
-
-      {user.role?.id === RolesId.TECHNICAL_MANAGER && (
-        <>
-          {renderSectionTitle("Assigned Project")}
-          <List
-            size='small'
-            dataSource={user.techManagedProjects || []}
-            renderItem={(project) => <List.Item>{project.name}</List.Item>}
-            locale={{ emptyText: "No projects assigned" }}
+      <Card title={projectTitle}>
+        <Table
+          dataSource={projectData}
+          columns={projecTableColumns}
+          rowKey='id'
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: "max-content" }}
+        />
+      </Card>
+      {user.role?.id != RolesId.CLIENT && (
+        <Card title='Equipments'>
+          <Table
+            dataSource={user?.equipments}
+            columns={equipmentTableColumns}
+            rowKey='id'
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
           />
-          {renderSectionTitle("Assigned Equipment")}
-          <List
-            size='small'
-            dataSource={user.equipments || []}
-            renderItem={(equipment) => <List.Item>{equipment.name}</List.Item>}
-            locale={{ emptyText: "No equipment assigned" }}
-          />
-        </>
+        </Card>
       )}
-    </Card>
-  ) : (
-    <div></div>
+    </div>
   );
 };
 
