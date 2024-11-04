@@ -38,7 +38,7 @@ model user {
   assignedTickets    user_ticket[]
   comments comment[]
   equipments equipment[]
-  clients           project[] @relation("ClientProjects")
+  clientProjects           project[] @relation("ClientProjects")
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

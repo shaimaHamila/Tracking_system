@@ -106,6 +106,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
             name: true,
             serialNumber: true,
             condition: true,
+            brand: true,
+            category: true,
           },
         },
         projects: {
@@ -121,6 +123,57 @@ export const getAllUsers = async (req: Request, res: Response) => {
             },
           },
         },
+        createdProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        techManagedProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        managedProjects: {
+          select: {
+            project: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+                managers: {
+                  select: {
+                    manager: {
+                      select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        clientProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
 
@@ -129,8 +182,15 @@ export const getAllUsers = async (req: Request, res: Response) => {
       where: filters,
     });
 
+    // Flatten `projects` and `managedProjects` for each user
+    const usersWithFlattenedProjects = users.map((user) => ({
+      ...user,
+      projects: user.projects.map((p) => p.project), // Flatten projects array
+      managedProjects: user.managedProjects.map((p) => p.project), // Flatten managedProjects array
+    }));
+
     const responsePayload = {
-      data: users,
+      data: usersWithFlattenedProjects,
       meta:
         page && pageSize
           ? {
@@ -143,6 +203,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
               totalCount,
             },
     };
+
     return Responses.FetchPagedSucess(res, responsePayload);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");

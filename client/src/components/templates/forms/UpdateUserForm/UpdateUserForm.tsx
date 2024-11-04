@@ -1,20 +1,20 @@
 import React from "react";
-import "./CreateUserForm.scss";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { User } from "../../../../types/User";
 import { RolesId } from "../../../../types/Role";
 const { Option } = Select;
 
-interface CreateUserFormProps {
-  onCreateUser: (user: Partial<User>) => void;
+interface UpdateUserFormProps {
+  onUpdateUser: (user: Partial<User>) => void;
+  user?: Partial<User>;
 }
 
-const CreateUserForm: React.FC<CreateUserFormProps> = ({ onCreateUser }) => {
+const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser }) => {
   const [userForm] = Form.useForm();
 
   const handleFormSubmit = (values: Partial<User>) => {
-    onCreateUser(values);
+    onUpdateUser(values);
     userForm.resetFields();
   };
   return (
@@ -58,15 +58,6 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onCreateUser }) => {
           <Flex gap={16} wrap>
             <Form.Item
               className='user-form--input'
-              label='Password'
-              name='password'
-              rules={[{ required: true, message: "Please enter password" }]}
-            >
-              <Input.Password placeholder='Enter password' />
-            </Form.Item>
-
-            <Form.Item
-              className='user-form--input'
               label='Role'
               name='roleId'
               rules={[{ required: true, message: "Please select a role" }]}
@@ -82,7 +73,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onCreateUser }) => {
 
           <div className='user-form--submit-btn'>
             <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
-              Add user
+              Update user
             </Button>
           </div>
         </Card>
@@ -91,4 +82,4 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ onCreateUser }) => {
   );
 };
 
-export default CreateUserForm;
+export default UpdateUserForm;

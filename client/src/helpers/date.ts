@@ -1,4 +1,4 @@
-const formatDate = (date: string | undefined) => {
+export const formatDate = (date: string | undefined) => {
   if (!date) return "-"; // Return "-" if date is undefined or null
 
   const formattedDate = new Date(date).toLocaleString("en-US", {
@@ -10,4 +10,14 @@ const formatDate = (date: string | undefined) => {
   });
   return formattedDate;
 };
-export default formatDate;
+
+export const formatDateWithoutTime = (date: string | undefined) => {
+  if (!date) return "-"; // Return "-" if date is undefined or null
+
+  const formattedDate = new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  return formattedDate;
+};

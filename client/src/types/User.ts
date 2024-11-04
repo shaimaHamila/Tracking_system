@@ -8,8 +8,12 @@ export type User = {
   lastName: string;
   email: string;
   phone: string;
-  createdAt: Date;
+  createdAt: string;
   role: Role;
   equipments: Partial<Equipment>[];
   projects: Partial<Project>[];
+  createdProjects: Partial<Project>[];
+  techManagedProjects: Partial<Project>[];
+  managedProjects: Partial<Project>[];
+  clientProjects: Partial<Project>[];
 };

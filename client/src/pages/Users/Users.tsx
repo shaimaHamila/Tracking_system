@@ -6,14 +6,18 @@ import { useFetchUsers } from "../../features/user/UserHooks";
 import { RoleId, RolesId } from "../../types/Role";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateUserForm from "../../components/templates/forms/CreateUserForm/CreateUserForm";
+import UpdateUserForm from "../../components/templates/forms/UpdateUserForm/UpdateUserForm";
+import UserDetails from "../../components/templates/UserDetails/UserDetails";
 
 const Users: React.FC = () => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCreateUserDrawerOpen, setCreateUserDrawerOpen] = useState(false);
+  const [isUpdateUserDrawerOpen, setUpdateUserDrawerOpen] = useState(false);
+  const [isViewUserDrawerOpen, setViewUserDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [roleId, setRoleId] = useState<RolesId | null>(null); // Default to no specific role
   const [firstName, setFirstName] = useState<string | null>(null);
-
+  const [clickedUser, setClickedUser] = useState<Partial<User> | null>(null);
   const { data, status, isError } = useFetchUsers({
     pageSize,
     page,
@@ -33,13 +37,18 @@ const Users: React.FC = () => {
         users={data?.data || []}
         status={status}
         totalUsers={data?.meta?.totalCount || 0}
-        onViewUser={(user: User) => {
-          console.log(user);
-          setIsDrawerOpen(true);
+        onCreateUser={() => {
+          console.log("Add new user");
+          setCreateUserDrawerOpen(true);
         }}
-        onUpdateUser={(user: User) => {
+        onViewUser={(user) => {
           console.log(user);
-          setIsDrawerOpen(true);
+          setClickedUser(user);
+          setViewUserDrawerOpen(true);
+        }}
+        onUpdateUser={(user) => {
+          console.log(user);
+          setUpdateUserDrawerOpen(true);
         }}
         onDeleteUser={(id: string) => console.log(id)}
         limitUsersPerPage={pageSize}
@@ -50,10 +59,6 @@ const Users: React.FC = () => {
           setPageSize(newPageSize);
           setPage(1);
         }}
-        addNewUser={() => {
-          console.log("Add new user");
-          setIsDrawerOpen(true);
-        }}
         addBtnText={"Add new user"}
         onSearchChange={(searchedName: string) => {
           setFirstName(searchedName === "" ? null : searchedName);
@@ -63,11 +68,25 @@ const Users: React.FC = () => {
           setPage(1); // Reset to the first page when role changes
         }}
       />
+
       <DrawerComponent
-        isOpen={isDrawerOpen}
-        handleClose={() => setIsDrawerOpen(false)}
+        isOpen={isCreateUserDrawerOpen}
+        handleClose={() => setCreateUserDrawerOpen(false)}
         title={"Create User"}
-        content={<CreateUserForm />}
+        content={<CreateUserForm onCreateUser={(user) => console.log(user)} />}
+      />
+      <DrawerComponent
+        isOpen={isUpdateUserDrawerOpen}
+        handleClose={() => setUpdateUserDrawerOpen(false)}
+        title={"Update User"}
+        content={<UpdateUserForm onUpdateUser={(user) => console.log(user)} />}
+      />
+
+      <DrawerComponent
+        isOpen={isViewUserDrawerOpen}
+        handleClose={() => setViewUserDrawerOpen(false)}
+        title={"User Details"}
+        content={<UserDetails user={clickedUser} />}
       />
     </>
   );

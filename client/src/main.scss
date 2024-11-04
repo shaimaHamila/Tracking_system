@@ -4,6 +4,9 @@ body {
   padding: 0;
   height: 100vh;
 }
+.ant-btn-variant-solid {
+  background: var(--secondary-500) !important;
+}
 ::-webkit-scrollbar {
   width: 6px;
   height: 12px;
