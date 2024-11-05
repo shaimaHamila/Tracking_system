@@ -10,6 +10,7 @@ export type User = {
   phone: string;
   createdAt: string;
   role: Role;
+  roleId?: number;
   equipments: Partial<Equipment>[];
   projects: Partial<Project>[];
   createdProjects: Partial<Project>[];
