@@ -20,7 +20,7 @@ interface UserTableProps {
   users: User[];
   status: "error" | "success" | "pending";
   totalUsers: number;
-  onCreateUser: () => void;
+  onCreateUserDrawerOpen: () => void;
   onViewUser: (user: User) => void;
   onUpdateUser: (user: User) => void;
   onDeleteUser: (id: string) => void;
@@ -41,7 +41,7 @@ const UserTable: React.FC<UserTableProps> = ({
   onPageChange,
   onSearchChange,
   addBtnText,
-  onCreateUser,
+  onCreateUserDrawerOpen,
   handlePageSizeChange,
   limitUsersPerPage,
   status,
@@ -97,7 +97,6 @@ const UserTable: React.FC<UserTableProps> = ({
       ],
       filterMultiple: false,
       onFilter: (value, record) => {
-        console.log("record", record);
         if (!value) handleRoleFilterChange(null);
         return record.role.id === value;
       },
@@ -118,8 +117,6 @@ const UserTable: React.FC<UserTableProps> = ({
         } else {
           const displayedProjects = projects.slice(0, 3);
           const remainingProjects = projects.length - displayedProjects.length;
-          console.log("projects", projects);
-
           return (
             <div style={{ marginRight: "1rem" }}>
               {displayedProjects.map((project: Partial<Project>) => (
@@ -207,10 +204,10 @@ const UserTable: React.FC<UserTableProps> = ({
     }
   }, [ref]);
   return (
-    <div ref={ref} style={{ height: "100%", overflow: "auto" }}>
+    <div ref={ref} style={{ overflow: "auto" }}>
       <TableHeader
         onSearchChange={(searchedName) => onSearchChange(searchedName)}
-        onClickBtn={onCreateUser}
+        onClickBtn={onCreateUserDrawerOpen}
         btnText={addBtnText}
         totalItems={totalUsers}
         totalItemsText={"Total users:"}

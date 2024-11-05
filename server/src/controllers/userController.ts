@@ -92,6 +92,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
       where: filters,
       skip,
       take,
+      orderBy: {
+        createdAt: "desc",
+      },
       select: {
         id: true,
         firstName: true,

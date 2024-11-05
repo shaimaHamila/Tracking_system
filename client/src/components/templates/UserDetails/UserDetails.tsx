@@ -17,8 +17,6 @@ interface UserDetailsProps {
 }
 
 const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
-  // Helper function to render a section title with a divider
-  console.log("aaaaaaaaaaaaaaaaa", user);
   if (!user) {
     return (
       <Card className='user-details-card'>

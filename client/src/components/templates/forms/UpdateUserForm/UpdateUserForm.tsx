@@ -51,7 +51,7 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser }) => {
             >
               <Input placeholder='Enter email' />
             </Form.Item>
-            <Form.Item label='Phone Number' name='phoneNumber' className='user-form--input'>
+            <Form.Item label='Phone Number' name='phone' className='user-form--input'>
               <Input placeholder='Enter phone number (optional)' />
             </Form.Item>
           </Flex>
