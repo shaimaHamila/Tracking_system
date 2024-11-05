@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { User } from "../../../../types/User";
@@ -7,18 +7,33 @@ const { Option } = Select;
 
 interface UpdateUserFormProps {
   onUpdateUser: (user: Partial<User>) => void;
-  user?: Partial<User>;
+  user: Partial<User>;
 }
 
-const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser }) => {
+const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser, user }) => {
   const [userForm] = Form.useForm();
-
+  useEffect(() => {
+    userForm.setFieldsValue({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      roleId: user.role?.id || null, // Ensure you are mapping to the correct property
+    });
+  }, [user, userForm]);
   const handleFormSubmit = (values: Partial<User>) => {
     onUpdateUser(values);
     userForm.resetFields();
   };
   return (
-    <Form form={userForm} layout='vertical' autoComplete='off' className='user-form' onFinish={handleFormSubmit}>
+    <Form
+      initialValues={user}
+      form={userForm}
+      layout='vertical'
+      autoComplete='off'
+      className='user-form'
+      onFinish={handleFormSubmit}
+    >
       <div className='user-form'>
         <Card bordered={false}>
           {/* Basic Fields */}
@@ -45,19 +60,6 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser }) => {
           <Flex gap={16} wrap>
             <Form.Item
               className='user-form--input'
-              label='Email'
-              name='email'
-              rules={[{ required: true, type: "email", message: "Please enter a valid email" }]}
-            >
-              <Input placeholder='Enter email' />
-            </Form.Item>
-            <Form.Item label='Phone Number' name='phone' className='user-form--input'>
-              <Input placeholder='Enter phone number (optional)' />
-            </Form.Item>
-          </Flex>
-          <Flex gap={16} wrap>
-            <Form.Item
-              className='user-form--input'
               label='Role'
               name='roleId'
               rules={[{ required: true, message: "Please select a role" }]}
@@ -68,6 +70,9 @@ const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onUpdateUser }) => {
                 <Option value={RolesId.CLIENT}>Client</Option>
                 <Option value={RolesId.TECHNICAL_MANAGER}>Technical Manager</Option>
               </Select>
+            </Form.Item>
+            <Form.Item label='Phone Number' name='phone' className='user-form--input'>
+              <Input placeholder='Enter phone number (optional)' />
             </Form.Item>
           </Flex>
 

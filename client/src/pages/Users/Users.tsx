@@ -2,7 +2,7 @@ import { notification } from "antd";
 import { useState } from "react";
 import UserTable from "../../components/organisms/Tables/UsersTable/UsersTable";
 import { User } from "../../types/User";
-import { useCreateUser, useFetchUsers } from "../../features/user/UserHooks";
+import { useCreateUser, useDeleteUser, useFetchUsers, useUpdateUser } from "../../features/user/UserHooks";
 import { RoleId, RolesId } from "../../types/Role";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateUserForm from "../../components/templates/forms/CreateUserForm/CreateUserForm";
@@ -24,13 +24,19 @@ const Users: React.FC = () => {
     roleId,
     firstName,
   });
-  const createUserMutation = useCreateUser(); // You can also handle loading state here
+  const createUserMutation = useCreateUser(); //TODO   handle loading and fetch users after creating oe updating or deleting user
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
 
   const handleCreateUser = (user: Partial<User>) => {
     console.log("User created:", user);
-    // Optionally, invalidate queries or perform other actions
-    createUserMutation.mutate(user); // Trigger the create user mutation
-    setCreateUserDrawerOpen(false); // Close the drawer after creation
+    createUserMutation.mutate(user);
+    setCreateUserDrawerOpen(false);
+  };
+  const handleUpdatedUser = (user: Partial<User>) => {
+    console.log("User updated:", user);
+    updateUserMutation.mutate({ id: clickedUser?.id!, userData: user });
+    setUpdateUserDrawerOpen(false);
   };
   if (isError) {
     notification.error({
@@ -53,9 +59,13 @@ const Users: React.FC = () => {
         }}
         onUpdateUser={(user) => {
           console.log(user);
+          setClickedUser(user);
           setUpdateUserDrawerOpen(true);
         }}
-        onDeleteUser={(id: string) => console.log(id)}
+        onDeleteUser={(id) => {
+          console.log(id);
+          deleteUserMutation.mutate(id);
+        }}
         limitUsersPerPage={pageSize}
         onPageChange={(newPage: number) => {
           setPage(newPage);
@@ -84,12 +94,14 @@ const Users: React.FC = () => {
         isOpen={isUpdateUserDrawerOpen}
         handleClose={() => setUpdateUserDrawerOpen(false)}
         title={"Update User"}
-        content={<UpdateUserForm onUpdateUser={(user) => console.log(user)} />}
+        content={<UpdateUserForm user={clickedUser!} onUpdateUser={(user) => handleUpdatedUser(user)} />}
       />
 
       <DrawerComponent
         isOpen={isViewUserDrawerOpen}
-        handleClose={() => setViewUserDrawerOpen(false)}
+        handleClose={() => {
+          setViewUserDrawerOpen(false), setClickedUser(null);
+        }}
         title={"User Details"}
         content={<UserDetails user={clickedUser} />}
       />

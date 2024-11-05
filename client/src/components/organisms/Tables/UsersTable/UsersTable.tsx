@@ -23,7 +23,7 @@ interface UserTableProps {
   onCreateUserDrawerOpen: () => void;
   onViewUser: (user: User) => void;
   onUpdateUser: (user: User) => void;
-  onDeleteUser: (id: string) => void;
+  onDeleteUser: (id: number) => void;
   limitUsersPerPage: number;
   onPageChange: (page: number) => void;
   handlePageSizeChange: (pageSize: number) => void;

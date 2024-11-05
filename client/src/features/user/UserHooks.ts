@@ -66,7 +66,7 @@ export const useCreateUser = () => {
   });
 };
 export const useUpdateUser = () => {
-  return useMutation<ApiResponse<Partial<User>>, Error, { id: number; userData: User }>({
+  return useMutation<ApiResponse<Partial<User>>, Error, { id: number; userData: Partial<User> }>({
     mutationFn: async ({ id, userData }) => {
       const { data } = await api.put<ApiResponse<Partial<User>>>(`/user/${id}`, userData);
       return data;
