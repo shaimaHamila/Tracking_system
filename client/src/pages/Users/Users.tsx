@@ -80,6 +80,8 @@ const Users: React.FC = () => {
         }}
         onRoleFilterChange={(selectedRoleId: RoleId | null) => {
           setRoleId(selectedRoleId);
+          console.log(selectedRoleId);
+
           setPage(1); // Reset to the first page when role changes
         }}
       />
