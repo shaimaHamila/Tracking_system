@@ -19,10 +19,19 @@ export const techManagerMenuItems = [
   { key: "/dashboard", label: "Dashboard", icon: <FileTextOutlined /> },
   { key: "/tickets", label: "Tickets", icon: <FileTextOutlined /> },
   { key: "/equipments", label: "Equipments", icon: <BsPcDisplay /> },
+  { key: "/projects", label: "Projects", icon: <GoProject /> },
 
   // Add new client menu items here
 ];
 export const adminMenuItems = [
+  { key: "/dashboard", label: "Dashboard", icon: <RxDashboard /> },
+  { key: "/users", label: "Users", icon: <LuUsers /> },
+  { key: "/projects", label: "Projects", icon: <GoProject /> },
+  { key: "/tickets", label: "Tickets", icon: <GoTasklist /> },
+  { key: "/equipments", label: "Equipments", icon: <BsPcDisplay /> },
+  // Add new Admin menu items here
+];
+export const MenuItems = [
   { key: "/dashboard", label: "Dashboard", icon: <RxDashboard /> },
   { key: "/users", label: "Users", icon: <LuUsers /> },
   { key: "/projects", label: "Projects", icon: <GoProject /> },

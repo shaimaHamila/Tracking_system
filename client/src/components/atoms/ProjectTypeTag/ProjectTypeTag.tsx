@@ -10,7 +10,6 @@ const ProjectTypeTag: React.FC<ProjectTypeTagProps> = ({ projectTypeTag }) => {
   const tagText = projectTypeTag
     ? projectTypeTag.charAt(0).toUpperCase() + projectTypeTag.slice(1).toLowerCase()
     : "--";
-  console.log(projectTypeTag);
 
   switch (projectTypeTag) {
     case ProjectType.INTERNAL:
