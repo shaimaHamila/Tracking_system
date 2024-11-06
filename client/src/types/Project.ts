@@ -8,9 +8,9 @@ export type Project = {
   createdById: number;
   clientId: number;
   technicalManagerId?: number;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
   client: User;
   teamMembers: User[];
   managers: User[];

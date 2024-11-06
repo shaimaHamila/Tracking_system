@@ -11,6 +11,7 @@ import {
 import { authentication } from "../middlewares/authMiddleware";
 import {
   adminAuthorization,
+  allRoleAuthorization,
   userAuthorization,
 } from "../middlewares/checkUserRole";
 import { Role } from "../types/Roles";
@@ -20,7 +21,7 @@ const ProjectRouter = express.Router();
 ProjectRouter.get(
   "/types",
   authentication,
-  adminAuthorization,
+  allRoleAuthorization,
   getProjectTypes
 );
 ProjectRouter.post(
@@ -29,24 +30,14 @@ ProjectRouter.post(
   userAuthorization([Role.ADMIN]),
   createProject
 );
-ProjectRouter.get(
-  "/all",
-  authentication,
-  userAuthorization([Role.ADMIN]),
-  getAllProjects
-);
+ProjectRouter.get("/all", authentication, allRoleAuthorization, getAllProjects);
 ProjectRouter.post(
   "/type",
   authentication,
   adminAuthorization,
   getProjectsByType
 );
-ProjectRouter.get(
-  "/",
-  authentication,
-  userAuthorization([Role.ADMIN]),
-  getProjectById
-);
+ProjectRouter.get("/", authentication, allRoleAuthorization, getProjectById);
 ProjectRouter.put(
   "/",
   authentication,

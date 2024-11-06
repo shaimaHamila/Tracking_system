@@ -10,12 +10,6 @@ interface FetchUsersRequest {
   roleId?: number | null;
   firstName?: string | null;
 }
-interface FetchUsersResponse {
-  data: User[];
-  meta: { currentPage: number; pageSize: number; totalCount: number; totalPages: number };
-  message: string;
-  succss: boolean;
-}
 
 //To fixs
 export const useCurrentUser = (token: string) => {

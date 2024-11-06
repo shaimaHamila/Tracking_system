@@ -164,10 +164,87 @@ export const createProject = async (req: Request, res: Response) => {
 };
 // Get all projects
 export const getAllProjects = async (req: Request, res: Response) => {
+  const { page, pageSize, projectType } = req.query;
+  const _projectType = projectType ? (projectType as ProjectType) : undefined;
+
+  const skip =
+    page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
+  const take = page && pageSize ? Number(pageSize) : undefined;
+
+  // Get the current user's ID from the decoded token
+  const createdById = res.locals.decodedToken.id;
+
+  // Verify the current user exists and handle errors
+  let user;
   try {
+    user = await getCurrentUser(parseInt(createdById, 10));
+  } catch (error: any) {
+    return Responses.BadRequest(res, error.message);
+  }
+
+  try {
+    // Define query filters
+    let filters: any = {};
+    // Apply projectType filter if provided
+    if (_projectType) {
+      filters.projectType = _projectType;
+    }
+
+    switch (user.role.roleName) {
+      case Role.ADMIN:
+        break;
+
+      case Role.STAFF:
+        filters = {
+          ...filters,
+
+          OR: [
+            { managers: { some: { managerId: user.id } } },
+            { teamMembers: { some: { teamMemberId: user.id } } },
+          ],
+        };
+        break;
+
+      case Role.CLIENT:
+        filters = {
+          ...filters,
+
+          clientId: user.id,
+        };
+        break;
+
+      case Role.TECHNICAL_MANAGER:
+        filters = {
+          ...filters,
+
+          technicalManagerId: user.id,
+        };
+        break;
+
+      default:
+        return Responses.Forbidden(
+          res,
+          "You do not have permission to view projects."
+        );
+    }
+
+    // Fetch projects with the applied filters
     const projects = await prisma.project.findMany({
+      where: filters,
+      skip,
+      take,
+      orderBy: {
+        createdAt: "desc",
+      },
       include: {
-        createdBy: true,
+        createdBy: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
         managers: {
           include: {
             manager: {
@@ -210,7 +287,32 @@ export const getAllProjects = async (req: Request, res: Response) => {
         },
       },
     });
-    return Responses.FetchSucess(res, projects);
+    // Flatten teamMembers data
+    const transformedProjects = projects.map((project) => ({
+      ...project,
+      teamMembers: project.teamMembers.map(({ teamMember }) => teamMember),
+      managers: project.managers.map(({ manager }) => manager),
+    }));
+    // Get the total count of projects for pagination
+    const totalProjects = await prisma.project.count({
+      where: filters,
+    });
+    const responsePayload = {
+      data: transformedProjects,
+      meta:
+        page && pageSize
+          ? {
+              totalCount: totalProjects,
+              totalPages: Math.ceil(totalProjects / (take ?? 1)),
+              currentPage: Number(page),
+              pageSize: Number(pageSize),
+            }
+          : {
+              totalCount: totalProjects,
+            },
+    };
+
+    return Responses.FetchPagedSucess(res, responsePayload);
   } catch (error) {
     return Responses.InternalServerError(res, "Error fetching projects.");
   }
