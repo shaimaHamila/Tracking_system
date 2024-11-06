@@ -22,14 +22,15 @@ const Projects = () => {
     <>
       <ProjectsTable
         projects={data?.data || []}
+        currentUserRole={"ADMIN"}
         status={status}
         totalProjects={data?.meta?.totalCount || 0}
         onCreateProjectDrawerOpen={() => {
           // setCreateProjectDrawerOpen(true);
         }}
         onViewProject={(project) => {
-          // setClickedUser(project);
-          // setViewUserDrawerOpen(true);
+          // setClickedProject(project);
+          // setViewProjectDrawerOpen(true);
         }}
         onUpdateProject={(project) => {
           console.log(project);
@@ -48,12 +49,12 @@ const Projects = () => {
           setPageSize(newPageSize);
           setPage(1);
         }}
-        addBtnText={"Add new user"}
-        onSearchChange={(searchedName: string) => {
-          // setFirstName(searchedName === "" ? null : searchedName);
+        addBtnText={"Add new Project"}
+        onSearchChange={(searchedProjectName: string) => {
+          // setFirstProjectName(searchedProjectName === "" ? null : searchedProjectName);
         }}
-        onProjectTypeFilterChange={(selectedRoleId: ProjectType | null) => {
-          // setRoleId(selectedRoleId);
+        onProjectTypeFilterChange={(projectType: ProjectType | null) => {
+          // setProjectType(projectType);
           setPage(1); // Reset to the first page when role changes
         }}
       />

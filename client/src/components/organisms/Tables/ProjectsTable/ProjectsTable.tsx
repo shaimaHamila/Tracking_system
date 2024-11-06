@@ -6,6 +6,7 @@ import { Project, ProjectType } from "../../../../types/Project";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi";
 import { User } from "../../../../types/User";
 import "./ProjectsTable.scss";
+import { RoleName } from "../../../../types/Role";
 interface ProjectsTableRow {
   id: number;
   name: string;
@@ -17,6 +18,7 @@ interface ProjectsTableRow {
 }
 interface ProjectsTableProps {
   projects: Project[];
+  currentUserRole: string;
   status: "error" | "success" | "pending";
   totalProjects: number;
   onCreateProjectDrawerOpen: () => void;
@@ -33,6 +35,7 @@ interface ProjectsTableProps {
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({
   projects,
+  currentUserRole,
   totalProjects,
   onDeleteProject,
   onUpdateProject,
@@ -75,79 +78,90 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       render: (_, _record, index) => index + 1,
     },
     {
-      title: "Name",
+      title: "Project Name",
       dataIndex: "name",
       key: "name",
       render: (text) => <>{text}</>,
     },
-    {
-      title: "Client",
-      dataIndex: "client",
-      key: "client",
-      render: (client: Partial<User>) => <>{client?.firstName + " " + client?.lastName}</>,
-    },
-    {
-      title: "Project Type",
-      dataIndex: "projectType",
-      key: "projectType",
-      filters: [
-        { text: "External projects", value: ProjectType.EXTERNAL },
-        { text: "Internal projects", value: ProjectType.INTERNAL },
-      ],
-      filterMultiple: false,
-      onFilter: (value, record) => {
-        if (!value) handleProjectTypeFilterChange(null);
-        return record.projectType === value;
-      },
+    // Conditionally render 'Client' column
+    ...(currentUserRole !== RoleName.TECHNICAL_MANAGER
+      ? [
+          {
+            title: "Client",
+            dataIndex: "client",
+            key: "client",
+            render: (client: Partial<User>) => (
+              <>{client?.firstName && client?.lastName ? client?.firstName + " " + client?.lastName : "--"}</>
+            ),
+          },
+        ]
+      : []),
+    ...(currentUserRole !== "CLIENT"
+      ? [
+          {
+            title: "Project Type",
+            dataIndex: "projectType",
+            key: "projectType",
+            filters: [
+              { text: "External projects", value: ProjectType.EXTERNAL },
+              { text: "Internal projects", value: ProjectType.INTERNAL },
+            ],
+            filterMultiple: false,
+            onFilter: (value: any, record: any) => {
+              if (!value) handleProjectTypeFilterChange(null);
+              return record.projectType === value;
+            },
+            render: (projectType: any) => <Tag>{projectType}</Tag>,
+          },
+        ]
+      : []),
+    ...(currentUserRole !== RoleName.TECHNICAL_MANAGER
+      ? [
+          {
+            title: <div>Project Managers</div>,
+            key: "managers",
+            dataIndex: "managers",
+            render: (managers: Partial<User>[]) => {
+              // Check if there are no manager
 
-      render: (projectType) => {
-        return <Tag>{projectType}</Tag>;
-      },
-    },
-    {
-      title: "Project Managers",
-      key: "managers",
-      dataIndex: "managers",
-      render: (managers) => {
-        // Check if there are no manager
-
-        if (managers.length == 0) {
-          return <div>--</div>;
-        } else {
-          const displayedManagers = managers.slice(0, 3);
-          const remainingManagers = managers.length - displayedManagers.length;
-          return (
-            <div style={{ marginRight: "1rem" }}>
-              {displayedManagers.map((manager: Partial<User>) => (
-                <Tag
-                  style={{
-                    marginBottom: "5px",
-                    marginRight: "5px",
-                    maxWidth: "150px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "normal",
-                  }}
-                  bordered={false}
-                  key={manager.id}
-                  color='default'
-                >
-                  {manager?.firstName + " " + manager?.lastName}
-                </Tag>
-              ))}
-              {remainingManagers > 0 && (
-                <Tooltip title={projects.map((project: Partial<Project>) => project.name).join(", ")}>
-                  <Tag bordered={false} color='default'>
-                    +{remainingManagers} more
-                  </Tag>
-                </Tooltip>
-              )}
-            </div>
-          );
-        }
-      },
-    },
-
+              if (managers.length == 0) {
+                return <div style={{ width: "30px" }}>--</div>;
+              } else {
+                const displayedManagers = managers.slice(0, 3);
+                const remainingManagers = managers.length - displayedManagers.length;
+                return (
+                  <div style={{ marginRight: "1rem" }}>
+                    {displayedManagers.map((manager: Partial<User>) => (
+                      <Tag
+                        style={{
+                          marginBottom: "5px",
+                          marginRight: "5px",
+                          maxWidth: "150px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "normal",
+                        }}
+                        bordered={false}
+                        key={manager.id}
+                        color='default'
+                      >
+                        {manager?.firstName + " " + manager?.lastName}
+                      </Tag>
+                    ))}
+                    {remainingManagers > 0 && (
+                      <Tooltip title={projects.map((project: Partial<Project>) => project.name).join(", ")}>
+                        <Tag bordered={false} color='default'>
+                          +{remainingManagers} more
+                        </Tag>
+                      </Tooltip>
+                    )}
+                  </div>
+                );
+              }
+            },
+          },
+        ]
+      : []),
     {
       title: "Action",
       key: "action",
@@ -162,31 +176,34 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               icon={<HiOutlineEye />}
             />
           </Tooltip>
-          <Tooltip title='Edit'>
-            <Button
-              onClick={() => {
-                onUpdateProject(project.project);
-              }}
-              className='table--action-btn'
-              icon={<HiOutlinePencilAlt />}
-            />
-          </Tooltip>
-
-          <Tooltip title='Delete'>
-            <Popconfirm
-              title='Are you sur you want to delete this user?'
-              onConfirm={() => {
-                // store.dispatch(setLoading(true));
-                onDeleteProject(project.id!);
-              }}
-            >
-              <Button className='table--action-btn' icon={<HiOutlineTrash />} loading={false} />
-            </Popconfirm>
-          </Tooltip>
+          {/* Conditionally render 'Edit' and 'Update' buttons */}
+          {currentUserRole === RoleName.ADMIN && (
+            <>
+              <Tooltip title='Edit'>
+                <Button
+                  onClick={() => onUpdateProject(project.project)}
+                  className='table--action-btn'
+                  icon={<HiOutlinePencilAlt />}
+                />
+              </Tooltip>
+              <Tooltip title='Delete'>
+                <Popconfirm
+                  title='Are you sur you want to delete this user?'
+                  onConfirm={() => {
+                    // store.dispatch(setLoading(true));
+                    onDeleteProject(project.id!);
+                  }}
+                >
+                  <Button className='table--action-btn' icon={<HiOutlineTrash />} loading={false} />
+                </Popconfirm>
+              </Tooltip>
+            </>
+          )}
         </Space>
       ),
     },
   ];
+
   const onPageSizeChange = (_current: number, size: number) => {
     setPageSize(size);
     handlePageSizeChange(size);
@@ -209,8 +226,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         onClickBtn={onCreateProjectDrawerOpen}
         btnText={addBtnText}
         totalItems={totalProjects}
-        totalItemsText={"Total users:"}
-        searchPlaceholder={"Search by name"}
+        totalItemsText={"Total projects:"}
+        searchPlaceholder={"Search by project name"}
       />
       <Table<ProjectsTableRow>
         loading={status == "pending"}
@@ -225,7 +242,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         total={totalProjects}
         pageSize={pageSize}
         showSizeChanger
-        showTotal={(total, range) => `${range[0]}-${range[1]} ${"of"} ${total} ${"Users"}`}
+        showTotal={(total, range) => `${range[0]}-${range[1]} ${"of"} ${total} ${"Projects"}`}
         onChange={onPageChange}
         onShowSizeChange={onPageSizeChange}
       />
