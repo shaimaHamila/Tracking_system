@@ -7,6 +7,7 @@ import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi
 import { User } from "../../../../types/User";
 import "./ProjectsTable.scss";
 import { RoleName } from "../../../../types/Role";
+import ProjectTypeTag from "../../../atoms/ProjectTypeTag/ProjectTypeTag";
 interface ProjectsTableRow {
   id: number;
   name: string;
@@ -111,7 +112,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               if (!value) handleProjectTypeFilterChange(null);
               return record.projectType === value;
             },
-            render: (projectType: any) => <Tag>{projectType}</Tag>,
+            render: (projectType: any) => <ProjectTypeTag projectTypeTag={projectType} />,
           },
         ]
       : []),
