@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "../../types/ApiResponse";
 import { Project, ProjectType } from "../../types/Project";
 import api from "../../api/AxiosConfig";
+import { notification } from "antd";
 
 interface FetchProjectsRequest {
   pageSize?: number | null;
@@ -21,5 +22,25 @@ export const useFetchProjects = ({ pageSize, page, projectType, projectName }: F
       return data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+};
+export const useCreateProject = () => {
+  return useMutation<ApiResponse<Partial<Project>>, Error, Partial<Project>>({
+    mutationFn: async (newProject: Partial<Project>) => {
+      const { data } = await api.post<ApiResponse<Partial<Project>>>("/project", newProject);
+      return data;
+    },
+    onSuccess: (data) => {
+      notification.success({
+        message: data.message,
+        description: "Project created successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
   });
 };
