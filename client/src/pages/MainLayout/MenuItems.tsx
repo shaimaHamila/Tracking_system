@@ -6,6 +6,7 @@ import { BsPcDisplay } from "react-icons/bs";
 export const staffMenuItems = [
   { key: "/dashboard", label: "Dashboard", icon: <FileTextOutlined /> },
   { key: "/tickets", label: "Tickets", icon: <FileTextOutlined /> },
+  { key: "/projects", label: "Projects", icon: <GoProject /> },
 
   // Add new staff menu items here
 ];

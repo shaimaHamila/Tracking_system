@@ -8,7 +8,7 @@ interface FetchUsersRequest {
   pageSize?: number | null;
   page?: number | null;
   roleId?: number | null;
-  firstName?: string | null;
+  userName?: string | null;
 }
 
 //To fixs
@@ -26,12 +26,12 @@ export const useCurrentUser = (token: string) => {
 };
 
 // Fetch users
-export const useFetchUsers = ({ pageSize, page, roleId, firstName }: FetchUsersRequest) => {
+export const useFetchUsers = ({ pageSize, page, roleId, userName }: FetchUsersRequest) => {
   return useQuery<ApiResponse<User[]>>({
-    queryKey: ["user/fetchUsers", pageSize, page, roleId, firstName],
+    queryKey: ["user/fetchUsers", pageSize, page, roleId, userName],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<User[]>>("/user", {
-        params: { pageSize, page, roleId, firstName },
+        params: { pageSize, page, roleId, userName },
       });
       return data;
     },

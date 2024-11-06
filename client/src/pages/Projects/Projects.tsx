@@ -8,10 +8,12 @@ const Projects = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [projectType, setProjectType] = useState<ProjectType | null>(null);
+  const [projectName, setProjectName] = useState<string | null>(null);
   const { data, status, isError } = useFetchProjects({
     pageSize,
     page,
     projectType,
+    projectName,
   });
   if (isError) {
     notification.error({
@@ -51,10 +53,10 @@ const Projects = () => {
         }}
         addBtnText={"Add new Project"}
         onSearchChange={(searchedProjectName: string) => {
-          // setFirstProjectName(searchedProjectName === "" ? null : searchedProjectName);
+          setProjectName(searchedProjectName === "" ? null : searchedProjectName);
         }}
         onProjectTypeFilterChange={(projectType: ProjectType | null) => {
-          // setProjectType(projectType);
+          setProjectType(projectType);
           setPage(1); // Reset to the first page when role changes
         }}
       />

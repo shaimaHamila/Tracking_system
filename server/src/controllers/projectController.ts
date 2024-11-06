@@ -164,8 +164,9 @@ export const createProject = async (req: Request, res: Response) => {
 };
 // Get all projects
 export const getAllProjects = async (req: Request, res: Response) => {
-  const { page, pageSize, projectType } = req.query;
+  const { page, pageSize, projectType, projectName } = req.query;
   const _projectType = projectType ? (projectType as ProjectType) : undefined;
+  const _projectName = projectName ? (projectName as string) : undefined;
 
   const skip =
     page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
@@ -188,6 +189,14 @@ export const getAllProjects = async (req: Request, res: Response) => {
     // Apply projectType filter if provided
     if (_projectType) {
       filters.projectType = _projectType;
+    }
+
+    // Apply projectName filter if provided
+    if (projectName && projectName !== "null") {
+      filters.name = {
+        contains: String(projectName),
+        mode: "insensitive",
+      };
     }
 
     switch (user.role.roleName) {

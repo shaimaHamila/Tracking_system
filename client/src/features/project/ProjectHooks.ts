@@ -7,15 +7,16 @@ interface FetchProjectsRequest {
   pageSize?: number | null;
   page?: number | null;
   projectType?: ProjectType | null;
+  projectName?: string | null;
 }
 
 // Fetch projects
-export const useFetchProjects = ({ pageSize, page, projectType }: FetchProjectsRequest) => {
+export const useFetchProjects = ({ pageSize, page, projectType, projectName }: FetchProjectsRequest) => {
   return useQuery<ApiResponse<Project[]>>({
-    queryKey: ["project/fetchProjects", pageSize, page, projectType],
+    queryKey: ["project/fetchProjects", pageSize, page, projectType, projectName],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<Project[]>>("/project/all", {
-        params: { pageSize, page, projectType },
+        params: { pageSize, page, projectType, projectName },
       });
       return data;
     },

@@ -16,13 +16,13 @@ const Users: React.FC = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [roleId, setRoleId] = useState<RolesId | null>(null); // Default to no specific role
-  const [firstName, setFirstName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [clickedUser, setClickedUser] = useState<Partial<User> | null>(null);
   const { data, status, isError } = useFetchUsers({
     pageSize,
     page,
     roleId,
-    firstName,
+    userName,
   });
   const createUserMutation = useCreateUser(); //TODO   handle loading and fetch users after creating oe updating or deleting user
   const updateUserMutation = useUpdateUser();
@@ -76,7 +76,7 @@ const Users: React.FC = () => {
         }}
         addBtnText={"Add new user"}
         onSearchChange={(searchedName: string) => {
-          setFirstName(searchedName === "" ? null : searchedName);
+          setUserName(searchedName === "" ? null : searchedName);
         }}
         onRoleFilterChange={(selectedRoleId: RoleId | null) => {
           setRoleId(selectedRoleId);
