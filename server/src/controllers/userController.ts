@@ -70,7 +70,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 // Get all users with filtering and pagination
 export const getAllUsers = async (req: Request, res: Response) => {
-  const { page, pageSize, firstName, roleId } = req.query;
+  const { page, pageSize, userName, roleId } = req.query;
 
   const skip =
     page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
@@ -79,15 +79,18 @@ export const getAllUsers = async (req: Request, res: Response) => {
   const parsedRoleId = roleId ? parseInt(roleId.toString()) : undefined;
 
   try {
-    // Construct the filter options for the `findMany` query
-    const filters = {
-      ...(firstName && firstName !== "null"
-        ? { firstName: { contains: String(firstName) } }
-        : {}),
-      ...(parsedRoleId ? { roleId: parsedRoleId } : {}),
-    };
+    let filters: any = {};
 
-    // Fetch user data with pagination and filtering
+    if (userName && userName !== "null") {
+      filters.OR = [
+        { firstName: { contains: String(userName), mode: "insensitive" } },
+        { lastName: { contains: String(userName), mode: "insensitive" } },
+      ];
+    }
+    if (parsedRoleId) {
+      filters.roleId = parsedRoleId;
+    }
+
     const users = await prisma.user.findMany({
       where: filters,
       skip,

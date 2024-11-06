@@ -90,6 +90,7 @@ const UserTable: React.FC<UserTableProps> = ({
       dataIndex: "role",
       key: "role",
       filters: [
+        { text: "All", value: "null" },
         { text: "Admin", value: RolesId.ADMIN }, // Use RoleId values here
         { text: "Staff", value: RolesId.STAFF },
         { text: "Client", value: RolesId.CLIENT },
@@ -97,7 +98,11 @@ const UserTable: React.FC<UserTableProps> = ({
       ],
       filterMultiple: false,
       onFilter: (value, record) => {
-        if (!value) handleRoleFilterChange(null);
+        if (value === "null" || value === undefined) {
+          handleRoleFilterChange(null);
+          return true; // Return true to show all rows
+        }
+        handleRoleFilterChange(value as RoleId);
         return record.role.id === value;
       },
 
@@ -113,7 +118,7 @@ const UserTable: React.FC<UserTableProps> = ({
         // Check if there are no projects
 
         if (projects.length == 0) {
-          return <div>--</div>;
+          return <div style={{ width: "30px" }}>--</div>;
         } else {
           const displayedProjects = projects.slice(0, 3);
           const remainingProjects = projects.length - displayedProjects.length;

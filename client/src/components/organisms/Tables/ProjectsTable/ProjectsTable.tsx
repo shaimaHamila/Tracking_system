@@ -7,6 +7,7 @@ import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi
 import { User } from "../../../../types/User";
 import "./ProjectsTable.scss";
 import { RoleName } from "../../../../types/Role";
+import ProjectTypeTag from "../../../atoms/ProjectTypeTag/ProjectTypeTag";
 interface ProjectsTableRow {
   id: number;
   name: string;
@@ -105,13 +106,20 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             filters: [
               { text: "External projects", value: ProjectType.EXTERNAL },
               { text: "Internal projects", value: ProjectType.INTERNAL },
+              { text: "All projects", value: "null" },
             ],
             filterMultiple: false,
+            filterOnClose: true,
+
             onFilter: (value: any, record: any) => {
-              if (!value) handleProjectTypeFilterChange(null);
+              if (value === "null" || value === undefined) {
+                handleProjectTypeFilterChange(null);
+                return true; // Return true to show all rows
+              }
+              if (value) handleProjectTypeFilterChange(value as ProjectType);
               return record.projectType === value;
             },
-            render: (projectType: any) => <Tag>{projectType}</Tag>,
+            render: (projectType: any) => <ProjectTypeTag projectTypeTag={projectType} />,
           },
         ]
       : []),
@@ -209,18 +217,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     handlePageSizeChange(size);
   };
   const [tableHeight, setTableHeight] = useState(300);
-  const ref = useRef<HTMLDivElement>(null);
+  const projectTabRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (ref.current) {
-      const { top } = ref.current.getBoundingClientRect();
+    if (projectTabRef.current) {
+      const { top } = projectTabRef.current.getBoundingClientRect();
       // Adjust TABLE_HEADER_HEIGHT according to your actual header height.
       const TABLE_HEADER_HEIGHT = 160;
       setTableHeight(window.innerHeight - top - TABLE_HEADER_HEIGHT - 100);
     }
-  }, [ref]);
+  }, [projectTabRef]);
   return (
-    <div ref={ref} style={{ overflow: "auto" }}>
+    <div ref={projectTabRef} style={{ overflow: "auto" }}>
       <TableHeader
         onSearchChange={(searchedName) => onSearchChange(searchedName)}
         onClickBtn={onCreateProjectDrawerOpen}
