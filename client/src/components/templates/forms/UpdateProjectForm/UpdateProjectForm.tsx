@@ -1,67 +1,55 @@
-import React, { useState } from "react";
-import "./CreateProjectForm.scss";
+import React, { useEffect } from "react";
+import "./UpdateProjectForm.scss";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Project } from "../../../../types/Project";
 import { User } from "../../../../types/User";
-import { Project, ProjectType } from "../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
 const { Option } = Select;
 
-interface CreateProjectFormProps {
-  onCreateProject: (project: Partial<Project>) => void;
+interface UpdateProjectFormProps {
+  onUpdateProject: (project: Partial<Project>) => void;
+  projectToUpdate: Partial<Project>;
   clients: Partial<User>[];
   projectManagers: Partial<User>[];
   technicalManagers: Partial<User>[];
   teamMembers: Partial<User>[];
 }
 
-const CreateUserForm: React.FC<CreateProjectFormProps> = ({
-  onCreateProject,
+const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
+  onUpdateProject,
+  projectToUpdate,
   clients,
   projectManagers,
   technicalManagers,
   teamMembers,
 }) => {
-  const [userForm] = Form.useForm();
-  const [projectType, setProjectType] = useState<ProjectType | null>(null); // Track project type selection
+  const [projectForm] = Form.useForm();
 
-  const handleFormSubmit = (values: Partial<User>) => {
-    onCreateProject(values);
-    userForm.resetFields();
-    setProjectType(null);
+  useEffect(() => {
+    // Populate form with existing project data
+    projectForm.setFieldsValue(projectToUpdate);
+  }, [projectToUpdate, projectForm]);
+
+  const handleFormSubmit = (values: Partial<Project>) => {
+    onUpdateProject(values);
   };
 
   return (
-    <Form form={userForm} layout='vertical' autoComplete='off' className='user-form' onFinish={handleFormSubmit}>
-      <div className='user-form'>
+    <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>
+      <div className='project-form'>
         <Card bordered={false}>
-          {/* Project Name and Project Type */}
           <Flex gap={16} wrap>
             <Form.Item
-              className='user-form--input'
+              className='project-form--input'
               label='Project Name'
               name='name'
               rules={[{ required: true, message: "Please enter project name" }]}
             >
               <Input placeholder='Enter project name' />
             </Form.Item>
-
-            <Form.Item
-              className='user-form--input'
-              label='Project Type'
-              name='projectType'
-              rules={[{ required: true, message: "Select the project type" }]}
-            >
-              <Select placeholder='Select Project Type' onChange={(value) => setProjectType(value as ProjectType)}>
-                <Option value={ProjectType.EXTERNAL}>External</Option>
-                <Option value={ProjectType.INTERNAL}>Internal</Option>
-              </Select>
-            </Form.Item>
           </Flex>
-
-          {/* Description */}
           <Form.Item
-            className='user-form--input'
+            className='project-form--input'
             label='Description'
             name='description'
             rules={[{ required: true, message: "Please enter a description" }]}
@@ -69,10 +57,9 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
             <TextArea rows={4} />
           </Form.Item>
 
-          {/* Conditionally Rendered Fields */}
-          {projectType === ProjectType.INTERNAL && (
+          {projectToUpdate.projectType === "INTERNAL" && (
             <Form.Item
-              className='user-form--input'
+              className='project-form--input'
               label='Technical Manager'
               name='technicalManagerId'
               rules={[{ required: true, message: "Please select a Technical Manager" }]}
@@ -87,13 +74,13 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
             </Form.Item>
           )}
 
-          {projectType === ProjectType.EXTERNAL && (
+          {projectToUpdate.projectType === "EXTERNAL" && (
             <>
               <Flex gap={16} wrap>
                 <Form.Item
-                  className='user-form--input'
+                  className='project-form--input'
                   label='Client'
-                  name='client'
+                  name='clientId'
                   rules={[{ required: true, message: "Please select a client" }]}
                 >
                   <Select placeholder='Select client'>
@@ -106,9 +93,9 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
                 </Form.Item>
 
                 <Form.Item
-                  className='user-form--input'
+                  className='project-form--input'
                   label='Project Managers'
-                  name='managers'
+                  name='projectManagerIds'
                   rules={[{ required: true, message: "Please select a project manager" }]}
                 >
                   <Select mode='multiple' placeholder='Select project managers'>
@@ -122,9 +109,9 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
               </Flex>
 
               <Form.Item
-                className='user-form--input'
+                className='project-form--input'
                 label='Team Members'
-                name='teamMembers'
+                name='teamMemberIds'
                 rules={[{ required: true, message: "Please select team members" }]}
               >
                 <Select mode='multiple' placeholder='Select team members'>
@@ -138,10 +125,9 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
             </>
           )}
 
-          {/* Submit Button */}
-          <div className='user-form--submit-btn'>
-            <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
-              Add user
+          <div className='project-form--submit-btn'>
+            <Button loading={false} size='middle' type='primary' htmlType='submit'>
+              Update Project
             </Button>
           </div>
         </Card>
@@ -150,4 +136,4 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
   );
 };
 
-export default CreateUserForm;
+export default UpdateProjectForm;
