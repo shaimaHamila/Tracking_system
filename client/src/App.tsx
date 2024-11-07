@@ -1,4 +1,4 @@
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate, Route, BrowserRouter as Router } from "react-router-dom";
 import { Loading } from "./components/atoms/Loading/Loading";
 import { usePublicRoutes } from "./routes/usePublicRoutes";
 import useAdminRoutes from "./routes/useAdminRoutes";
