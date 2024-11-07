@@ -45,6 +45,6 @@ ProjectRouter.put(
   updateProject
 );
 
-ProjectRouter.delete("/", authentication, adminAuthorization, deleteProject);
+ProjectRouter.delete("/:id", authentication, adminAuthorization, deleteProject);
 
 export default ProjectRouter;

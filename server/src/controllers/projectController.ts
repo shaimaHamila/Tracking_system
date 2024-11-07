@@ -629,7 +629,7 @@ export const updateProject = async (req: Request, res: Response) => {
 
 // Delete Project
 export const deleteProject = async (req: Request, res: Response) => {
-  const { id } = req.query;
+  const { id } = req.params;
   if (!id) {
     return Responses.BadRequest(res, "Project ID is required");
   }

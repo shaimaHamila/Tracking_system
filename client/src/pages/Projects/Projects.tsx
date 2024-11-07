@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ProjectsTable from "../../components/organisms/Tables/ProjectsTable/ProjectsTable";
-import { useCreateProject, useFetchProjects } from "../../features/project/ProjectHooks";
+import { useCreateProject, useDeleteProject, useFetchProjects } from "../../features/project/ProjectHooks";
 import { Project, ProjectType } from "../../types/Project";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
@@ -47,13 +47,14 @@ const Projects = () => {
     projectName,
   });
   const createProjectMutation = useCreateProject();
+  // const updateProjectMutation = useUpdateProject();
+  const deleteProjectMutation = useDeleteProject();
 
   if (isError) {
     notification.error({
       message: "Failed to fetch users, please try again",
     });
   }
-  console.log(data?.data);
 
   const handleCreateProject = (project: Partial<Project>) => {
     console.log("Project created:", project);
@@ -86,7 +87,7 @@ const Projects = () => {
         }}
         onDeleteProject={(id) => {
           console.log(id);
-          // deleteProjectMutation.mutate(id);
+          deleteProjectMutation.mutate(id);
         }}
         limitProjectsPerPage={5}
         onPageChange={(newPage: number) => {
