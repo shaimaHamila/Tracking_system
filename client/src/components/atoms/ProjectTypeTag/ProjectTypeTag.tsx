@@ -21,7 +21,11 @@ const ProjectTypeTag: React.FC<ProjectTypeTagProps> = ({ projectTypeTag }) => {
     default:
       tagColor = "default";
   }
-  return <Tag color={tagColor}>{tagText}</Tag>;
+  return (
+    <Tag style={{ width: "min-content" }} color={tagColor}>
+      {tagText}
+    </Tag>
+  );
 };
 
 export default ProjectTypeTag;

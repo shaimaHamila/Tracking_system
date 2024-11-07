@@ -25,7 +25,11 @@ const ConditionTag: React.FC<ConditionTagProps> = ({ condition }) => {
     default:
       tagColor = "default";
   }
-  return <Tag color={tagColor}>{tagText}</Tag>;
+  return (
+    <Tag style={{ width: "min-content" }} color={tagColor}>
+      {tagText}
+    </Tag>
+  );
 };
 
 export default ConditionTag;

@@ -16,19 +16,19 @@ export const CreateProjectValidator = Joi.object({
   managers: Joi.array()
     .items(Joi.number())
     .when("projectType", {
-      is: ProjectType.INTERNAL,
+      is: ProjectType.EXTERNAL,
       then: Joi.array().min(1).required().messages({
         "array.min": "At least one manager is required",
-        "any.required": "Project Manager is required for internal projects",
+        "any.required": "Project Manager is required for external projects",
       }),
     })
     .optional(),
 
   // If projectType is EXTERNAL, technicalManagerId is required
   technicalManagerId: Joi.number().when("projectType", {
-    is: ProjectType.EXTERNAL,
+    is: ProjectType.INTERNAL,
     then: Joi.required().messages({
-      "any.required": "Technical Manager is required for external projects",
+      "any.required": "Technical Manager is required for internal projects",
     }),
   }),
 
@@ -42,6 +42,9 @@ export const GetProjectByTypeValidator = Joi.object({
 // Update Project Validator
 export const UpdateProjectValidator = Joi.object({
   name: Joi.string().optional(),
+  projectType: Joi.string()
+    .valid(ProjectType.INTERNAL, ProjectType.EXTERNAL)
+    .optional(),
   description: Joi.string().optional(),
   clientId: Joi.number().optional(),
   technicalManagerId: Joi.number().optional(),

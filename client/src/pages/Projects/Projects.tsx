@@ -6,6 +6,7 @@ import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateProjectForm from "../../components/templates/forms/CreateProjectForm/CreateProjectForm";
 import UpdateProjectForm from "../../components/templates/forms/UpdateProjectForm/UpdateProjectForm";
+import ProjectDetails from "../../components/templates/ProjectDetails/ProjectDetails";
 const clientsArray = [
   { id: 1, firstName: "Alice", lastName: "Smith" },
   { id: 2, firstName: "Bob", lastName: "Johnson" },
@@ -38,6 +39,7 @@ const Projects = () => {
   const [isCreateProjectDrawerOpen, setCreateProjectDrawerOpen] = useState(false);
   const [clickedProject, setClickedProject] = useState<Partial<Project> | null>(null);
   const [isUpdateProjectDrawerOpen, setUpdateProjectDrawerOpen] = useState(false);
+  const [isViewProjectDrawerOpen, setViewProjectDrawerOpen] = useState(false);
   const { data, status, isError } = useFetchProjects({
     pageSize,
     page,
@@ -51,6 +53,7 @@ const Projects = () => {
       message: "Failed to fetch users, please try again",
     });
   }
+  console.log(data?.data);
 
   const handleCreateProject = (project: Partial<Project>) => {
     console.log("Project created:", project);
@@ -73,8 +76,8 @@ const Projects = () => {
           setCreateProjectDrawerOpen(true);
         }}
         onViewProject={(project) => {
-          // setClickedProject(project);
-          // setViewProjectDrawerOpen(true);
+          setClickedProject(project);
+          setViewProjectDrawerOpen(true);
         }}
         onUpdateProject={(project) => {
           console.log(project);
@@ -130,6 +133,14 @@ const Projects = () => {
             teamMembers={teamMembersArray}
           />
         }
+      />
+      <DrawerComponent
+        isOpen={isViewProjectDrawerOpen}
+        handleClose={() => {
+          setViewProjectDrawerOpen(false), setClickedProject(null);
+        }}
+        title={"User Details"}
+        content={<ProjectDetails project={clickedProject} />}
       />
     </>
   );
