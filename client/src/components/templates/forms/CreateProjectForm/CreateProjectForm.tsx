@@ -5,26 +5,19 @@ import { PlusOutlined } from "@ant-design/icons";
 import { User } from "../../../../types/User";
 import { Project, ProjectType } from "../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
+import { useFetchUsers } from "../../../../features/user/UserHooks";
 const { Option } = Select;
 
 interface CreateProjectFormProps {
   onCreateProject: (project: Partial<Project>) => void;
-  clients: Partial<User>[];
-  projectManagers: Partial<User>[];
-  technicalManagers: Partial<User>[];
-  teamMembers: Partial<User>[];
 }
 
-const CreateUserForm: React.FC<CreateProjectFormProps> = ({
-  onCreateProject,
-  clients,
-  projectManagers,
-  technicalManagers,
-  teamMembers,
-}) => {
+const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) => {
   const [userForm] = Form.useForm();
   const [projectType, setProjectType] = useState<ProjectType | null>(null); // Track project type selection
-
+  const { data: technicalManagers } = useFetchUsers({ roleId: 5 });
+  const { data: clients } = useFetchUsers({ roleId: 4 });
+  const { data: staff } = useFetchUsers({ roleId: 3 });
   const handleFormSubmit = (values: Partial<User>) => {
     onCreateProject(values);
     userForm.resetFields();
@@ -78,7 +71,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
               rules={[{ required: true, message: "Please select a Technical Manager" }]}
             >
               <Select placeholder='Select a technical manager'>
-                {technicalManagers.map((manager) => (
+                {technicalManagers?.data?.map((manager) => (
                   <Option key={manager.id} value={manager.id}>
                     {manager.firstName} {manager.lastName}
                   </Option>
@@ -97,7 +90,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
                   rules={[{ required: true, message: "Please select a client" }]}
                 >
                   <Select placeholder='Select client'>
-                    {clients.map((client) => (
+                    {clients?.data?.map((client) => (
                       <Option key={client.id} value={client.id}>
                         {client.firstName} {client.lastName}
                       </Option>
@@ -112,7 +105,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
                   rules={[{ required: true, message: "Please select a project manager" }]}
                 >
                   <Select mode='multiple' placeholder='Select project managers'>
-                    {projectManagers.map((manager) => (
+                    {staff?.data?.map((manager) => (
                       <Option key={manager.id} value={manager.id}>
                         {manager.firstName} {manager.lastName}
                       </Option>
@@ -128,7 +121,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({
                 rules={[{ required: true, message: "Please select team members" }]}
               >
                 <Select mode='multiple' placeholder='Select team members'>
-                  {teamMembers.map((member) => (
+                  {staff?.data?.map((member) => (
                     <Option key={member.id} value={member.id}>
                       {member.firstName} {member.lastName}
                     </Option>

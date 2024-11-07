@@ -25,7 +25,7 @@ function App() {
     },
     enabled: !!token,
   });
-  console.log("Loading", isLoading);
+  // console.log("Loading", isLoading);
 
   if (error) {
     localStorage.removeItem("accessToken");
