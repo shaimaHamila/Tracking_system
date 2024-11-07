@@ -466,6 +466,7 @@ export const updateProject = async (req: Request, res: Response) => {
       managers,
       teamMembers,
       technicalManagerId,
+      projectType,
     } = req.body;
 
     // Prepare the data object for updating the project
@@ -474,6 +475,7 @@ export const updateProject = async (req: Request, res: Response) => {
     // Include only provided fields in the update data
     if (name) updateData.name = name;
     if (description) updateData.description = description;
+    if (projectType) updateData.projectType = projectType;
     if (clientId) updateData.clientId = parseInt(clientId, 10);
     if (technicalManagerId)
       updateData.technicalManagerId = parseInt(technicalManagerId, 10);

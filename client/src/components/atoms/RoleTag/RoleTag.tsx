@@ -28,7 +28,7 @@ const RoleTag: React.FC<RoleTagProps> = ({ role }) => {
       tagColor = "default";
   }
   return (
-    <Tag key={role?.id} color={tagColor}>
+    <Tag style={{ width: "min-content" }} key={role?.id} color={tagColor}>
       {tagText}
     </Tag>
   );
