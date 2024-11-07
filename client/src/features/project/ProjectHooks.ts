@@ -30,10 +30,29 @@ export const useCreateProject = () => {
       const { data } = await api.post<ApiResponse<Partial<Project>>>("/project", newProject);
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       notification.success({
-        message: data.message,
-        description: "Project created successfully",
+        message: "Project created successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
+
+export const useDeleteProject = () => {
+  return useMutation<ApiResponse<Partial<null>>, Error, number>({
+    mutationFn: async (id: number) => {
+      const { data } = await api.delete<ApiResponse<Partial<null>>>(`/project/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Project deleted successfully",
       });
     },
     onError: (error: any) => {

@@ -196,7 +196,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </Tooltip>
               <Tooltip title='Delete'>
                 <Popconfirm
-                  title='Are you sur you want to delete this user?'
+                  title='Are you sur you want to delete this Project?'
                   onConfirm={() => {
                     // store.dispatch(setLoading(true));
                     onDeleteProject(project.id!);
