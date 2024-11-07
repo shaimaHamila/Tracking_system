@@ -1,6 +1,6 @@
 import React from "react";
 import "./ProjectDetails.scss";
-import { Card, Typography, Table, TableProps, Divider, Alert, Flex, Avatar } from "antd";
+import { Card, Typography, Table, TableProps, Alert, Flex, Avatar } from "antd";
 import { Project, ProjectType } from "../../../types/Project";
 import { User } from "../../../types/User";
 import { formatDateWithoutTime } from "../../../helpers/date";

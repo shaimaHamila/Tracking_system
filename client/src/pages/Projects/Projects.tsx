@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ProjectsTable from "../../components/organisms/Tables/ProjectsTable/ProjectsTable";
-import { useCreateProject, useDeleteProject, useFetchProjects } from "../../features/project/ProjectHooks";
+import { useDeleteProject, useFetchProjects } from "../../features/project/ProjectHooks";
 import { Project, ProjectType } from "../../types/Project";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
@@ -46,7 +46,7 @@ const Projects = () => {
     projectType,
     projectName,
   });
-  const createProjectMutation = useCreateProject();
+  // const createProjectMutation = useCreateProject();
   // const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
 
