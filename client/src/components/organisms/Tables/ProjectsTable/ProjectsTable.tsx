@@ -23,8 +23,8 @@ interface ProjectsTableProps {
   status: "error" | "success" | "pending";
   totalProjects: number;
   onCreateProjectDrawerOpen: () => void;
-  onViewProject: (user: User) => void;
-  onUpdateProject: (user: User) => void;
+  onViewProject: (user: Project) => void;
+  onUpdateProject: (project: Project) => void;
   onDeleteProject: (id: number) => void;
   limitProjectsPerPage: number;
   onPageChange: (page: number) => void;
@@ -97,7 +97,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           },
         ]
       : []),
-    ...(currentUserRole !== "CLIENT"
+    ...(currentUserRole !== RoleName.CLIENT
       ? [
           {
             title: "Project Type",

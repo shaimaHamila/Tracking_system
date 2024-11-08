@@ -18,6 +18,7 @@ const Users: React.FC = () => {
   const [roleId, setRoleId] = useState<RolesId | null>(null); // Default to no specific role
   const [userName, setUserName] = useState<string | null>(null);
   const [clickedUser, setClickedUser] = useState<Partial<User> | null>(null);
+
   const { data, status, isError } = useFetchUsers({
     pageSize,
     page,
@@ -29,12 +30,10 @@ const Users: React.FC = () => {
   const deleteUserMutation = useDeleteUser();
 
   const handleCreateUser = (user: Partial<User>) => {
-    console.log("User created:", user);
     createUserMutation.mutate(user);
     setCreateUserDrawerOpen(false);
   };
   const handleUpdatedUser = (user: Partial<User>) => {
-    console.log("User updated:", user);
     updateUserMutation.mutate({ id: clickedUser?.id!, userData: user });
     setUpdateUserDrawerOpen(false);
   };
@@ -58,12 +57,10 @@ const Users: React.FC = () => {
           setViewUserDrawerOpen(true);
         }}
         onUpdateUser={(user) => {
-          console.log(user);
           setClickedUser(user);
           setUpdateUserDrawerOpen(true);
         }}
         onDeleteUser={(id) => {
-          console.log(id);
           deleteUserMutation.mutate(id);
         }}
         limitUsersPerPage={pageSize}
@@ -80,8 +77,6 @@ const Users: React.FC = () => {
         }}
         onRoleFilterChange={(selectedRoleId: RoleId | null) => {
           setRoleId(selectedRoleId);
-          console.log(selectedRoleId);
-
           setPage(1); // Reset to the first page when role changes
         }}
       />

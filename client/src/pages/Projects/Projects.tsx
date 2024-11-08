@@ -36,17 +36,15 @@ const Projects = () => {
 
   if (isError) {
     notification.error({
-      message: "Failed to fetch users, please try again",
+      message: "Failed to fetch Projects, please try again",
     });
   }
 
   const handleCreateProject = (project: Partial<Project>) => {
-    console.log("Project created:", project);
     createProjectMutation.mutate(project);
     setCreateProjectDrawerOpen(false);
   };
   const handleUpdatedProject = (projectToUpdate: Partial<Project>) => {
-    console.log("User updated:", projectToUpdate);
     updateProjectMutation.mutate({ id: clickedProject?.id!, projectToUpdate: projectToUpdate });
     setUpdateProjectDrawerOpen(false);
   };
@@ -54,7 +52,7 @@ const Projects = () => {
     <>
       <ProjectsTable
         projects={data?.data || []}
-        currentUserRole={"ADMIN"}
+        currentUserRole={"ADMIN"} //TODO: get current user role
         status={status}
         totalProjects={data?.meta?.totalCount || 0}
         onCreateProjectDrawerOpen={() => {
@@ -99,7 +97,7 @@ const Projects = () => {
       <DrawerComponent
         isOpen={isUpdateProjectDrawerOpen}
         handleClose={() => setUpdateProjectDrawerOpen(false)}
-        title={"Update User"}
+        title={"Update Project"}
         content={
           <UpdateProjectForm
             projectToUpdate={clickedProject!}
@@ -112,7 +110,7 @@ const Projects = () => {
         handleClose={() => {
           setViewProjectDrawerOpen(false), setClickedProject(null);
         }}
-        title={"User Details"}
+        title={"Project Details"}
         content={<ProjectDetails project={clickedProject} />}
       />
     </>
