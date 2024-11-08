@@ -1,6 +1,11 @@
 import { useState } from "react";
 import ProjectsTable from "../../components/organisms/Tables/ProjectsTable/ProjectsTable";
-import { useDeleteProject, useFetchProjects } from "../../features/project/ProjectHooks";
+import {
+  useCreateProject,
+  useDeleteProject,
+  useFetchProjects,
+  useUpdateProject,
+} from "../../features/project/ProjectHooks";
 import { Project, ProjectType } from "../../types/Project";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
@@ -25,8 +30,8 @@ const Projects = () => {
     projectName,
   });
 
-  // const createProjectMutation = useCreateProject();
-  // const updateProjectMutation = useUpdateProject();
+  const createProjectMutation = useCreateProject();
+  const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
 
   if (isError) {
@@ -37,12 +42,12 @@ const Projects = () => {
 
   const handleCreateProject = (project: Partial<Project>) => {
     console.log("Project created:", project);
-    // createProjectMutation.mutate(project);
-    // setProjectDrawerOpen(false);
+    createProjectMutation.mutate(project);
+    setCreateProjectDrawerOpen(false);
   };
   const handleUpdatedProject = (projectToUpdate: Partial<Project>) => {
     console.log("User updated:", projectToUpdate);
-    // updateProjectMutation.mutate({ id: clickedProject?.id!, projectToUpdate: projectToUpdate });
+    updateProjectMutation.mutate({ id: clickedProject?.id!, projectToUpdate: projectToUpdate });
     setUpdateProjectDrawerOpen(false);
   };
   return (

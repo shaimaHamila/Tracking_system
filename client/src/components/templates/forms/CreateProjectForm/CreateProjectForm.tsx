@@ -86,7 +86,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
                 <Form.Item
                   className='user-form--input'
                   label='Client'
-                  name='client'
+                  name='clientId'
                   rules={[{ required: true, message: "Please select a client" }]}
                 >
                   <Select placeholder='Select client'>
