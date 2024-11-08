@@ -2,20 +2,20 @@ import { RoleId } from "./Role";
 
 export type Equipment = {
   id: number;
-  name: string;
+  category: EquipmentCategory;
+  name?: string;
   serialNumber: string;
-  purchaseDate: Date;
-  warrantyEndDate: Date;
+  purchaseDate: string;
+  warrantyEndDate: string;
   purchaseCost: number;
   purchaseCompany: string;
   brand: string;
   categoryId: number;
-  category: EquipmentCategory;
   condition: Condition;
   assignedToId: RoleId;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
 };
 
 export enum Condition {
