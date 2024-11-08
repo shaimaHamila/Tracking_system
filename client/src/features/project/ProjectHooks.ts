@@ -47,7 +47,7 @@ export const useCreateProject = () => {
 export const useUpdateProject = () => {
   return useMutation<ApiResponse<Partial<Project>>, Error, { id: number; projectToUpdate: Partial<Project> }>({
     mutationFn: async ({ id, projectToUpdate }) => {
-      const { data } = await api.put<ApiResponse<Partial<Project>>>(`/project/${id}`, projectToUpdate);
+      const { data } = await api.put<ApiResponse<Partial<Project>>>(`/project/`, projectToUpdate, { params: { id } });
       return data;
     },
     onSuccess: () => {

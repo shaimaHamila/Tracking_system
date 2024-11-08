@@ -17,13 +17,20 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, 
   const { data: clients } = useFetchUsers({ roleId: 4 });
   const { data: staff } = useFetchUsers({ roleId: 3 });
   useEffect(() => {
-    // Populate form with existing project data
-    projectForm.setFieldsValue(projectToUpdate);
+    // Ensure the correct format for managers and teamMembers (array of IDs)
+    const updatedProject = {
+      ...projectToUpdate,
+      managers: projectToUpdate.managers?.map((manager) => manager.id) || [],
+      teamMembers: projectToUpdate.teamMembers?.map((member) => member.id) || [],
+    };
+
+    projectForm.setFieldsValue(updatedProject);
   }, [projectToUpdate, projectForm]);
 
   const handleFormSubmit = (values: Partial<Project>) => {
     onUpdateProject(values);
   };
+  console.log(projectToUpdate);
 
   return (
     <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>
@@ -86,7 +93,7 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, 
                 <Form.Item
                   className='project-form--input'
                   label='Project Managers'
-                  name='projectManagerIds'
+                  name='managers'
                   rules={[{ required: true, message: "Please select a project manager" }]}
                 >
                   <Select mode='multiple' placeholder='Select project managers'>
@@ -102,7 +109,7 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, 
               <Form.Item
                 className='project-form--input'
                 label='Team Members'
-                name='teamMemberIds'
+                name='teamMembers'
                 rules={[{ required: true, message: "Please select team members" }]}
               >
                 <Select mode='multiple' placeholder='Select team members'>

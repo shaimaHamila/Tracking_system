@@ -73,7 +73,7 @@ const Projects = () => {
           console.log(id);
           deleteProjectMutation.mutate(id);
         }}
-        limitProjectsPerPage={5}
+        limitProjectsPerPage={pageSize}
         onPageChange={(newPage: number) => {
           setPage(newPage);
         }}
