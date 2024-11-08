@@ -7,7 +7,7 @@ import { Project } from "../../../../types/Project";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi";
 import { User } from "../../../../types/User";
 import RoleTag from "../../../atoms/RoleTag/RoleTag";
-
+import "./UsersTable.scss";
 interface UserTableRow {
   id: number;
   name: string;
@@ -120,10 +120,10 @@ const UserTable: React.FC<UserTableProps> = ({
         if (projects.length == 0) {
           return <div style={{ width: "30px" }}>--</div>;
         } else {
-          const displayedProjects = projects.slice(0, 3);
+          const displayedProjects = projects.slice(0, 2);
           const remainingProjects = projects.length - displayedProjects.length;
           return (
-            <div style={{ marginRight: "1rem" }}>
+            <div className='users-table--projects'>
               {displayedProjects.map((project: Partial<Project>) => (
                 <Tag
                   style={{

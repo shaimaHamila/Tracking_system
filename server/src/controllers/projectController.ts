@@ -48,10 +48,6 @@ export const createProject = async (req: Request, res: Response) => {
       return Responses.BadRequest(res, error.message);
     }
 
-    const parsedTeamMembers = teamMembers
-      ? teamMembers.map((staffId: any) => parseInt(staffId, 10))
-      : [];
-
     try {
       await Promise.all([
         // Validate the client
@@ -70,8 +66,8 @@ export const createProject = async (req: Request, res: Response) => {
           : []),
 
         // Validate team members if they exist
-        ...(parsedTeamMembers.length
-          ? parsedTeamMembers.map((staffId: number) =>
+        ...(teamMembers?.length
+          ? teamMembers?.map((staffId: number) =>
               validateUserRole(staffId, Role.STAFF)
             )
           : []),
@@ -91,15 +87,15 @@ export const createProject = async (req: Request, res: Response) => {
         createdById: user.id,
         managers: managers
           ? {
-              create: managers.map((managerId: number) => ({
+              create: managers?.map((managerId: number) => ({
                 managerId,
               })),
             }
           : undefined,
-        teamMembers: parsedTeamMembers
+        teamMembers: teamMembers
           ? {
-              create: parsedTeamMembers.map((staffId: number) => ({
-                staffId,
+              create: teamMembers?.map((staffId: number) => ({
+                teamMemberId: staffId,
               })),
             }
           : undefined,

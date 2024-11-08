@@ -44,6 +44,26 @@ export const useCreateProject = () => {
   });
 };
 
+export const useUpdateProject = () => {
+  return useMutation<ApiResponse<Partial<Project>>, Error, { id: number; projectToUpdate: Partial<Project> }>({
+    mutationFn: async ({ id, projectToUpdate }) => {
+      const { data } = await api.put<ApiResponse<Partial<Project>>>(`/project/`, projectToUpdate, { params: { id } });
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Project updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
+
 export const useDeleteProject = () => {
   return useMutation<ApiResponse<Partial<null>>, Error, number>({
     mutationFn: async (id: number) => {

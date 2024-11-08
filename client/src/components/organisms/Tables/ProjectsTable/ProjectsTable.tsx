@@ -138,7 +138,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 const displayedManagers = managers.slice(0, 3);
                 const remainingManagers = managers.length - displayedManagers.length;
                 return (
-                  <div style={{ marginRight: "1rem" }}>
+                  <div className='projects-table--managers'>
                     {displayedManagers.map((manager: Partial<User>) => (
                       <Tag
                         style={{

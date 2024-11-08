@@ -1,35 +1,17 @@
 import { useState } from "react";
 import ProjectsTable from "../../components/organisms/Tables/ProjectsTable/ProjectsTable";
-import { useDeleteProject, useFetchProjects } from "../../features/project/ProjectHooks";
+import {
+  useCreateProject,
+  useDeleteProject,
+  useFetchProjects,
+  useUpdateProject,
+} from "../../features/project/ProjectHooks";
 import { Project, ProjectType } from "../../types/Project";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateProjectForm from "../../components/templates/forms/CreateProjectForm/CreateProjectForm";
 import UpdateProjectForm from "../../components/templates/forms/UpdateProjectForm/UpdateProjectForm";
 import ProjectDetails from "../../components/templates/ProjectDetails/ProjectDetails";
-const clientsArray = [
-  { id: 1, firstName: "Alice", lastName: "Smith" },
-  { id: 2, firstName: "Bob", lastName: "Johnson" },
-  { id: 3, firstName: "Charlie", lastName: "Brown" },
-];
-
-const projectManagersArray = [
-  { id: 4, firstName: "David", lastName: "Wilson" },
-  { id: 5, firstName: "Eva", lastName: "Davis" },
-  { id: 6, firstName: "Frank", lastName: "Miller" },
-];
-
-const technicalManagersArray = [
-  { id: 7, firstName: "Grace", lastName: "Taylor" },
-  { id: 8, firstName: "Henry", lastName: "Anderson" },
-];
-
-const teamMembersArray = [
-  { id: 9, firstName: "Isabella", lastName: "Thomas" },
-  { id: 10, firstName: "Jack", lastName: "White" },
-  { id: 11, firstName: "Karen", lastName: "Martinez" },
-  { id: 12, firstName: "Leo", lastName: "Garcia" },
-];
 
 const Projects = () => {
   const [page, setPage] = useState(1);
@@ -40,14 +22,16 @@ const Projects = () => {
   const [clickedProject, setClickedProject] = useState<Partial<Project> | null>(null);
   const [isUpdateProjectDrawerOpen, setUpdateProjectDrawerOpen] = useState(false);
   const [isViewProjectDrawerOpen, setViewProjectDrawerOpen] = useState(false);
+
   const { data, status, isError } = useFetchProjects({
     pageSize,
     page,
     projectType,
     projectName,
   });
-  // const createProjectMutation = useCreateProject();
-  // const updateProjectMutation = useUpdateProject();
+
+  const createProjectMutation = useCreateProject();
+  const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
 
   if (isError) {
@@ -58,12 +42,12 @@ const Projects = () => {
 
   const handleCreateProject = (project: Partial<Project>) => {
     console.log("Project created:", project);
-    // createProjectMutation.mutate(project);
-    // setProjectDrawerOpen(false);
+    createProjectMutation.mutate(project);
+    setCreateProjectDrawerOpen(false);
   };
   const handleUpdatedProject = (projectToUpdate: Partial<Project>) => {
     console.log("User updated:", projectToUpdate);
-    // updateProjectMutation.mutate({ id: clickedProject?.id!, projectToUpdate: projectToUpdate });
+    updateProjectMutation.mutate({ id: clickedProject?.id!, projectToUpdate: projectToUpdate });
     setUpdateProjectDrawerOpen(false);
   };
   return (
@@ -89,7 +73,7 @@ const Projects = () => {
           console.log(id);
           deleteProjectMutation.mutate(id);
         }}
-        limitProjectsPerPage={5}
+        limitProjectsPerPage={pageSize}
         onPageChange={(newPage: number) => {
           setPage(newPage);
         }}
@@ -110,15 +94,7 @@ const Projects = () => {
         isOpen={isCreateProjectDrawerOpen}
         handleClose={() => setCreateProjectDrawerOpen(false)}
         title={"Create Project"}
-        content={
-          <CreateProjectForm
-            onCreateProject={(project) => handleCreateProject(project)}
-            clients={clientsArray}
-            projectManagers={projectManagersArray}
-            technicalManagers={technicalManagersArray}
-            teamMembers={teamMembersArray}
-          />
-        }
+        content={<CreateProjectForm onCreateProject={(project) => handleCreateProject(project)} />}
       />
       <DrawerComponent
         isOpen={isUpdateProjectDrawerOpen}
@@ -128,10 +104,6 @@ const Projects = () => {
           <UpdateProjectForm
             projectToUpdate={clickedProject!}
             onUpdateProject={(project) => handleUpdatedProject(project)}
-            clients={clientsArray}
-            projectManagers={projectManagersArray}
-            technicalManagers={technicalManagersArray}
-            teamMembers={teamMembersArray}
           />
         }
       />

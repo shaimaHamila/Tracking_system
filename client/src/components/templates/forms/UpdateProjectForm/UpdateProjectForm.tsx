@@ -2,37 +2,35 @@ import React, { useEffect } from "react";
 import "./UpdateProjectForm.scss";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
 import { Project } from "../../../../types/Project";
-import { User } from "../../../../types/User";
 import TextArea from "antd/es/input/TextArea";
+import { useFetchUsers } from "../../../../features/user/UserHooks";
 const { Option } = Select;
 
 interface UpdateProjectFormProps {
   onUpdateProject: (project: Partial<Project>) => void;
   projectToUpdate: Partial<Project>;
-  clients: Partial<User>[];
-  projectManagers: Partial<User>[];
-  technicalManagers: Partial<User>[];
-  teamMembers: Partial<User>[];
 }
 
-const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
-  onUpdateProject,
-  projectToUpdate,
-  clients,
-  projectManagers,
-  technicalManagers,
-  teamMembers,
-}) => {
+const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, projectToUpdate }) => {
   const [projectForm] = Form.useForm();
-
+  const { data: technicalManagers } = useFetchUsers({ roleId: 5 });
+  const { data: clients } = useFetchUsers({ roleId: 4 });
+  const { data: staff } = useFetchUsers({ roleId: 3 });
   useEffect(() => {
-    // Populate form with existing project data
-    projectForm.setFieldsValue(projectToUpdate);
+    // Ensure the correct format for managers and teamMembers (array of IDs)
+    const updatedProject = {
+      ...projectToUpdate,
+      managers: projectToUpdate.managers?.map((manager) => manager.id) || [],
+      teamMembers: projectToUpdate.teamMembers?.map((member) => member.id) || [],
+    };
+
+    projectForm.setFieldsValue(updatedProject);
   }, [projectToUpdate, projectForm]);
 
   const handleFormSubmit = (values: Partial<Project>) => {
     onUpdateProject(values);
   };
+  console.log(projectToUpdate);
 
   return (
     <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>
@@ -65,7 +63,7 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
               rules={[{ required: true, message: "Please select a Technical Manager" }]}
             >
               <Select placeholder='Select a technical manager'>
-                {technicalManagers.map((manager) => (
+                {technicalManagers?.data?.map((manager) => (
                   <Option key={manager.id} value={manager.id}>
                     {manager.firstName} {manager.lastName}
                   </Option>
@@ -84,7 +82,7 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
                   rules={[{ required: true, message: "Please select a client" }]}
                 >
                   <Select placeholder='Select client'>
-                    {clients.map((client) => (
+                    {clients?.data?.map((client) => (
                       <Option key={client.id} value={client.id}>
                         {client.firstName} {client.lastName}
                       </Option>
@@ -95,11 +93,11 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
                 <Form.Item
                   className='project-form--input'
                   label='Project Managers'
-                  name='projectManagerIds'
+                  name='managers'
                   rules={[{ required: true, message: "Please select a project manager" }]}
                 >
                   <Select mode='multiple' placeholder='Select project managers'>
-                    {projectManagers.map((manager) => (
+                    {staff?.data?.map((manager) => (
                       <Option key={manager.id} value={manager.id}>
                         {manager.firstName} {manager.lastName}
                       </Option>
@@ -111,11 +109,11 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({
               <Form.Item
                 className='project-form--input'
                 label='Team Members'
-                name='teamMemberIds'
+                name='teamMembers'
                 rules={[{ required: true, message: "Please select team members" }]}
               >
                 <Select mode='multiple' placeholder='Select team members'>
-                  {teamMembers.map((member) => (
+                  {staff?.data?.map((member) => (
                     <Option key={member.id} value={member.id}>
                       {member.firstName} {member.lastName}
                     </Option>
