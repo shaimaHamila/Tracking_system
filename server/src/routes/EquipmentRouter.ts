@@ -1,7 +1,11 @@
 import express from "express";
 import {
   createEquipment,
+  createEquipmentBrand,
+  createEquipmentCategory,
   deleteEquipment,
+  getAllEquipmentBrands,
+  getAllEquipmentCategories,
   getAllEquipments,
   getEquipmentById,
   getEquipmentConditions,
@@ -24,15 +28,13 @@ EquipmentRouter.post(
 EquipmentRouter.get(
   "/all",
   authentication,
-  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
-
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   getAllEquipments
 );
 EquipmentRouter.get(
   "/:id",
   authentication,
-  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
-
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   getEquipmentById
 );
 EquipmentRouter.put(
@@ -48,5 +50,30 @@ EquipmentRouter.delete(
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   deleteEquipment
 );
-
+//Categories routes
+EquipmentRouter.get(
+  "/categories",
+  authentication,
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
+  getAllEquipmentCategories
+);
+EquipmentRouter.post(
+  "/category",
+  authentication,
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
+  createEquipmentCategory
+);
+//Brands routes
+EquipmentRouter.get(
+  "/brands",
+  authentication,
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
+  getAllEquipmentBrands
+);
+EquipmentRouter.post(
+  "/brand",
+  authentication,
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
+  createEquipmentBrand
+);
 export default EquipmentRouter;

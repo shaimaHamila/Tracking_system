@@ -153,7 +153,7 @@ export const createProject = async (req: Request, res: Response) => {
       },
     });
 
-    return Responses.CreateSucess(res, newProject);
+    return Responses.CreateSuccess(res, newProject);
   } catch (error: any) {
     return Responses.InternalServerError(res, error.message);
   }

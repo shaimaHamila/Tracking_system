@@ -32,7 +32,8 @@ export const createEquipment = async (req: Request, res: Response) => {
   }
 
   try {
-    const { categoryId, assignedToId, ...equipmentData } = req.body;
+    const { categoryName, brandName, assignedToId, ...equipmentData } =
+      req.body;
 
     if (assignedToId) {
       try {
@@ -47,23 +48,33 @@ export const createEquipment = async (req: Request, res: Response) => {
       }
     }
 
-    // Verify if the provided categoryId exists in the database
-    if (categoryId) {
-      const categoryExists = await prisma.equipmentCategory.findUnique({
-        where: { id: categoryId },
-      });
-
-      if (!categoryExists) {
-        return Responses.BadRequest(
-          res,
-          "Invalid category ID: Category does not exist."
-        );
+    // Check and create the category if it does not exist
+    let category = null;
+    if (categoryName) {
+      category = await checkCategoryExists(categoryName);
+      if (!category) {
+        category = await prisma.equipmentCategory.create({
+          data: { categoryName },
+        });
       }
     }
+
+    // Check and create the brand if it does not exist
+    let brand = null;
+    if (brandName) {
+      brand = await checkBrandExists(brandName);
+      if (!brand) {
+        brand = await prisma.equipmentBrand.create({
+          data: { brandName },
+        });
+      }
+    }
+
     const equipment = await prisma.equipment.create({
       data: {
         ...equipmentData,
-        category: categoryId ? { connect: { id: categoryId } } : undefined,
+        brand: brand ? { connect: { id: brand.id } } : undefined,
+        category: category ? { connect: { id: category.id } } : undefined,
         assignedTo: assignedToId
           ? { connect: { id: assignedToId } }
           : undefined,
@@ -80,7 +91,7 @@ export const createEquipment = async (req: Request, res: Response) => {
         },
       },
     });
-    return Responses.CreateSucess(res, equipment);
+    return Responses.CreateSuccess(res, equipment);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
@@ -263,4 +274,106 @@ export const deleteEquipment = async (req: Request, res: Response) => {
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }
+};
+
+// Fetch all equipment brands
+export const getAllEquipmentBrands = async (req: Request, res: Response) => {
+  try {
+    const brands = await prisma.equipmentBrand.findMany();
+    return Responses.FetchSucess(res, brands);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+export const checkBrandExists = async (brandName: string) => {
+  const existingBrand = await prisma.equipmentBrand.findFirst({
+    where: {
+      brandName: {
+        equals: brandName,
+        mode: "insensitive",
+      },
+    },
+  });
+  return existingBrand;
+};
+
+// Add new equipment brand
+export const createEquipmentBrand = async (req: Request, res: Response) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return Responses.BadRequest(res, "Brand name is required.");
+  }
+
+  try {
+    // Use the helper to check if the brand already exists
+    const existingBrand = await checkBrandExists(name);
+
+    if (existingBrand) {
+      return Responses.BadRequest(res, "Brand name already exists.");
+    }
+
+    // Create a new brand if it does not exist
+    const brand = await prisma.equipmentBrand.create({
+      data: {
+        brandName: name,
+      },
+    });
+
+    return Responses.CreateSuccess(res, brand);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Fetch all equipment categories
+export const getAllEquipmentCategories = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const categories = await prisma.equipmentCategory.findMany();
+    return Responses.FetchSucess(res, categories);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
+// Add new equipment category
+export const createEquipmentCategory = async (req: Request, res: Response) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return Responses.BadRequest(res, "Category name is required.");
+  }
+
+  try {
+    const existingCategory = await checkCategoryExists(name);
+
+    if (existingCategory) {
+      return Responses.BadRequest(res, "Category name already exists.");
+    }
+
+    const category = await prisma.equipmentCategory.create({
+      data: {
+        categoryName: name,
+      },
+    });
+
+    return Responses.CreateSuccess(res, category);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+export const checkCategoryExists = async (categoryName: string) => {
+  const existingCategory = await prisma.equipmentCategory.findFirst({
+    where: {
+      categoryName: {
+        equals: categoryName,
+        mode: "insensitive", // Case-insensitive mode
+      },
+    },
+  });
+  return existingCategory;
 };

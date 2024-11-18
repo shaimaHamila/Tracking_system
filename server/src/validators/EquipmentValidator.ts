@@ -12,8 +12,8 @@ export const createEquipmentValidator = Joi.object({
   warrantyEndDate: Joi.date().iso().greater(Joi.ref("purchaseDate")).required(),
   purchaseCost: Joi.number().min(0).optional(),
   purchaseCompany: Joi.string().max(100).optional(),
-  brand: Joi.string().max(50).optional(),
-  categoryId: Joi.number().required(),
+  brandName: Joi.string().max(80).required(),
+  categoryName: Joi.number().max(80).required(),
   condition: equipmentCondition,
   assignedToId: Joi.number().optional(),
 });

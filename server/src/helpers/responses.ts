@@ -57,7 +57,7 @@ export namespace Responses {
       .json({ success: true, message: "Data updated.", data });
   };
 
-  export const CreateSucess = (response: Response, data: any) => {
+  export const CreateSuccess = (response: Response, data: any) => {
     return response
       .status(201)
       .json({ success: true, message: "Data created.", data });
