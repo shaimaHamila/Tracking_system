@@ -8,7 +8,7 @@ interface FetchEquipmentsRequest {
   serialNumber?: string | null;
   conditions?: Condition[] | null;
 }
-// Fetch users
+// Fetch Equipments
 export const useFetchEquipments = ({ pageSize, page, serialNumber, conditions }: FetchEquipmentsRequest) => {
   return useQuery<ApiResponse<Equipment[]>>({
     queryKey: ["equipment/fetchEquipments", pageSize, page, serialNumber, conditions],
@@ -21,3 +21,9 @@ export const useFetchEquipments = ({ pageSize, page, serialNumber, conditions }:
     staleTime: 5 * 60 * 1000,
   });
 };
+
+// Fetch the categories
+
+// Fetch the brands
+
+// Create a new equipment

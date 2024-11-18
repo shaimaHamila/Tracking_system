@@ -160,11 +160,13 @@ model equipment{
   warrantyEndDate DateTime?
   purchaseCost Float?
   purchaseCompany String?
-  brand String?
-
+  
     // Relationships
   category          equipmentCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   categoryId        Int?
+
+  brand          equipmentBrand?  @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  brandId        Int?
 
   condition  EquipmentCondition @default(OPERATIONAL)
 
@@ -183,7 +185,11 @@ model equipmentCategory{
   categoryName     String             @unique
   equipments equipment[]
 }
-
+model equipmentBrand{
+  id Int @id @default(autoincrement())
+  brandName     String             @unique
+  equipments equipment[]
+}
 enum EquipmentCondition {
   OPERATIONAL
   DAMAGED

@@ -68,7 +68,6 @@ const Equipments = () => {
         }}
         onEquipmentCondtionFilterChange={(conditions) => {
           setCondition(conditions);
-          console.log("conditions", conditions);
           setPage(1);
         }}
       />
