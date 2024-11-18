@@ -1,5 +1,4 @@
 ********** To DO *********
-1-Ability to add category or brand if not exist (front)
 2-Optimise serial number
 3-Update project details design
 
