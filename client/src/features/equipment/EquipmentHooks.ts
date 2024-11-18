@@ -131,6 +131,30 @@ export const useUpdateEquipment = () => {
   });
 };
 
+// Assign Equipment to user
+export const useAssignEquipment = () => {
+  return useMutation<ApiResponse<Partial<Equipment>>, Error, { equipmentId: number; assignedToId: number }>({
+    mutationFn: async ({ equipmentId, assignedToId }) => {
+      const { data } = await api.put<ApiResponse<Partial<Equipment>>>(`/equipment/assignedTo`, {
+        equipmentId,
+        assignedToId,
+      });
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "User assigned successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
+
 // Delete Equipment
 export const useDeleteEquipment = () => {
   return useMutation<ApiResponse<Partial<null>>, Error, number>({

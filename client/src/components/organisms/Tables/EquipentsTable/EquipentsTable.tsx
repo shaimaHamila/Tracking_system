@@ -1,8 +1,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Button, Pagination, Popconfirm, Space, Table, Tooltip } from "antd";
+import { Button, message, Pagination, Popconfirm, Space, Table, Tooltip } from "antd";
 import type { TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
-import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash, HiOutlineUserAdd } from "react-icons/hi";
+import {
+  HiOutlineClipboardCopy,
+  HiOutlineEye,
+  HiOutlinePencilAlt,
+  HiOutlineTrash,
+  HiOutlineUserAdd,
+} from "react-icons/hi";
 import { User } from "../../../../types/User";
 import "./EquipentsTable.scss";
 import { RoleName } from "../../../../types/Role";
@@ -65,6 +71,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       warrantyEndDate: equipment?.warrantyEndDate,
       condition: equipment?.condition,
       brand: equipment?.brand,
+      assignedTo: equipment?.assignedTo,
       equipment: equipment,
     }));
     setTableContent(_tableContent);
@@ -90,7 +97,21 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       dataIndex: "serialNumber",
       key: "serialNumber",
       width: 100,
-      render: (text) => <>{text}</>,
+      render: (text) => (
+        <Space>
+          <span>{text?.slice(0, 8)}...</span>
+          <Tooltip title='copy'>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(text);
+                message.success(`Serial Number ${text} copied successfuly.`, 1.5);
+              }}
+              className='table--action-btn'
+              icon={<HiOutlineClipboardCopy />}
+            />
+          </Tooltip>
+        </Space>
+      ),
     },
 
     {
@@ -139,13 +160,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       key: "assignedTo",
       width: 150,
       render: (assignedTo: Partial<User>) => (
-        <>
-          {assignedTo?.firstName && assignedTo?.lastName ? (
-            assignedTo?.firstName + " " + assignedTo?.lastName
-          ) : (
-            <div>--</div>
-          )}
-        </>
+        <>{assignedTo?.firstName ? assignedTo?.firstName + " " + assignedTo?.lastName : <div>--</div>}</>
       ),
     },
     ...(currentUserRole == RoleName.TECHNICAL_MANAGER || currentUserRole == RoleName.ADMIN

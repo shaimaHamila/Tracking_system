@@ -1,4 +1,5 @@
 import { RoleId } from "./Role";
+import { User } from "./User";
 
 export type Equipment = {
   id: number;
@@ -13,6 +14,7 @@ export type Equipment = {
   categoryId: number;
   condition: Condition;
   assignedToId: RoleId;
+  assignedTo: Partial<User>;
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
