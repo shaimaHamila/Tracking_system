@@ -1,6 +1,6 @@
 import { useState } from "react";
 import EquipmentsTable from "../../components/organisms/Tables/EquipentsTable/EquipentsTable";
-import { useCreateEquipment, useFetchEquipments } from "../../features/equipment/EquipmentHooks";
+import { useCreateEquipment, useDeleteEquipment, useFetchEquipments } from "../../features/equipment/EquipmentHooks";
 import { Condition, Equipment } from "../../types/Equipment";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
@@ -17,7 +17,7 @@ const Equipments = () => {
   const [isViewEquipmentDrawerOpen, setViewEquipmentDrawerOpen] = useState(false);
 
   const createEquipmentMutation = useCreateEquipment();
-
+  const deleteEquipmentMutation = useDeleteEquipment();
   const { data, status, isError } = useFetchEquipments({
     pageSize,
     page,
@@ -58,6 +58,7 @@ const Equipments = () => {
         }}
         onDeleteEquipment={(id) => {
           console.log(id);
+          deleteEquipmentMutation.mutate(id);
         }}
         onAssignEquipment={(equipment: Equipment) => {
           console.log(equipment);

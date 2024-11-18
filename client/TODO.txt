@@ -1,5 +1,8 @@
 ********** To DO *********
-2-Optimise serial number
+1-Delete equipment
+2-Assign equipment
+3-Update equipmenr
+4-View equipment
 3-Update project details design
 
 
