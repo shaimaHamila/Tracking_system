@@ -153,7 +153,7 @@ export const createProject = async (req: Request, res: Response) => {
       },
     });
 
-    return Responses.CreateSucess(res, newProject);
+    return Responses.CreateSuccess(res, newProject);
   } catch (error: any) {
     return Responses.InternalServerError(res, error.message);
   }
@@ -188,9 +188,9 @@ export const getAllProjects = async (req: Request, res: Response) => {
     }
 
     // Apply projectName filter if provided
-    if (projectName && projectName !== "null") {
+    if (_projectName && _projectName !== "null") {
       filters.name = {
-        contains: String(projectName),
+        contains: String(_projectName),
         mode: "insensitive",
       };
     }

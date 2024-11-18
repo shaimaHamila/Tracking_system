@@ -61,7 +61,7 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     // Use structured success response
-    return Responses.CreateSucess(res, {
+    return Responses.CreateSuccess(res, {
       id: newUser.id,
       firstName: newUser.firstName,
       lastName: newUser.lastName,

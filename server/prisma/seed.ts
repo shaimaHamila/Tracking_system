@@ -1,5 +1,6 @@
 import prisma from "../src/prisma";
 import { InitAdmin } from "./seeds/admin.seed";
+import { InitEquipmentBrands } from "./seeds/equipment-brand.seed";
 import { InitEquipmentCategories } from "./seeds/equipment-category.seed";
 import { InitTicketStatus } from "./seeds/ticket-status.seed";
 import { InitUserRoles } from "./seeds/user-role.seed";
@@ -10,6 +11,9 @@ async function main() {
 
   // Initialize equipment categories
   await InitEquipmentCategories(prisma);
+
+  // Initialize equipment brands
+  await InitEquipmentBrands(prisma);
 
   // Initialize ticket statuses
   await InitTicketStatus(prisma);

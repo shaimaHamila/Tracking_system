@@ -1,24 +1,28 @@
 import { useState } from "react";
 import EquipmentsTable from "../../components/organisms/Tables/EquipentsTable/EquipentsTable";
-import { useFetchEquipments } from "../../features/equipment/EquipmentHooks";
+import { useCreateEquipment, useFetchEquipments } from "../../features/equipment/EquipmentHooks";
 import { Condition, Equipment } from "../../types/Equipment";
 import { notification } from "antd";
+import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
+import { CreateEquipmentForm } from "../../components/templates/forms/CreateEquipmentForm/CreateEquipmentForm";
 
 const Equipments = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [serialNumber, setSerialNumber] = useState<string | null>(null);
-  const [condition, setCondition] = useState<Condition | null>(null);
+  const [conditions, setCondition] = useState<Condition[] | null>(null);
   const [isCreateEquipmentDrawerOpen, setCreateEquipmentDrawerOpen] = useState(false);
   const [clickedEquipment, setClickedEquipment] = useState<Partial<Equipment> | null>(null);
   const [isUpdateEquipmentDrawerOpen, setUpdateEquipmentDrawerOpen] = useState(false);
   const [isViewEquipmentDrawerOpen, setViewEquipmentDrawerOpen] = useState(false);
 
+  const createEquipmentMutation = useCreateEquipment();
+
   const { data, status, isError } = useFetchEquipments({
     pageSize,
     page,
     serialNumber,
-    condition,
+    conditions,
   });
 
   if (isError) {
@@ -27,7 +31,11 @@ const Equipments = () => {
     });
   }
 
-  const handleCreateEquipment = (equipment: Partial<Equipment>) => {};
+  const handleCreateEquipment = (newEquipment: Partial<Equipment>) => {
+    console.log(newEquipment);
+    createEquipmentMutation.mutate(newEquipment);
+    setCreateEquipmentDrawerOpen(false);
+  };
 
   return (
     <>
@@ -66,10 +74,16 @@ const Equipments = () => {
         onSearchChange={(searchedSerialNumber: string) => {
           setSerialNumber(searchedSerialNumber === "" ? null : searchedSerialNumber);
         }}
-        onEquipmentTypeFilterChange={(condition: Condition | null) => {
-          setCondition(condition);
-          setPage(1); // Reset to the first page when role changes
+        onEquipmentCondtionFilterChange={(conditions) => {
+          setCondition(conditions);
+          setPage(1);
         }}
+      />
+      <DrawerComponent
+        isOpen={isCreateEquipmentDrawerOpen}
+        handleClose={() => setCreateEquipmentDrawerOpen(false)}
+        title={"Create Equipment"}
+        content={<CreateEquipmentForm onCreateEquipment={(equipment) => handleCreateEquipment(equipment)} />}
       />
     </>
   );

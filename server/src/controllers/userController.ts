@@ -62,7 +62,7 @@ export const createUser = async (req: Request, res: Response) => {
         },
       },
     });
-    return Responses.CreateSucess(res, user);
+    return Responses.CreateSuccess(res, user);
   } catch (error) {
     return Responses.InternalServerError(res, "Internal server error.");
   }

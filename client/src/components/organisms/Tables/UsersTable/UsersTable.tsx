@@ -78,17 +78,20 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Name",
       dataIndex: "name",
       key: "name",
+      width: 160,
       render: (text) => <>{text}</>,
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      width: 220,
     },
     {
       title: "Role",
       dataIndex: "role",
       key: "role",
+      width: 100,
       filters: [
         { text: "All", value: "null" },
         { text: "Admin", value: RolesId.ADMIN }, // Use RoleId values here
@@ -114,11 +117,12 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Projects",
       key: "projects",
       dataIndex: "projects",
+      width: 280,
       render: (projects) => {
         // Check if there are no projects
 
         if (projects.length == 0) {
-          return <div style={{ width: "30px" }}>--</div>;
+          return <div>--</div>;
         } else {
           const displayedProjects = projects.slice(0, 2);
           const remainingProjects = projects.length - displayedProjects.length;
@@ -157,6 +161,7 @@ const UserTable: React.FC<UserTableProps> = ({
     {
       title: "Action",
       key: "action",
+      width: 200,
       render: (user) => (
         <Space size='middle'>
           <Tooltip title='View'>
