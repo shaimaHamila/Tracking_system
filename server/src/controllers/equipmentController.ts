@@ -80,6 +80,7 @@ export const createEquipment = async (req: Request, res: Response) => {
           : undefined,
       },
       include: {
+        brand: true,
         category: true,
         assignedTo: {
           select: {

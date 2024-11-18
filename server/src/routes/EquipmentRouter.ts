@@ -50,6 +50,7 @@ EquipmentRouter.delete(
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   deleteEquipment
 );
+
 //Categories routes
 EquipmentRouter.get(
   "/categories",
@@ -63,6 +64,7 @@ EquipmentRouter.post(
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   createEquipmentCategory
 );
+
 //Brands routes
 EquipmentRouter.get(
   "/brands",

@@ -29,3 +29,8 @@ export type EquipmentCategory = {
   categoryName: String;
   equipments?: Equipment[];
 };
+export type EquipmentBrand = {
+  id: number;
+  brandName: String;
+  equipments?: Equipment[];
+};

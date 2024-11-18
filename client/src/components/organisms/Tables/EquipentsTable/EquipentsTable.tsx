@@ -125,6 +125,14 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       },
       render: (condition: any) => <ConditionTag condition={condition} />,
     },
+
+    {
+      title: "Warranty End Date",
+      dataIndex: "warrantyEndDate",
+      key: "warrantyEndDate",
+      width: 155,
+      render: (warrantyEndDate) => <>{formatDateWithoutTime(warrantyEndDate)}</>,
+    },
     {
       title: "AssignedTo",
       dataIndex: "assignedTo",
@@ -139,13 +147,6 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
           )}
         </>
       ),
-    },
-    {
-      title: "Warranty End Date",
-      dataIndex: "warrantyEndDate",
-      key: "warrantyEndDate",
-      width: 150,
-      render: (warrantyEndDate) => <>{formatDateWithoutTime(warrantyEndDate)}</>,
     },
     ...(currentUserRole == RoleName.TECHNICAL_MANAGER || currentUserRole == RoleName.ADMIN
       ? [
