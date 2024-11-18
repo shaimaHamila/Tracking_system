@@ -82,6 +82,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       title: "Project Name",
       dataIndex: "name",
       key: "name",
+      width: 220,
       render: (text) => <>{text}</>,
     },
     // Conditionally render 'Client' column
@@ -91,6 +92,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             title: "Client",
             dataIndex: "client",
             key: "client",
+            width: 180,
             render: (client: Partial<User>) => (
               <>{client?.firstName && client?.lastName ? client?.firstName + " " + client?.lastName : "--"}</>
             ),
@@ -103,6 +105,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             title: "Project Type",
             dataIndex: "projectType",
             key: "projectType",
+            width: 150,
             filters: [
               { text: "External projects", value: ProjectType.EXTERNAL },
               { text: "Internal projects", value: ProjectType.INTERNAL },
@@ -129,11 +132,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             title: <div>Project Managers</div>,
             key: "managers",
             dataIndex: "managers",
+            width: 250,
+
             render: (managers: Partial<User>[]) => {
               // Check if there are no manager
 
               if (managers.length == 0) {
-                return <div style={{ width: "30px" }}>--</div>;
+                return <div>--</div>;
               } else {
                 const displayedManagers = managers.slice(0, 3);
                 const remainingManagers = managers.length - displayedManagers.length;
@@ -173,6 +178,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     {
       title: "Action",
       key: "action",
+      width: 150,
+
       render: (project) => (
         <Space size='middle'>
           <Tooltip title='View'>

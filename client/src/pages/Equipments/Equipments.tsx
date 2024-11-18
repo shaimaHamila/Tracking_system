@@ -8,7 +8,7 @@ const Equipments = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [serialNumber, setSerialNumber] = useState<string | null>(null);
-  const [condition, setCondition] = useState<Condition | null>(null);
+  const [conditions, setCondition] = useState<Condition[] | null>(null);
   const [isCreateEquipmentDrawerOpen, setCreateEquipmentDrawerOpen] = useState(false);
   const [clickedEquipment, setClickedEquipment] = useState<Partial<Equipment> | null>(null);
   const [isUpdateEquipmentDrawerOpen, setUpdateEquipmentDrawerOpen] = useState(false);
@@ -18,7 +18,7 @@ const Equipments = () => {
     pageSize,
     page,
     serialNumber,
-    condition,
+    conditions,
   });
 
   if (isError) {
@@ -34,7 +34,7 @@ const Equipments = () => {
       <EquipmentsTable
         equipments={data?.data || []}
         currentUserRole={"ADMIN"} //TODO: get current user role
-        status={status}
+        status={"success"}
         totalEquipments={data?.meta?.totalCount || 0}
         onCreateEquipmentDrawerOpen={() => {
           setCreateEquipmentDrawerOpen(true);
@@ -66,9 +66,10 @@ const Equipments = () => {
         onSearchChange={(searchedSerialNumber: string) => {
           setSerialNumber(searchedSerialNumber === "" ? null : searchedSerialNumber);
         }}
-        onEquipmentTypeFilterChange={(condition: Condition | null) => {
-          setCondition(condition);
-          setPage(1); // Reset to the first page when role changes
+        onEquipmentCondtionFilterChange={(conditions) => {
+          setCondition(conditions);
+          console.log("conditions", conditions);
+          setPage(1);
         }}
       />
     </>

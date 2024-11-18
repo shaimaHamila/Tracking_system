@@ -6,15 +6,15 @@ interface FetchEquipmentsRequest {
   pageSize?: number | null;
   page?: number | null;
   serialNumber?: string | null;
-  condition?: Condition | null;
+  conditions?: Condition[] | null;
 }
 // Fetch users
-export const useFetchEquipments = ({ pageSize, page, serialNumber, condition }: FetchEquipmentsRequest) => {
+export const useFetchEquipments = ({ pageSize, page, serialNumber, conditions }: FetchEquipmentsRequest) => {
   return useQuery<ApiResponse<Equipment[]>>({
-    queryKey: ["equipment/fetchEquipments", pageSize, page, serialNumber, condition],
+    queryKey: ["equipment/fetchEquipments", pageSize, page, serialNumber, conditions],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<Equipment[]>>("/equipment/all", {
-        params: { pageSize, page, serialNumber, condition },
+        params: { pageSize, page, serialNumber, conditions },
       });
       return data;
     },

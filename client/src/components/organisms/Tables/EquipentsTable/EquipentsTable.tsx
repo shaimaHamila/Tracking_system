@@ -33,7 +33,7 @@ interface EquipentsTableProps {
   handlePageSizeChange: (pageSize: number) => void;
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
-  onEquipmentTypeFilterChange: (condition: Condition | null) => void;
+  onEquipmentCondtionFilterChange: (conditions: Condition[] | null) => void;
 }
 
 const EquipmentsTable: React.FC<EquipentsTableProps> = ({
@@ -51,7 +51,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
   handlePageSizeChange,
   limitEquipmentsPerPage,
   status,
-  onEquipmentTypeFilterChange,
+  onEquipmentCondtionFilterChange,
 }) => {
   const [pageSize, setPageSize] = useState<number>(limitEquipmentsPerPage);
   const [tableContent, setTableContent] = useState<EquipentsTableRow[]>([]);
@@ -70,8 +70,12 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
     setTableContent(_tableContent);
   }, [equipments]);
 
-  const handleEquipmentTypeFilterChange = (condition: Condition | null) => {
-    onEquipmentTypeFilterChange(condition); // Trigger data fetch or update based on selected role
+  const handleEquipmentTypeFilterChange = (selectedConditions: Condition[] | null) => {
+    if (!selectedConditions && Array.isArray(selectedConditions)) {
+      onEquipmentCondtionFilterChange(null);
+    } else {
+      onEquipmentCondtionFilterChange(selectedConditions);
+    }
   };
 
   const columns: TableProps<EquipentsTableRow>["columns"] = [
@@ -85,6 +89,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       title: "Serial Number",
       dataIndex: "serialNumber",
       key: "serialNumber",
+      width: 100,
       render: (text) => <>{text}</>,
     },
 
@@ -92,35 +97,31 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       title: "Category",
       dataIndex: "category",
       key: "category",
+      width: 150,
       render: (category) => <>{category?.categoryName}</>,
     },
     {
       title: "Brand",
       dataIndex: "brand",
       key: "brand",
+      width: 100,
       render: (warrantyEndDate) => <>{warrantyEndDate}</>,
     },
     {
       title: "Condition",
       dataIndex: "condition",
       key: "condition",
+      width: 100,
       filters: [
         { text: "Operational", value: Condition.OPERATIONAL },
         { text: "Damaged", value: Condition.DAMAGED },
         { text: "Under maintenance", value: Condition.UNDER_MAINTENANCE },
         { text: "Repaired", value: Condition.REPAIRED },
-        { text: "All", value: "null" },
       ],
-      filterMultiple: false,
+      filterMultiple: true,
       filterOnClose: true,
-
-      onFilter: (value: any, record: any) => {
-        if (value === "null" || value === undefined) {
-          handleEquipmentTypeFilterChange(null);
-          return true; // Return true to show all rows
-        }
-        if (value) handleEquipmentTypeFilterChange(value);
-        return record.condition === value;
+      onFilter: (filteredDataSource: any, activeFilters: any) => {
+        return activeFilters.condition === filteredDataSource;
       },
       render: (condition: any) => <ConditionTag condition={condition} />,
     },
@@ -128,12 +129,13 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       title: "AssignedTo",
       dataIndex: "assignedTo",
       key: "assignedTo",
+      width: 150,
       render: (assignedTo: Partial<User>) => (
         <>
           {assignedTo?.firstName && assignedTo?.lastName ? (
             assignedTo?.firstName + " " + assignedTo?.lastName
           ) : (
-            <div style={{ width: "60px" }}>--</div>
+            <div>--</div>
           )}
         </>
       ),
@@ -142,6 +144,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       title: "Warranty End Date",
       dataIndex: "warrantyEndDate",
       key: "warrantyEndDate",
+      width: 150,
       render: (warrantyEndDate) => <>{formatDateWithoutTime(warrantyEndDate)}</>,
     },
     ...(currentUserRole == RoleName.TECHNICAL_MANAGER || currentUserRole == RoleName.ADMIN
@@ -223,6 +226,9 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
         rowKey='id'
         columns={columns}
         dataSource={tableContent}
+        onChange={(_pagination, filter) => {
+          handleEquipmentTypeFilterChange(filter.condition as Condition[]);
+        }}
         pagination={false}
         scroll={{ y: tableHeight, x: "max-content" }}
       />

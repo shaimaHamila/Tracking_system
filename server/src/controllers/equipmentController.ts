@@ -88,7 +88,7 @@ export const createEquipment = async (req: Request, res: Response) => {
 
 // Get all equipment with filtering and pagination
 export const getAllEquipments = async (req: Request, res: Response) => {
-  const { page, pageSize, serialNumber, condition } = req.query;
+  const { page, pageSize, serialNumber, conditions } = req.query;
 
   const skip =
     page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
@@ -100,7 +100,9 @@ export const getAllEquipments = async (req: Request, res: Response) => {
       ...(serialNumber
         ? { serialNumber: { equals: String(serialNumber) } }
         : {}),
-      ...(condition ? { condition: condition as EquipmentCondition } : {}),
+      ...(conditions && Array.isArray(conditions) && conditions.length > 0
+        ? { condition: { in: conditions as EquipmentCondition[] } }
+        : {}),
     };
 
     // Fetch equipment data with pagination and filtering
