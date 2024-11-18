@@ -6,6 +6,7 @@ import {
   updateEquipmentValidator,
 } from "../validators/EquipmentValidator";
 import { validateUserRole } from "./RoleController";
+import { log } from "console";
 
 export enum EquipmentCondition {
   OPERATIONAL = "OPERATIONAL",
@@ -124,6 +125,7 @@ export const getAllEquipments = async (req: Request, res: Response) => {
       take,
       include: {
         category: true,
+        brand: true,
         assignedTo: {
           select: {
             id: true,
@@ -330,7 +332,7 @@ export const createEquipmentBrand = async (req: Request, res: Response) => {
 
 // Fetch all equipment categories
 export const getAllEquipmentCategories = async (
-  req: Request,
+  _req: Request,
   res: Response
 ) => {
   try {

@@ -28,7 +28,7 @@ export const useFetchEquipmentsCategories = () => {
   return useQuery<ApiResponse<EquipmentCategory[]>>({
     queryKey: ["equipment/categories"],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<EquipmentCategory[]>>("/equipment/categories");
+      const { data } = await api.get<ApiResponse<EquipmentCategory[]>>("/equipment/category/all");
       return data;
     },
     staleTime: 5 * 60 * 1000,
@@ -36,10 +36,10 @@ export const useFetchEquipmentsCategories = () => {
 };
 // Fetch the brands
 export const useFetchEquipmentsBrands = () => {
-  useQuery<ApiResponse<EquipmentBrand[]>>({
-    queryKey: ["zquipment/brands"],
+  return useQuery<ApiResponse<EquipmentBrand[]>>({
+    queryKey: ["equipment/brands"],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<EquipmentBrand[]>>("/equipment/brands");
+      const { data } = await api.get<ApiResponse<EquipmentBrand[]>>("/equipment/brand/all");
       return data;
     },
     staleTime: 5 * 60 * 1000,

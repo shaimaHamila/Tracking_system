@@ -41,7 +41,6 @@ EquipmentRouter.put(
   "/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
-
   updateEquipment
 );
 EquipmentRouter.delete(
@@ -53,13 +52,13 @@ EquipmentRouter.delete(
 
 //Categories routes
 EquipmentRouter.get(
-  "/categories",
+  "/category/all",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   getAllEquipmentCategories
 );
 EquipmentRouter.post(
-  "/category",
+  "/category/add",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   createEquipmentCategory
@@ -67,13 +66,13 @@ EquipmentRouter.post(
 
 //Brands routes
 EquipmentRouter.get(
-  "/brands",
+  "/brand/all",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   getAllEquipmentBrands
 );
 EquipmentRouter.post(
-  "/brand",
+  "/brand/add",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER, Role.STAFF]),
   createEquipmentBrand

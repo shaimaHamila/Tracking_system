@@ -154,14 +154,15 @@ model comment {
 
 model equipment{
   id Int @id @default(autoincrement())
-  name String
+  name String?
   serialNumber     String             @unique
   purchaseDate DateTime?
   warrantyEndDate DateTime?
   purchaseCost Float?
   purchaseCompany String?
+  description String?
   
-    // Relationships
+  // Relationships
   category          equipmentCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   categoryId        Int?
 

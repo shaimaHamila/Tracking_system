@@ -1,8 +1,10 @@
 import { useState } from "react";
 import EquipmentsTable from "../../components/organisms/Tables/EquipentsTable/EquipentsTable";
-import { useFetchEquipments } from "../../features/equipment/EquipmentHooks";
+import { useCreateEquipment, useFetchEquipments } from "../../features/equipment/EquipmentHooks";
 import { Condition, Equipment } from "../../types/Equipment";
 import { notification } from "antd";
+import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
+import { CreateEquipmentForm } from "../../components/templates/forms/CreateEquipmentForm/CreateEquipmentForm";
 
 const Equipments = () => {
   const [page, setPage] = useState(1);
@@ -13,6 +15,8 @@ const Equipments = () => {
   const [clickedEquipment, setClickedEquipment] = useState<Partial<Equipment> | null>(null);
   const [isUpdateEquipmentDrawerOpen, setUpdateEquipmentDrawerOpen] = useState(false);
   const [isViewEquipmentDrawerOpen, setViewEquipmentDrawerOpen] = useState(false);
+
+  const createEquipmentMutation = useCreateEquipment();
 
   const { data, status, isError } = useFetchEquipments({
     pageSize,
@@ -27,14 +31,18 @@ const Equipments = () => {
     });
   }
 
-  const handleCreateEquipment = (equipment: Partial<Equipment>) => {};
+  const handleCreateEquipment = (newEquipment: Partial<Equipment>) => {
+    console.log(newEquipment);
+    createEquipmentMutation.mutate(newEquipment);
+    setCreateEquipmentDrawerOpen(false);
+  };
 
   return (
     <>
       <EquipmentsTable
         equipments={data?.data || []}
         currentUserRole={"ADMIN"} //TODO: get current user role
-        status={"success"}
+        status={status}
         totalEquipments={data?.meta?.totalCount || 0}
         onCreateEquipmentDrawerOpen={() => {
           setCreateEquipmentDrawerOpen(true);
@@ -70,6 +78,12 @@ const Equipments = () => {
           setCondition(conditions);
           setPage(1);
         }}
+      />
+      <DrawerComponent
+        isOpen={isCreateEquipmentDrawerOpen}
+        handleClose={() => setCreateEquipmentDrawerOpen(false)}
+        title={"Create Equipment"}
+        content={<CreateEquipmentForm onCreateEquipment={(equipment) => handleCreateEquipment(equipment)} />}
       />
     </>
   );

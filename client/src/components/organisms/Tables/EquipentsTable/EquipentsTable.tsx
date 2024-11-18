@@ -105,7 +105,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       dataIndex: "brand",
       key: "brand",
       width: 100,
-      render: (warrantyEndDate) => <>{warrantyEndDate}</>,
+      render: (brand) => <>{brand?.brandName}</>,
     },
     {
       title: "Condition",
