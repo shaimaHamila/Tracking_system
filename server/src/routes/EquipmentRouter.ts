@@ -9,6 +9,7 @@ import {
   getAllEquipments,
   getEquipmentById,
   getEquipmentConditions,
+  updateAssignedUser,
   updateEquipment,
 } from "../controllers/EquipmentController";
 import { authentication } from "../middlewares/authMiddleware";
@@ -38,10 +39,16 @@ EquipmentRouter.get(
   getEquipmentById
 );
 EquipmentRouter.put(
-  "/:id",
+  "/update/:id",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   updateEquipment
+);
+EquipmentRouter.put(
+  "/assignedTo",
+  authentication,
+  userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
+  updateAssignedUser
 );
 EquipmentRouter.delete(
   "/:id",

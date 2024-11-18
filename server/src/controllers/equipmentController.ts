@@ -98,6 +98,60 @@ export const createEquipment = async (req: Request, res: Response) => {
     return Responses.InternalServerError(res, "Internal server error.");
   }
 };
+// Update assigned user for existing equipment
+export const updateAssignedUser = async (req: Request, res: Response) => {
+  const { equipmentId, assignedToId } = req.body;
+
+  // Validate if the equipmentId is provided
+  if (!equipmentId) {
+    return Responses.BadRequest(res, "equipmentId is required");
+  }
+
+  try {
+    // If assignedToId is provided, validate the user's role
+    if (assignedToId) {
+      await validateUserRole(assignedToId, [
+        "STAFF",
+        "ADMIN",
+        "SUPERADMIN",
+        "TECHNICAL_MANAGER",
+      ]);
+    }
+
+    // Check if the equipment exists
+    const equipment = await prisma.equipment.findUnique({
+      where: { id: equipmentId },
+    });
+
+    if (!equipment) {
+      return Responses.BadRequest(res, "Equipment not found");
+    }
+
+    // If assignedToId is provided, update the assigned user; otherwise, set to null
+    const updatedEquipment = await prisma.equipment.update({
+      where: { id: equipmentId },
+      data: {
+        assignedTo: assignedToId
+          ? { connect: { id: assignedToId } } // If assignedToId exists, connect the user
+          : { disconnect: true }, // If assignedToId is null, disconnect the user
+      },
+      include: {
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return Responses.UpdateSuccess(res, updatedEquipment);
+  } catch (error) {
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
 
 // Get all equipment with filtering and pagination
 export const getAllEquipments = async (req: Request, res: Response) => {

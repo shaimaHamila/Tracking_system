@@ -71,6 +71,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       warrantyEndDate: equipment?.warrantyEndDate,
       condition: equipment?.condition,
       brand: equipment?.brand,
+      assignedTo: equipment?.assignedTo,
       equipment: equipment,
     }));
     setTableContent(_tableContent);
@@ -159,13 +160,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
       key: "assignedTo",
       width: 150,
       render: (assignedTo: Partial<User>) => (
-        <>
-          {assignedTo?.firstName && assignedTo?.lastName ? (
-            assignedTo?.firstName + " " + assignedTo?.lastName
-          ) : (
-            <div>--</div>
-          )}
-        </>
+        <>{assignedTo?.firstName ? assignedTo?.firstName + " " + assignedTo?.lastName : <div>--</div>}</>
       ),
     },
     ...(currentUserRole == RoleName.TECHNICAL_MANAGER || currentUserRole == RoleName.ADMIN
