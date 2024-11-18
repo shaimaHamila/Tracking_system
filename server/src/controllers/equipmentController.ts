@@ -303,15 +303,15 @@ export const checkBrandExists = async (brandName: string) => {
 
 // Add new equipment brand
 export const createEquipmentBrand = async (req: Request, res: Response) => {
-  const { name } = req.body;
+  const { brandName } = req.body;
 
-  if (!name) {
+  if (!brandName) {
     return Responses.BadRequest(res, "Brand name is required.");
   }
 
   try {
     // Use the helper to check if the brand already exists
-    const existingBrand = await checkBrandExists(name);
+    const existingBrand = await checkBrandExists(brandName);
 
     if (existingBrand) {
       return Responses.BadRequest(res, "Brand name already exists.");
@@ -320,7 +320,7 @@ export const createEquipmentBrand = async (req: Request, res: Response) => {
     // Create a new brand if it does not exist
     const brand = await prisma.equipmentBrand.create({
       data: {
-        brandName: name,
+        brandName,
       },
     });
 
@@ -345,14 +345,14 @@ export const getAllEquipmentCategories = async (
 
 // Add new equipment category
 export const createEquipmentCategory = async (req: Request, res: Response) => {
-  const { name } = req.body;
+  const { categoryName } = req.body;
 
-  if (!name) {
+  if (!categoryName) {
     return Responses.BadRequest(res, "Category name is required.");
   }
 
   try {
-    const existingCategory = await checkCategoryExists(name);
+    const existingCategory = await checkCategoryExists(categoryName);
 
     if (existingCategory) {
       return Responses.BadRequest(res, "Category name already exists.");
@@ -360,7 +360,7 @@ export const createEquipmentCategory = async (req: Request, res: Response) => {
 
     const category = await prisma.equipmentCategory.create({
       data: {
-        categoryName: name,
+        categoryName,
       },
     });
 
