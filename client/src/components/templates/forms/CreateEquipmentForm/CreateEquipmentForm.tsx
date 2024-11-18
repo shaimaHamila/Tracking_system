@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Equipment } from "../../../../types/Equipment";
-import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Select } from "antd";
-import { useFetchEquipmentsBrands, useFetchEquipmentsCategories } from "../../../../features/equipment/EquipmentHooks";
+import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Modal, Select } from "antd";
+import {
+  useCreateEquipmentBrand,
+  useCreateEquipmentCategory,
+  useFetchEquipmentsBrands,
+  useFetchEquipmentsCategories,
+} from "../../../../features/equipment/EquipmentHooks";
 import TextArea from "antd/es/input/TextArea";
 import "./CreateEquipmentForm.scss";
+import colors from "../../../../styles/colors/colors";
 const { Option } = Select;
 
 interface CreateEquipmentFormProps {
@@ -12,13 +18,32 @@ interface CreateEquipmentFormProps {
 }
 export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCreateEquipment }) => {
   const [userForm] = Form.useForm();
+  // State to handle modals for new category and brand
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isBrandModalVisible, setIsBrandModalVisible] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [newBrand, setNewBrand] = useState("");
+
   const { data: categories } = useFetchEquipmentsCategories();
   const { data: brands } = useFetchEquipmentsBrands();
+  const createBrandMutation = useCreateEquipmentBrand();
+  const createCategoryMutation = useCreateEquipmentCategory();
+
   const handleFormSubmit = (values: Partial<Equipment>) => {
     onCreateEquipment(values);
     userForm.resetFields();
   };
 
+  // Handlers for adding new category and brand
+  const handleAddCategory = () => {
+    createCategoryMutation.mutate({ categoryName: newCategory });
+    setIsCategoryModalVisible(false);
+  };
+
+  const handleAddBrand = () => {
+    createBrandMutation.mutate({ brandName: newBrand });
+    setIsBrandModalVisible(false);
+  };
   return (
     <Form form={userForm} layout='vertical' autoComplete='off' className='equipment-form' onFinish={handleFormSubmit}>
       <div className='equipment-form'>
@@ -68,30 +93,44 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
               className='equipment-form--input'
               label='Category'
               name='categoryName'
-              rules={[{ required: true, message: "Please select a client" }]}
+              rules={[{ required: true, message: "Please select a brand" }]}
             >
-              <Select placeholder='Select client'>
+              <Select mode='tags' placeholder='Select a brand'>
                 {categories?.data?.map((category) => (
                   <Option key={category.id} value={category.categoryName}>
                     {category.categoryName}
                   </Option>
                 ))}
               </Select>
+              <Button
+                style={{ padding: "0", color: `${colors.primary[400]}` }}
+                type='link'
+                onClick={() => setIsCategoryModalVisible(true)}
+              >
+                + Add New Category
+              </Button>
             </Form.Item>
 
             <Form.Item
               className='equipment-form--input'
               label='Brand'
               name='brandName'
-              rules={[{ required: true, message: "Please select a project manager" }]}
+              rules={[{ required: true, message: "Please select a category" }]}
             >
-              <Select placeholder='Select project managers'>
+              <Select placeholder='Select a category'>
                 {brands?.data?.map((brand) => (
                   <Option key={brand.id} value={brand.brandName}>
                     {brand.brandName}
                   </Option>
                 ))}
               </Select>
+              <Button
+                style={{ padding: "0", color: `${colors.primary[400]}` }}
+                type='link'
+                onClick={() => setIsBrandModalVisible(true)}
+              >
+                + Add New Brand
+              </Button>
             </Form.Item>
           </Flex>
           <Flex>
@@ -108,6 +147,30 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
           </div>
         </Card>
       </div>
+
+      {/* Modal for New Category */}
+      <Modal
+        title='Add New Category'
+        open={isCategoryModalVisible}
+        onOk={handleAddCategory}
+        onCancel={() => setIsCategoryModalVisible(false)}
+      >
+        <Input
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          placeholder='Enter new category name'
+        />
+      </Modal>
+
+      {/* Modal for New Brand */}
+      <Modal
+        title='Add New Brand'
+        open={isBrandModalVisible}
+        onOk={handleAddBrand}
+        onCancel={() => setIsBrandModalVisible(false)}
+      >
+        <Input value={newBrand} onChange={(e) => setNewBrand(e.target.value)} placeholder='Enter new brand name' />
+      </Modal>
     </Form>
   );
 };

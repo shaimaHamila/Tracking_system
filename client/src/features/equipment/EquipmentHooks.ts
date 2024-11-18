@@ -23,6 +23,26 @@ export const useFetchEquipments = ({ pageSize, page, serialNumber, conditions }:
   });
 };
 
+// Add new category
+export const useCreateEquipmentCategory = () => {
+  return useMutation<ApiResponse<Partial<EquipmentCategory>>, Error, Partial<EquipmentCategory>>({
+    mutationFn: async (newCategory: Partial<EquipmentCategory>) => {
+      const { data } = await api.post<ApiResponse<Partial<EquipmentCategory>>>("equipment/category/add", newCategory);
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Brand created successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
 // Fetch the categories
 export const useFetchEquipmentsCategories = () => {
   return useQuery<ApiResponse<EquipmentCategory[]>>({
@@ -32,6 +52,27 @@ export const useFetchEquipmentsCategories = () => {
       return data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+// Add new brand
+export const useCreateEquipmentBrand = () => {
+  return useMutation<ApiResponse<Partial<EquipmentBrand>>, Error, Partial<EquipmentBrand>>({
+    mutationFn: async (newBrand: Partial<EquipmentBrand>) => {
+      const { data } = await api.post<ApiResponse<Partial<EquipmentBrand>>>("equipment/brand/add", newBrand);
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Brand created successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
   });
 };
 // Fetch the brands
@@ -55,7 +96,7 @@ export const useCreateEquipment = () => {
     },
     onSuccess: () => {
       notification.success({
-        message: "Project created successfully",
+        message: "Equipment created successfully",
       });
     },
     onError: (error: any) => {
