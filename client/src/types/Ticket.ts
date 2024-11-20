@@ -10,9 +10,9 @@ export type Ticket = {
   priority: TicketPriority;
   createdById: number;
   projectId: number;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
   status: TicketStatusType;
   project: Project;
   assignedUsers: User[];
@@ -23,12 +23,18 @@ export type TicketStatusType = {
   id: number;
   statusName: string;
 };
-export const TicketStatus = {
-  OPEN: 1,
-  IN_PROGRESS: 2,
-  RESOLVED: 3,
-  CLOSED: 4,
-};
+export enum TicketStatusId {
+  OPEN = 1,
+  IN_PROGRESS = 2,
+  RESOLVED = 3,
+  CLOSED = 4,
+}
+export enum TicketStatusName {
+  OPEN = "OPEN",
+  IN_PROGRESS = "IN_PROGRESS",
+  RESOLVED = "RESOLVED",
+  CLOSED = "CLOSED",
+}
 export enum TicketPriority {
   LOW = "LOW",
   MEDIUM = "MEDIUM",

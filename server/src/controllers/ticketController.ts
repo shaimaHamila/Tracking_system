@@ -422,10 +422,10 @@ const updateTicketAssignedUsers = async (
 // they are all optinal
 // with pagination
 //who can see all the tickets?
-// If Admin can see all tickets
-// If TM can see all external project tickets
-// If staff or created by him can see all tickets assigned to him
-// If client can see all tickets of his projects
+// If Admin : can see all tickets
+// If TM can : see all external project tickets
+// If staff or created by him : can see all tickets assigned to him
+// If client : can see all tickets of his projects
 export const getAllTickets = async (req: Request, res: Response) => {
   const {
     projectType,
