@@ -13,6 +13,7 @@ import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import { CreateEquipmentForm } from "../../components/templates/forms/CreateEquipmentForm/CreateEquipmentForm";
 import { useFetchUsers } from "../../features/user/UserHooks";
 import { UpdateEquipmentForm } from "../../components/templates/forms/UpdateEquipmentForm/UpdateEquipmentForm";
+import EquipmentDetails from "../../components/templates/EquipmentDetails/EquipmentDetails";
 const { Option } = Select;
 
 const Equipments = () => {
@@ -139,12 +140,7 @@ const Equipments = () => {
         isOpen={isViewEquipmentDrawerOpen}
         handleClose={() => setViewEquipmentDrawerOpen(false)}
         title={"View Equipment"}
-        content={
-          <UpdateEquipmentForm
-            equipmentToUpdate={clickedEquipment!}
-            onUpdateEquipment={(equipment) => handleUpdateEquipment(equipment)}
-          />
-        }
+        content={<EquipmentDetails equipment={clickedEquipment!} />}
       />
       {/* Modal for assign a user */}
       <Modal

@@ -18,6 +18,7 @@ export type Equipment = {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  description: string;
 };
 
 export enum Condition {
