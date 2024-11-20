@@ -56,8 +56,8 @@ const Equipments = () => {
         assignedToId: selectedUser,
       });
 
-      setClickedEquipment(null);
       setIsAssignUserModalVisible(false);
+      setClickedEquipment(null);
     } else {
       notification.error({
         message: "Please select a user to assign",
@@ -65,14 +65,13 @@ const Equipments = () => {
     }
   };
   const handleCreateEquipment = (newEquipment: Partial<Equipment>) => {
-    console.log(newEquipment);
     createEquipmentMutation.mutate(newEquipment);
     setCreateEquipmentDrawerOpen(false);
   };
   const handleUpdateEquipment = (newEquipment: Partial<Equipment>) => {
-    console.log(newEquipment);
     updateEquipmentMutation.mutate({ id: Number(clickedEquipment?.id), equipmentToUpdate: newEquipment });
     setUpdateEquipmentDrawerOpen(false);
+    setClickedEquipment(null);
   };
   return (
     <>
@@ -124,8 +123,22 @@ const Equipments = () => {
       />
       <DrawerComponent
         isOpen={isUpdateEquipmentDrawerOpen}
-        handleClose={() => setUpdateEquipmentDrawerOpen(false)}
+        handleClose={() => {
+          setUpdateEquipmentDrawerOpen(false);
+          setClickedEquipment(null);
+        }}
         title={"Update Equipment"}
+        content={
+          <UpdateEquipmentForm
+            equipmentToUpdate={clickedEquipment!}
+            onUpdateEquipment={(equipment) => handleUpdateEquipment(equipment)}
+          />
+        }
+      />
+      <DrawerComponent
+        isOpen={isViewEquipmentDrawerOpen}
+        handleClose={() => setViewEquipmentDrawerOpen(false)}
+        title={"View Equipment"}
         content={
           <UpdateEquipmentForm
             equipmentToUpdate={clickedEquipment!}
@@ -138,7 +151,10 @@ const Equipments = () => {
         title='Assign a user'
         open={isAssignUserModalVisible}
         onOk={handleAssignUser}
-        onCancel={() => setIsAssignUserModalVisible(false)}
+        onCancel={() => {
+          setIsAssignUserModalVisible(false);
+          setClickedEquipment(null);
+        }}
       >
         <Form form={form} layout='vertical'>
           <Form.Item className='user-form--input' label='User' name='userId'>
