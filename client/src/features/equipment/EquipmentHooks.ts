@@ -112,7 +112,7 @@ export const useCreateEquipment = () => {
 export const useUpdateEquipment = () => {
   return useMutation<ApiResponse<Partial<Equipment>>, Error, { id: number; equipmentToUpdate: Partial<Equipment> }>({
     mutationFn: async ({ id, equipmentToUpdate }) => {
-      const { data } = await api.put<ApiResponse<Partial<Equipment>>>(`/equipment/`, equipmentToUpdate, {
+      const { data } = await api.put<ApiResponse<Partial<Equipment>>>(`/equipment/update`, equipmentToUpdate, {
         params: { id },
       });
       return data;

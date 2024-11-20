@@ -44,15 +44,21 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
     <div className='project-details-cards--container'>
       {/* General Project Information */}
       <Card title='Project Overview' className='project-details-card'>
-        <Title level={4}>{project.name}</Title>
-
         <Flex vertical gap={16}>
-          <Text strong>Type: </Text>
-          <ProjectTypeTag projectTypeTag={project.projectType} />
-          <Text strong>Description: </Text>
-          <Text>{project.description || "N/A"}</Text>
-          <Text strong>Created At: </Text>
-          <Text>{formatDateWithoutTime(project.createdAt)}</Text>
+          <Flex justify={"space-between"} align='center' gap={20}>
+            <Title level={4}>{project.name}</Title>
+            <Flex gap={8}>
+              <Text strong>Created At: </Text>
+              <Text>{formatDateWithoutTime(project.createdAt)}</Text>
+            </Flex>
+          </Flex>
+          <Text strong>
+            Type: <ProjectTypeTag projectTypeTag={project.projectType} />{" "}
+          </Text>
+          <Flex gap={8}>
+            <Text strong>Description: </Text>
+            <Text>{project.description || "N/A"}</Text>
+          </Flex>
         </Flex>
       </Card>
 

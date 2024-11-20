@@ -102,7 +102,6 @@ export const createEquipment = async (req: Request, res: Response) => {
 export const updateAssignedUser = async (req: Request, res: Response) => {
   const { equipmentId, assignedToId } = req.body;
 
-  // Validate if the equipmentId is provided
   if (!equipmentId) {
     return Responses.BadRequest(res, "equipmentId is required");
   }
@@ -132,8 +131,8 @@ export const updateAssignedUser = async (req: Request, res: Response) => {
       where: { id: equipmentId },
       data: {
         assignedTo: assignedToId
-          ? { connect: { id: assignedToId } } // If assignedToId exists, connect the user
-          : { disconnect: true }, // If assignedToId is null, disconnect the user
+          ? { connect: { id: assignedToId } }
+          : { disconnect: true },
       },
       include: {
         assignedTo: {
@@ -162,9 +161,8 @@ export const getAllEquipments = async (req: Request, res: Response) => {
   const take = page && pageSize ? Number(pageSize) : undefined;
 
   try {
-    // Construct the filter options for the `findMany` query
     const filters = {
-      ...(serialNumber
+      ...(serialNumber && serialNumber !== "null"
         ? { serialNumber: { equals: String(serialNumber) } }
         : {}),
       ...(conditions && Array.isArray(conditions) && conditions.length > 0
@@ -246,7 +244,7 @@ export const getEquipmentById = async (req: Request, res: Response) => {
 
 // Update equipment
 export const updateEquipment = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.query;
 
   const { error } = updateEquipmentValidator.validate(req.body);
 
@@ -254,20 +252,7 @@ export const updateEquipment = async (req: Request, res: Response) => {
     return Responses.ValidationBadRequest(res, error);
   }
   try {
-    const { categoryId, assignedToId, ...updatedEquipmentData } = req.body;
-
-    if (assignedToId) {
-      try {
-        await validateUserRole(assignedToId, [
-          "STAFF",
-          "ADMIN",
-          "SUPERADMIN",
-          "TECHNICAL_MANAGER",
-        ]);
-      } catch (validationError: any) {
-        return Responses.BadRequest(res, validationError.message);
-      }
-    }
+    const { categoryId, brandId, ...updatedEquipmentData } = req.body;
 
     // Verify if the provided categoryId exists in the database
     if (categoryId) {
@@ -282,15 +267,24 @@ export const updateEquipment = async (req: Request, res: Response) => {
         );
       }
     }
+    if (brandId) {
+      const brandExists = await prisma.equipmentCategory.findUnique({
+        where: { id: brandId },
+      });
 
+      if (!brandExists) {
+        return Responses.BadRequest(
+          res,
+          "Invalid brand ID: Brand does not exist."
+        );
+      }
+    }
     const equipment = await prisma.equipment.update({
       where: { id: Number(id) },
       data: {
         ...updatedEquipmentData,
         category: categoryId ? { connect: { id: categoryId } } : undefined,
-        assignedTo: assignedToId
-          ? { connect: { id: assignedToId } }
-          : undefined,
+        brand: brandId ? { connect: { id: brandId } } : undefined,
       },
       include: {
         category: true,

@@ -39,7 +39,7 @@ EquipmentRouter.get(
   getEquipmentById
 );
 EquipmentRouter.put(
-  "/update/:id",
+  "/update",
   authentication,
   userAuthorization([Role.ADMIN, Role.TECHNICAL_MANAGER]),
   updateEquipment
