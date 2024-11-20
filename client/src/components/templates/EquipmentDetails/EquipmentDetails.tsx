@@ -24,20 +24,56 @@ const EquipmentDetails: React.FC<EquipmentDetailsProps> = ({ equipment }) => {
   return (
     <div className='equipment-details-cards--container'>
       <Card title='Equipment Details' className='equipment-details-card'>
-        <Flex vertical gap={16}>
-          <Flex justify={"space-between"} align='center' gap={20}>
-            <Title level={4}>{equipment.name}</Title>
+        <Flex vertical gap={20}>
+          <Flex justify={"space-between"} align='center' gap={20} wrap>
+            <Title style={{ margin: 0 }} level={4}>
+              {equipment.name}
+            </Title>
             <Flex gap={8}>
-              <Text strong>Created At: </Text>
-              <Text>{formatDateWithoutTime(equipment.createdAt)}</Text>
+              <Text>Created At: </Text>
+              <Text strong>{formatDateWithoutTime(equipment.createdAt)}</Text>
             </Flex>
           </Flex>
-          <Text strong>
-            Condition: <ConditionTag condition={equipment.condition} />
-          </Text>
-          <Flex gap={8}>
-            <Text strong>Notes: </Text>
-            <Text>{equipment.description || "N/A"}</Text>
+          <Flex gap={50} wrap>
+            <Flex vertical gap={22} style={{ flex: "1" }}>
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Condition:</Text>
+                <ConditionTag condition={equipment.condition} />
+              </Flex>
+
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Category: </Text>
+                <Text strong>{equipment.category?.categoryName || "N/A"}</Text>
+              </Flex>
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Brand: </Text>
+                <Text strong>{equipment.brand?.brandName || "N/A"}</Text>
+              </Flex>
+              <Flex justify={"space-between"} align='center' gap={8} wrap>
+                <Text>Notes: </Text>
+                <Text>{equipment.description || "N/A"}</Text>
+              </Flex>
+            </Flex>
+
+            <Flex vertical gap={22} style={{ flex: "1" }}>
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Warranty End Date: </Text>
+                <Text strong>{formatDateWithoutTime(equipment.warrantyEndDate)}</Text>
+              </Flex>
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Purchase date: </Text>
+                <Text strong>{formatDateWithoutTime(equipment.purchaseDate)}</Text>
+              </Flex>
+
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Purchase Cost: </Text>
+                <Text strong>{equipment.purchaseCost} TND</Text>
+              </Flex>
+              <Flex justify={"space-between"} align='center' gap={8}>
+                <Text>Purchase Company: </Text>
+                <Text strong>{equipment.purchaseCompany}</Text>
+              </Flex>
+            </Flex>
           </Flex>
         </Flex>
       </Card>
@@ -53,7 +89,10 @@ const EquipmentDetails: React.FC<EquipmentDetailsProps> = ({ equipment }) => {
                 <Title level={4}>
                   {equipment.assignedTo?.firstName} {equipment.assignedTo?.lastName}
                 </Title>
-                <Text strong>Email:</Text> <Text copyable>{equipment.assignedTo?.email}</Text>
+                <Text>Email:</Text>{" "}
+                <Text strong copyable>
+                  {equipment.assignedTo?.email}
+                </Text>
               </div>
             </div>
 
