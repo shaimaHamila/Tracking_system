@@ -180,14 +180,12 @@ export const getAllProjects = async (req: Request, res: Response) => {
   }
 
   try {
-    // Define query filters
     let filters: any = {};
-    // Apply projectType filter if provided
+
     if (_projectType) {
       filters.projectType = _projectType;
     }
 
-    // Apply projectName filter if provided
     if (_projectName && _projectName !== "null") {
       filters.name = {
         contains: String(_projectName),

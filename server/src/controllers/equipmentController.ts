@@ -7,6 +7,8 @@ import {
 } from "../validators/EquipmentValidator";
 import { validateUserRole } from "./RoleController";
 import { log } from "console";
+import { getCurrentUser } from "../helpers/GetCurrentUser";
+import { Role } from "../types/Roles";
 
 export enum EquipmentCondition {
   OPERATIONAL = "OPERATIONAL",
@@ -160,8 +162,19 @@ export const getAllEquipments = async (req: Request, res: Response) => {
     page && pageSize ? (Number(page) - 1) * Number(pageSize) : undefined;
   const take = page && pageSize ? Number(pageSize) : undefined;
 
+  // Get the current user's ID from the decoded token
+  const currentUserId = res.locals.decodedToken.id;
+
+  // Verify the current user exists and handle errors
+  let user;
   try {
-    const filters = {
+    user = await getCurrentUser(parseInt(currentUserId, 10));
+  } catch (error: any) {
+    return Responses.BadRequest(res, error.message);
+  }
+  try {
+    let filters = {};
+    filters = {
       ...(serialNumber && serialNumber !== "null"
         ? { serialNumber: { equals: String(serialNumber) } }
         : {}),
@@ -169,7 +182,23 @@ export const getAllEquipments = async (req: Request, res: Response) => {
         ? { condition: { in: conditions as EquipmentCondition[] } }
         : {}),
     };
+    switch (user.role.roleName) {
+      case Role.ADMIN || Role.TECHNICAL_MANAGER:
+        break;
 
+      case Role.STAFF:
+        filters = {
+          ...filters,
+          assignedToId: user.id,
+        };
+        break;
+
+      default:
+        return Responses.Forbidden(
+          res,
+          "You do not have permission to view projects."
+        );
+    }
     // Fetch equipment data with pagination and filtering
     const equipments = await prisma.equipment.findMany({
       where: filters,
