@@ -12,7 +12,7 @@ import {
 import { User } from "../../../../types/User";
 import "./EquipentsTable.scss";
 import { RoleName } from "../../../../types/Role";
-import { Condition, Equipment, EquipmentCategory } from "../../../../types/Equipment";
+import { Condition, Equipment, EquipmentBrand, EquipmentCategory } from "../../../../types/Equipment";
 import ConditionTag from "../../../atoms/ConditionTag/ConditionTag";
 import { formatDateWithoutTime } from "../../../../helpers/date";
 interface EquipentsTableRow {
@@ -21,7 +21,7 @@ interface EquipentsTableRow {
   category: EquipmentCategory;
   warrantyEndDate: string;
   condition: Condition;
-  brand: string;
+  brand: EquipmentBrand;
   equipment: Equipment;
 }
 interface EquipentsTableProps {

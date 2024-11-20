@@ -29,6 +29,7 @@ export const updateEquipmentValidator = Joi.object({
   purchaseCompany: Joi.string().max(100).optional(),
   brand: Joi.string().max(50).optional(),
   categoryId: Joi.number().optional(),
+  brandId: Joi.number().optional(),
   condition: equipmentCondition,
   assignedToId: Joi.number().optional(),
 });

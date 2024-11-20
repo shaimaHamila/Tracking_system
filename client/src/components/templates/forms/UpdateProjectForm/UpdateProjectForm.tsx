@@ -30,7 +30,6 @@ const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, 
   const handleFormSubmit = (values: Partial<Project>) => {
     onUpdateProject(values);
   };
-  console.log(projectToUpdate);
 
   return (
     <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>

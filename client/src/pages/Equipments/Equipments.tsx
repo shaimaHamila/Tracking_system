@@ -5,12 +5,14 @@ import {
   useCreateEquipment,
   useDeleteEquipment,
   useFetchEquipments,
+  useUpdateEquipment,
 } from "../../features/equipment/EquipmentHooks";
 import { Condition, Equipment } from "../../types/Equipment";
 import { Form, Modal, notification, Select } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import { CreateEquipmentForm } from "../../components/templates/forms/CreateEquipmentForm/CreateEquipmentForm";
 import { useFetchUsers } from "../../features/user/UserHooks";
+import { UpdateEquipmentForm } from "../../components/templates/forms/UpdateEquipmentForm/UpdateEquipmentForm";
 const { Option } = Select;
 
 const Equipments = () => {
@@ -30,6 +32,7 @@ const Equipments = () => {
   const assignEquipmentMutation = useAssignEquipment();
   const createEquipmentMutation = useCreateEquipment();
   const deleteEquipmentMutation = useDeleteEquipment();
+  const updateEquipmentMutation = useUpdateEquipment();
   const { data, status, isError } = useFetchEquipments({
     pageSize,
     page,
@@ -66,7 +69,11 @@ const Equipments = () => {
     createEquipmentMutation.mutate(newEquipment);
     setCreateEquipmentDrawerOpen(false);
   };
-
+  const handleUpdateEquipment = (newEquipment: Partial<Equipment>) => {
+    console.log(newEquipment);
+    updateEquipmentMutation.mutate({ id: Number(clickedEquipment?.id), equipmentToUpdate: newEquipment });
+    setUpdateEquipmentDrawerOpen(false);
+  };
   return (
     <>
       <EquipmentsTable
@@ -82,7 +89,6 @@ const Equipments = () => {
           setViewEquipmentDrawerOpen(true);
         }}
         onUpdateEquipment={(equipment) => {
-          console.log(equipment);
           setClickedEquipment(equipment);
           setUpdateEquipmentDrawerOpen(true);
         }}
@@ -90,7 +96,6 @@ const Equipments = () => {
           deleteEquipmentMutation.mutate(id);
         }}
         onAssignEquipment={(equipment: Equipment) => {
-          console.log(equipment);
           setClickedEquipment(equipment);
           setIsAssignUserModalVisible(true);
         }}
@@ -117,6 +122,17 @@ const Equipments = () => {
         title={"Create Equipment"}
         content={<CreateEquipmentForm onCreateEquipment={(equipment) => handleCreateEquipment(equipment)} />}
       />
+      <DrawerComponent
+        isOpen={isUpdateEquipmentDrawerOpen}
+        handleClose={() => setUpdateEquipmentDrawerOpen(false)}
+        title={"Update Equipment"}
+        content={
+          <UpdateEquipmentForm
+            equipmentToUpdate={clickedEquipment!}
+            onUpdateEquipment={(equipment) => handleUpdateEquipment(equipment)}
+          />
+        }
+      />
       {/* Modal for assign a user */}
       <Modal
         title='Assign a user'
@@ -124,7 +140,6 @@ const Equipments = () => {
         onOk={handleAssignUser}
         onCancel={() => setIsAssignUserModalVisible(false)}
       >
-        {/* Wrap Form.Item inside a Form */}
         <Form form={form} layout='vertical'>
           <Form.Item className='user-form--input' label='User' name='userId'>
             <Select placeholder='Select a user' allowClear>
@@ -138,7 +153,6 @@ const Equipments = () => {
           </Form.Item>
         </Form>
       </Modal>
-      ;
     </>
   );
 };

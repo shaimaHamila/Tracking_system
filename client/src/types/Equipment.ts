@@ -10,7 +10,7 @@ export type Equipment = {
   warrantyEndDate: string;
   purchaseCost: number;
   purchaseCompany: string;
-  brand: string;
+  brand: EquipmentBrand;
   categoryId: number;
   condition: Condition;
   assignedToId: RoleId;
