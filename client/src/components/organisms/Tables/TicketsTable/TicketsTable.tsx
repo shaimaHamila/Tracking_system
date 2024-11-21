@@ -47,6 +47,9 @@ interface EquipentsTableProps {
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
   onTicketStatusFilterChange: (statusId: TicketStatusId | null) => void;
+  onTicketPrioritiFilterChange: (priority: TicketPriority | null) => void;
+  onPriorityChange: (priority: TicketPriority) => void;
+  onStatusChange: (status: TicketStatusId) => void;
 }
 
 const TicketsTable: React.FC<EquipentsTableProps> = ({
@@ -65,18 +68,14 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
   limitTicketsPerPage,
   dataStatus,
   onTicketStatusFilterChange,
+  onTicketPrioritiFilterChange,
+  onPriorityChange,
+  onStatusChange,
 }) => {
   const [pageSize, setPageSize] = useState<number>(limitTicketsPerPage);
   const [tableContent, setTableContent] = useState<TicketsTableRow[]>([]);
 
-  const handlePriorityChange = (newPriority: TicketPriority) => {
-    console.log("Selected priority:", newPriority);
-  };
-  const handleStatusChange = (newStatus: TicketStatusId) => {
-    console.log("Selected newStatus:", newStatus);
-  };
   useEffect(() => {
-    // Extract specific fields from orders and populate tableContent
     const _tableContent = tickets?.map((ticket) => ({
       id: ticket?.id!,
       title: ticket?.title,
@@ -90,17 +89,22 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
     setTableContent(_tableContent);
   }, [tickets]);
 
-  const handleTicketTypeFilterChange = (selectedConditions: TicketStatusId | null) => {
-    if (!selectedConditions && Array.isArray(selectedConditions)) {
+  const handleTicketStatusFilterChange = (selectedTicketStatusId: TicketStatusId | null) => {
+    if (!selectedTicketStatusId) {
       onTicketStatusFilterChange(null);
     } else {
-      onTicketStatusFilterChange(selectedConditions);
+      onTicketStatusFilterChange(selectedTicketStatusId);
     }
   };
-  const items = [
-    { key: "1", label: "Action 1" },
-    { key: "2", label: "Action 2" },
-  ];
+
+  const handleTicketPriorityFilterChange = (selectedTicketPriority: TicketPriority | null) => {
+    if (!selectedTicketPriority) {
+      onTicketPrioritiFilterChange(null);
+    } else {
+      onTicketPrioritiFilterChange(selectedTicketPriority);
+    }
+  };
+
   const columns: TableProps<TicketsTableRow>["columns"] = [
     {
       title: "",
@@ -130,18 +134,16 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
         { text: "Resolved", value: TicketStatusId.RESOLVED },
         { text: "Closed", value: TicketStatusId.CLOSED },
       ],
-      filterMultiple: true,
+      filterMultiple: false,
       filterOnClose: true,
-      onFilter: (filteredDataSource: any, activeFilters: any) => {
-        return activeFilters.condition === filteredDataSource;
-      },
+      onFilter: (value, record) => record.status.id === value,
       render: (status: TicketStatusType, record: TicketsTableRow) => {
         if (currentUser.role?.roleName === RoleName.ADMIN || record.ticket.assignedUsersId.includes(currentUser?.id!)) {
           return (
             <Select
               style={{ width: "100%" }}
               value={status.id}
-              onChange={(newStatus: TicketStatusId) => handleStatusChange(newStatus)}
+              onChange={(newStatus: TicketStatusId) => onStatusChange(newStatus)}
             >
               {ticketStatusOptions.map((statusOption) => (
                 <Select.Option key={statusOption.id} value={statusOption.id}>
@@ -181,12 +183,9 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
               { text: "Medium", value: TicketPriority.MEDIUM },
               { text: "Low", value: TicketPriority.LOW },
             ],
-            filterMultiple: true,
+            filterMultiple: false,
             filterOnClose: true,
-            onFilter: (filteredDataSource: any, activeFilters: any) => {
-              return activeFilters.priority === filteredDataSource;
-            },
-
+            onFilter: (value: any, record: any) => record.priority === value,
             render: (priority: TicketPriority, record: TicketsTableRow) => {
               if (
                 currentUser.role?.roleName === RoleName.ADMIN ||
@@ -210,7 +209,7 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
                   <Select
                     style={{ width: "100%" }}
                     value={priority}
-                    onChange={(newPriority: TicketPriority) => handlePriorityChange(newPriority)}
+                    onChange={(newPriority: TicketPriority) => onPriorityChange(newPriority)}
                   >
                     {Object.values(TicketPriority).map((prio) => (
                       <Select.Option
@@ -257,16 +256,13 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
       title: "Action",
       key: "ticket",
       dataIndex: "ticket",
-      width: 200,
+      width: 140,
       render: (ticket: Ticket) => {
-        // Check if the user has access (Admin or Manager of the ticket)
         const isManager = currentUser.role?.roleName === RoleName.ADMIN || ticket.managersId.includes(currentUser?.id!);
         const isCreator = ticket.createdBy?.id === currentUser?.id;
 
-        // Menu items for the Dropdown
         const menuItems = [];
 
-        // Add 'Assign' button for Admin or Managers
         if (isManager) {
           menuItems.push(
             <Menu.Item key='assign'>
@@ -277,7 +273,6 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
           );
         }
 
-        // Add 'Edit' and 'Delete' buttons for the ticket creator
         if (isCreator) {
           menuItems.push(
             <>
@@ -300,15 +295,12 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
           );
         }
 
-        // If the user is an Admin or Manager or the ticket has actions, show the view and dropdown
         return (
           <Space size='middle'>
-            {/* View button - always visible */}
             <Tooltip title='View'>
               <Button onClick={() => onViewTicket(ticket)} className='table--action-btn' icon={<HiOutlineEye />} />
             </Tooltip>
 
-            {/* More dropdown button - only visible to Admins or Managers */}
             {(isManager || isCreator) && (
               <Dropdown overlay={<Menu>{menuItems}</Menu>} trigger={["click"]}>
                 <a>
@@ -352,8 +344,14 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
         rowKey='id'
         columns={columns}
         dataSource={tableContent}
-        onChange={(_pagination, filter) => {
-          handleTicketTypeFilterChange(filter.status as TicketStatusId | null);
+        onChange={(_pagination, filters) => {
+          filters.status
+            ? handleTicketStatusFilterChange(filters.status[0] as TicketStatusId)
+            : handleTicketStatusFilterChange(null);
+
+          filters.priority
+            ? handleTicketPriorityFilterChange(filters.priority[0] as TicketPriority)
+            : handleTicketPriorityFilterChange(null);
         }}
         pagination={false}
         scroll={{ y: tableHeight, x: "max-content" }}

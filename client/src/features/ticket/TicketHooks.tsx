@@ -8,8 +8,8 @@ interface FetchTicketsRequest {
   page?: number | null;
   title?: string | null;
   projectType?: ProjectType;
-  statusId?: TicketStatusId;
-  priority?: TicketPriority;
+  statusId?: TicketStatusId | null;
+  priority?: TicketPriority | null;
   type?: TicketType;
   assignedUserId?: number | null;
   projectId?: number | null;
