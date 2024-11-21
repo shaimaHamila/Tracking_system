@@ -104,6 +104,12 @@ const Tickets = () => {
           setPriority(filtredPriority);
           setPage(1);
         }}
+        onPriorityChange={(newPriority: TicketPriority) => {
+          console.log("Selected priority:", newPriority);
+        }}
+        onStatusChange={(newStatus: TicketStatusId) => {
+          console.log("Selected newStatus:", newStatus);
+        }}
       />
       {/* <DrawerComponent
         isOpen={isCreateTicketDrawerOpen}
