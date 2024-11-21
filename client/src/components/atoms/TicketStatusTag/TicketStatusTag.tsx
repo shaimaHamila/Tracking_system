@@ -8,7 +8,10 @@ interface TicketStatusTagProps {
 const TicketStatusTag: React.FC<TicketStatusTagProps> = ({ ticketStatus }) => {
   let tagColor: string;
   const tagText = ticketStatus?.statusName
-    ? ticketStatus.statusName.charAt(0).toUpperCase() + ticketStatus.statusName.slice(1).toLowerCase()
+    ? ticketStatus.statusName
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase())
     : "No status";
 
   switch (ticketStatus?.id) {

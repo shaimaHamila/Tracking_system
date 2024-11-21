@@ -13,3 +13,5 @@
 
 - We can add the assignerd equipment duration to the user
 - Auou change the equipment condtion
+
+- Filter in tickets (by client, project, creator)

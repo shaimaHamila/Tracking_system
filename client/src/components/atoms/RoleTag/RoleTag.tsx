@@ -8,7 +8,10 @@ interface RoleTagProps {
 const RoleTag: React.FC<RoleTagProps> = ({ role }) => {
   let tagColor;
   const tagText = role?.roleName
-    ? role?.roleName.charAt(0).toUpperCase() + role?.roleName.slice(1).toLowerCase()
+    ? role?.roleName
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase())
     : "No role";
 
   switch (role?.id) {

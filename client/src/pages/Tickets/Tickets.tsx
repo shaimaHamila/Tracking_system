@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import TicketsTable from "../../components/organisms/Tables/TicketsTable/TicketsTable";
 
 import { TicketPriority, Ticket } from "../../types/Ticket";
 import { Form, Modal, notification, Select } from "antd";
 import { useFetchUsers } from "../../features/user/UserHooks";
 import { useFetchTickets } from "../../features/ticket/TicketHooks";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
 const { Option } = Select;
 
@@ -18,6 +19,8 @@ const Tickets = () => {
   const [isUpdateTicketDrawerOpen, setUpdateTicketDrawerOpen] = useState(false);
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
+
+  const context = useContext(CurrentUserContext);
 
   const { data: admin } = useFetchUsers({ roleId: 2 });
   const { data: staff } = useFetchUsers({ roleId: 3 });
@@ -59,21 +62,21 @@ const Tickets = () => {
     <>
       <TicketsTable
         tickets={data?.data || []}
-        currentUserRole={"ADMIN"} //TODO: get current user role
+        currentUser={context?.currentUserContext!}
         dataStatus={"success"}
         totalTickets={data?.meta?.totalCount || 0}
         onCreateTicketDrawerOpen={() => {
           setCreateTicketDrawerOpen(true);
         }}
-        onViewTicket={(ticket) => {
+        onViewTicket={(ticket: Partial<Ticket>) => {
           setClickedTicket(ticket);
           setViewTicketDrawerOpen(true);
         }}
-        onUpdateTicket={(ticket) => {
+        onUpdateTicket={(ticket: Partial<Ticket>) => {
           setClickedTicket(ticket);
           setUpdateTicketDrawerOpen(true);
         }}
-        onDeleteTicket={(id) => {
+        onDeleteTicket={(id: number) => {
           // deleteTicketMutation.mutate(id);
           console.log(id);
         }}
@@ -85,7 +88,7 @@ const Tickets = () => {
         onPageChange={(newPage: number) => {
           setPage(newPage);
         }}
-        handlePageSizeChange={(newPageSize) => {
+        handlePageSizeChange={(newPageSize: number) => {
           setPageSize(newPageSize);
           setPage(1);
         }}
@@ -93,7 +96,7 @@ const Tickets = () => {
         onSearchChange={(searchedTicketNumber: string) => {
           setTicketTitle(searchedTicketNumber === "" ? null : searchedTicketNumber);
         }}
-        onTicketStatusFilterChange={(priority) => {
+        onTicketStatusFilterChange={(priority: any) => {
           // setPriorities();
           setPage(1);
         }}

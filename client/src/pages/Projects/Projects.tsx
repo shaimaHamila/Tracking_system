@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ProjectsTable from "../../components/organisms/Tables/ProjectsTable/ProjectsTable";
 import {
   useCreateProject,
@@ -12,6 +12,7 @@ import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateProjectForm from "../../components/templates/forms/CreateProjectForm/CreateProjectForm";
 import UpdateProjectForm from "../../components/templates/forms/UpdateProjectForm/UpdateProjectForm";
 import ProjectDetails from "../../components/templates/ProjectDetails/ProjectDetails";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
 const Projects = () => {
   const [page, setPage] = useState(1);
@@ -22,7 +23,7 @@ const Projects = () => {
   const [clickedProject, setClickedProject] = useState<Partial<Project> | null>(null);
   const [isUpdateProjectDrawerOpen, setUpdateProjectDrawerOpen] = useState(false);
   const [isViewProjectDrawerOpen, setViewProjectDrawerOpen] = useState(false);
-
+  const context = useContext(CurrentUserContext);
   const { data, status, isError } = useFetchProjects({
     pageSize,
     page,
@@ -52,7 +53,7 @@ const Projects = () => {
     <>
       <ProjectsTable
         projects={data?.data || []}
-        currentUserRole={"ADMIN"} //TODO: get current user role
+        currentUserRole={context?.currentUserContext?.role.roleName!}
         status={status}
         totalProjects={data?.meta?.totalCount || 0}
         onCreateProjectDrawerOpen={() => {
