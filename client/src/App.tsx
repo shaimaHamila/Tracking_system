@@ -8,10 +8,12 @@ import useStaffRoutes from "./routes/useStaffRoutes";
 import api from "./api/AxiosConfig";
 import { useQuery } from "@tanstack/react-query";
 import { RolesId } from "./types/Role";
+import { CurrentUserContext } from "./context/CurrentUserContext";
+import { useState } from "react";
 
 function App() {
   const token = localStorage.getItem("accessToken");
-
+  const [currentUserContext, setCurrentUserContext] = useState(null);
   // Fetch current user data
   const {
     isLoading,
@@ -21,7 +23,9 @@ function App() {
     queryKey: ["user/current-user"],
     queryFn: async () => {
       const response = await api.get("/user/current-user");
-      return response.data.data;
+      const userData = response.data.data;
+      setCurrentUserContext(userData);
+      return userData;
     },
     enabled: !!token,
   });
@@ -37,9 +41,8 @@ function App() {
   const staffRoutes = useStaffRoutes();
   const clientRoutes = useClientRoutes();
   const techManagerRoutes = useTechManagerRoutes();
-
   return (
-    <>
+    <CurrentUserContext.Provider value={{ currentUserContext }}>
       {isLoading ? (
         <Loading />
       ) : (
@@ -59,7 +62,7 @@ function App() {
           )}
         </Router>
       )}
-    </>
+    </CurrentUserContext.Provider>
   );
 }
 

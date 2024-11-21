@@ -422,10 +422,10 @@ const updateTicketAssignedUsers = async (
 // they are all optinal
 // with pagination
 //who can see all the tickets?
-// If Admin can see all tickets
-// If TM can see all external project tickets
-// If staff or created by him can see all tickets assigned to him
-// If client can see all tickets of his projects
+// If Admin : can see all tickets
+// If TM can : see all external project tickets
+// If staff or created by him : can see all tickets assigned to him
+// If client : can see all tickets of his projects
 export const getAllTickets = async (req: Request, res: Response) => {
   const {
     projectType,
@@ -485,11 +485,22 @@ export const getAllTickets = async (req: Request, res: Response) => {
               id: true,
               name: true,
               projectType: true,
+              managers: {
+                include: {
+                  manager: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
             },
           },
           assignedUsers: {
             select: {
-              userId: true,
               user: {
                 select: {
                   id: true,
@@ -514,8 +525,15 @@ export const getAllTickets = async (req: Request, res: Response) => {
       }),
       prisma.ticket.count({ where: whereClause }),
     ]);
+
+    const transformedTickets = tickets.map((ticket) => ({
+      ...ticket,
+      assignedUsers: ticket.assignedUsers.map(({ user }) => user), // Flatten user details
+      assignedUsersId: ticket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
+      managersId: ticket.project.managers.map(({ manager }) => manager.id), // Extract manager IDs
+    }));
     return Responses.FetchPagedSucess(res, {
-      data: tickets,
+      data: transformedTickets,
       meta: {
         totalCount: totalTickets,
         totalPages: Math.ceil(totalTickets / take),

@@ -7,7 +7,12 @@ interface ConditionTagProps {
 
 const ConditionTag: React.FC<ConditionTagProps> = ({ condition }) => {
   let tagColor;
-  const tagText = condition ? condition.charAt(0).toUpperCase() + condition.slice(1).toLowerCase() : "--";
+  const tagText = condition
+    ? condition
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "--";
 
   switch (condition) {
     case Condition.OPERATIONAL:

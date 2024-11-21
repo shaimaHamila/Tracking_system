@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import EquipmentsTable from "../../components/organisms/Tables/EquipentsTable/EquipentsTable";
 import {
   useAssignEquipment,
@@ -14,6 +14,7 @@ import { CreateEquipmentForm } from "../../components/templates/forms/CreateEqui
 import { useFetchUsers } from "../../features/user/UserHooks";
 import { UpdateEquipmentForm } from "../../components/templates/forms/UpdateEquipmentForm/UpdateEquipmentForm";
 import EquipmentDetails from "../../components/templates/EquipmentDetails/EquipmentDetails";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 const { Option } = Select;
 
 const Equipments = () => {
@@ -26,6 +27,8 @@ const Equipments = () => {
   const [isUpdateEquipmentDrawerOpen, setUpdateEquipmentDrawerOpen] = useState(false);
   const [isViewEquipmentDrawerOpen, setViewEquipmentDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
+
+  const context = useContext(CurrentUserContext);
 
   const { data: admin } = useFetchUsers({ roleId: 2 });
   const { data: staff } = useFetchUsers({ roleId: 3 });
@@ -78,7 +81,7 @@ const Equipments = () => {
     <>
       <EquipmentsTable
         equipments={data?.data || []}
-        currentUserRole={"ADMIN"} //TODO: get current user role
+        currentUserRole={context?.currentUserContext?.role.roleName!}
         status={status}
         totalEquipments={data?.meta?.totalCount || 0}
         onCreateEquipmentDrawerOpen={() => {
