@@ -47,6 +47,7 @@ interface EquipentsTableProps {
   addBtnText: string;
   onSearchChange: (searchedName: string) => void;
   onTicketStatusFilterChange: (statusId: TicketStatusId | null) => void;
+  onTicketPrioritiFilterChange: (priority: TicketPriority | null) => void;
 }
 
 const TicketsTable: React.FC<EquipentsTableProps> = ({
@@ -65,6 +66,7 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
   limitTicketsPerPage,
   dataStatus,
   onTicketStatusFilterChange,
+  onTicketPrioritiFilterChange,
 }) => {
   const [pageSize, setPageSize] = useState<number>(limitTicketsPerPage);
   const [tableContent, setTableContent] = useState<TicketsTableRow[]>([]);
@@ -90,17 +92,25 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
     setTableContent(_tableContent);
   }, [tickets]);
 
-  const handleTicketTypeFilterChange = (selectedConditions: TicketStatusId | null) => {
-    if (!selectedConditions && Array.isArray(selectedConditions)) {
+  const handleTicketStatusFilterChange = (selectedTicketStatusId: TicketStatusId | null) => {
+    console.log("Selected status:", selectedTicketStatusId);
+
+    if (!selectedTicketStatusId) {
       onTicketStatusFilterChange(null);
     } else {
-      onTicketStatusFilterChange(selectedConditions);
+      onTicketStatusFilterChange(selectedTicketStatusId);
     }
   };
-  const items = [
-    { key: "1", label: "Action 1" },
-    { key: "2", label: "Action 2" },
-  ];
+  const handleTicketPriorityFilterChange = (selectedTicketPriority: TicketPriority | null) => {
+    console.log("Selected priority:", selectedTicketPriority);
+
+    if (!selectedTicketPriority) {
+      onTicketPrioritiFilterChange(null);
+    } else {
+      onTicketPrioritiFilterChange(selectedTicketPriority);
+    }
+  };
+
   const columns: TableProps<TicketsTableRow>["columns"] = [
     {
       title: "",
@@ -130,11 +140,9 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
         { text: "Resolved", value: TicketStatusId.RESOLVED },
         { text: "Closed", value: TicketStatusId.CLOSED },
       ],
-      filterMultiple: true,
+      filterMultiple: false,
       filterOnClose: true,
-      onFilter: (filteredDataSource: any, activeFilters: any) => {
-        return activeFilters.condition === filteredDataSource;
-      },
+      onFilter: (value, record) => record.status.id === value,
       render: (status: TicketStatusType, record: TicketsTableRow) => {
         if (currentUser.role?.roleName === RoleName.ADMIN || record.ticket.assignedUsersId.includes(currentUser?.id!)) {
           return (
@@ -181,12 +189,9 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
               { text: "Medium", value: TicketPriority.MEDIUM },
               { text: "Low", value: TicketPriority.LOW },
             ],
-            filterMultiple: true,
+            filterMultiple: false,
             filterOnClose: true,
-            onFilter: (filteredDataSource: any, activeFilters: any) => {
-              return activeFilters.priority === filteredDataSource;
-            },
-
+            onFilter: (value: any, record: any) => record.priority === value,
             render: (priority: TicketPriority, record: TicketsTableRow) => {
               if (
                 currentUser.role?.roleName === RoleName.ADMIN ||
@@ -352,8 +357,15 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
         rowKey='id'
         columns={columns}
         dataSource={tableContent}
-        onChange={(_pagination, filter) => {
-          handleTicketTypeFilterChange(filter.status as TicketStatusId | null);
+        onChange={(_pagination, filters) => {
+          console.log("Filters:", filters);
+          filters.status
+            ? handleTicketStatusFilterChange(filters.status[0] as TicketStatusId)
+            : handleTicketStatusFilterChange(null);
+
+          filters.priority
+            ? handleTicketPriorityFilterChange(filters.priority[0] as TicketPriority)
+            : handleTicketPriorityFilterChange(null);
         }}
         pagination={false}
         scroll={{ y: tableHeight, x: "max-content" }}

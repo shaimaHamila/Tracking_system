@@ -37,6 +37,7 @@ const Equipments = () => {
   const createEquipmentMutation = useCreateEquipment();
   const deleteEquipmentMutation = useDeleteEquipment();
   const updateEquipmentMutation = useUpdateEquipment();
+
   const { data, status, isError } = useFetchEquipments({
     pageSize,
     page,

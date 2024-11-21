@@ -1,9 +1,8 @@
 import { useContext, useState } from "react";
 import TicketsTable from "../../components/organisms/Tables/TicketsTable/TicketsTable";
 
-import { TicketPriority, Ticket } from "../../types/Ticket";
+import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
 import { Form, Modal, notification, Select } from "antd";
-import { useFetchUsers } from "../../features/user/UserHooks";
 import { useFetchTickets } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 
@@ -13,31 +12,32 @@ const Tickets = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [ticketTitle, setTicketTitle] = useState<string | null>(null);
-  const [priorities, setPriorities] = useState<TicketPriority[] | null>(null);
-  const [isCreateTicketDrawerOpen, setCreateTicketDrawerOpen] = useState(false);
+  const [priority, setPriority] = useState<TicketPriority | null>(null);
+  const [statusId, setStatusId] = useState<TicketStatusId | null>(null);
+
+  const [form] = Form.useForm();
+
   const [clickedTicket, setClickedTicket] = useState<Partial<Ticket> | null>(null);
+  const [isCreateTicketDrawerOpen, setCreateTicketDrawerOpen] = useState(false);
   const [isUpdateTicketDrawerOpen, setUpdateTicketDrawerOpen] = useState(false);
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
 
   const context = useContext(CurrentUserContext);
 
-  const { data: admin } = useFetchUsers({ roleId: 2 });
-  const { data: staff } = useFetchUsers({ roleId: 3 });
-  const { data: technicalManagers } = useFetchUsers({ roleId: 5 });
   const { data, status, isError } = useFetchTickets({
     pageSize,
     page,
     title: ticketTitle,
+    priority,
+    statusId,
   });
 
-  // if (isError) {
-  //   notification.error({
-  //     message: "Failed to fetch Tickets, please try again",
-  //   });
-  // }
-  const [form] = Form.useForm();
-
+  if (isError) {
+    notification.error({
+      message: "Failed to fetch Tickets, please try again",
+    });
+  }
   const handleAssignUser = () => {
     const selectedUser = form.getFieldValue("userId");
 
@@ -63,7 +63,7 @@ const Tickets = () => {
       <TicketsTable
         tickets={data?.data || []}
         currentUser={context?.currentUserContext!}
-        dataStatus={"success"}
+        dataStatus={status}
         totalTickets={data?.meta?.totalCount || 0}
         onCreateTicketDrawerOpen={() => {
           setCreateTicketDrawerOpen(true);
@@ -96,8 +96,12 @@ const Tickets = () => {
         onSearchChange={(searchedTicketNumber: string) => {
           setTicketTitle(searchedTicketNumber === "" ? null : searchedTicketNumber);
         }}
-        onTicketStatusFilterChange={(priority: any) => {
-          // setPriorities();
+        onTicketStatusFilterChange={(filtredStatusId) => {
+          setStatusId(filtredStatusId);
+          setPage(1);
+        }}
+        onTicketPrioritiFilterChange={(filtredPriority) => {
+          setPriority(filtredPriority);
           setPage(1);
         }}
       />
