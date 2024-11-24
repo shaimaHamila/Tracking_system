@@ -2,19 +2,26 @@ import { useContext, useState } from "react";
 import TicketsTable from "../../components/organisms/Tables/TicketsTable/TicketsTable";
 
 import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
-import { Form, Modal, notification, Select } from "antd";
+import { Form, Modal, notification, Select, Tabs } from "antd";
 import { useFetchTickets } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
+import { RoleName, RolesId } from "../../types/Role";
+import { ProjectType } from "../../types/Project";
 
 const { Option } = Select;
 
 const Tickets = () => {
+  const context = useContext(CurrentUserContext);
+  const currentUserRoleId = context?.currentUserContext?.role?.id;
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [ticketTitle, setTicketTitle] = useState<string | null>(null);
   const [priority, setPriority] = useState<TicketPriority | null>(null);
   const [statusId, setStatusId] = useState<TicketStatusId | null>(null);
-
+  const [projectType, setProjectType] = useState<ProjectType | null>(
+    currentUserRoleId === RolesId.ADMIN || currentUserRoleId === RolesId.STAFF ? ProjectType.EXTERNAL : null,
+  );
   const [form] = Form.useForm();
 
   const [clickedTicket, setClickedTicket] = useState<Partial<Ticket> | null>(null);
@@ -23,14 +30,13 @@ const Tickets = () => {
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
 
-  const context = useContext(CurrentUserContext);
-
   const { data, status, isError } = useFetchTickets({
     pageSize,
     page,
     title: ticketTitle,
     priority,
     statusId,
+    projectType,
   });
 
   if (isError) {
@@ -57,60 +63,81 @@ const Tickets = () => {
     setUpdateTicketDrawerOpen(false);
     setClickedTicket(null);
   };
-
+  const onChangeProjectType = (key: string) => {
+    console.log(key);
+    setProjectType(key as ProjectType);
+  };
+  const ticketTable = (
+    <TicketsTable
+      tickets={data?.data || []}
+      currentUser={context?.currentUserContext!}
+      dataStatus={status}
+      totalTickets={data?.meta?.totalCount || 0}
+      onCreateTicketDrawerOpen={() => {
+        setCreateTicketDrawerOpen(true);
+      }}
+      onViewTicket={(ticket: Partial<Ticket>) => {
+        setClickedTicket(ticket);
+        setViewTicketDrawerOpen(true);
+      }}
+      onUpdateTicket={(ticket: Partial<Ticket>) => {
+        setClickedTicket(ticket);
+        setUpdateTicketDrawerOpen(true);
+      }}
+      onDeleteTicket={(id: number) => {
+        // deleteTicketMutation.mutate(id);
+        console.log(id);
+      }}
+      onAssignTicket={(ticket: Ticket) => {
+        setClickedTicket(ticket);
+        setIsAssignUserModalVisible(true);
+      }}
+      limitTicketsPerPage={pageSize}
+      onPageChange={(newPage: number) => {
+        setPage(newPage);
+      }}
+      handlePageSizeChange={(newPageSize: number) => {
+        setPageSize(newPageSize);
+        setPage(1);
+      }}
+      addBtnText={"Add new Ticket"}
+      onSearchChange={(searchedTicketNumber: string) => {
+        setTicketTitle(searchedTicketNumber === "" ? null : searchedTicketNumber);
+      }}
+      onTicketStatusFilterChange={(filtredStatusId) => {
+        setStatusId(filtredStatusId);
+        setPage(1);
+      }}
+      onTicketPrioritiFilterChange={(filtredPriority) => {
+        setPriority(filtredPriority);
+        setPage(1);
+      }}
+      onPriorityChange={(newPriority: TicketPriority) => {
+        console.log("Selected priority:", newPriority);
+      }}
+      onStatusChange={(newStatus: TicketStatusId) => {
+        console.log("Selected newStatus:", newStatus);
+      }}
+    />
+  );
+  const items: any = [
+    {
+      key: "EXTERNAL",
+      label: "External Tickets",
+      children: ticketTable,
+    },
+    {
+      key: "INTERNAL",
+      label: "Internal Tickets",
+      children: ticketTable,
+    },
+  ];
   return (
     <>
-      <TicketsTable
-        tickets={data?.data || []}
-        currentUser={context?.currentUserContext!}
-        dataStatus={status}
-        totalTickets={data?.meta?.totalCount || 0}
-        onCreateTicketDrawerOpen={() => {
-          setCreateTicketDrawerOpen(true);
-        }}
-        onViewTicket={(ticket: Partial<Ticket>) => {
-          setClickedTicket(ticket);
-          setViewTicketDrawerOpen(true);
-        }}
-        onUpdateTicket={(ticket: Partial<Ticket>) => {
-          setClickedTicket(ticket);
-          setUpdateTicketDrawerOpen(true);
-        }}
-        onDeleteTicket={(id: number) => {
-          // deleteTicketMutation.mutate(id);
-          console.log(id);
-        }}
-        onAssignTicket={(ticket: Ticket) => {
-          setClickedTicket(ticket);
-          setIsAssignUserModalVisible(true);
-        }}
-        limitTicketsPerPage={pageSize}
-        onPageChange={(newPage: number) => {
-          setPage(newPage);
-        }}
-        handlePageSizeChange={(newPageSize: number) => {
-          setPageSize(newPageSize);
-          setPage(1);
-        }}
-        addBtnText={"Add new Ticket"}
-        onSearchChange={(searchedTicketNumber: string) => {
-          setTicketTitle(searchedTicketNumber === "" ? null : searchedTicketNumber);
-        }}
-        onTicketStatusFilterChange={(filtredStatusId) => {
-          setStatusId(filtredStatusId);
-          setPage(1);
-        }}
-        onTicketPrioritiFilterChange={(filtredPriority) => {
-          setPriority(filtredPriority);
-          setPage(1);
-        }}
-        onPriorityChange={(newPriority: TicketPriority) => {
-          console.log("Selected priority:", newPriority);
-        }}
-        onStatusChange={(newStatus: TicketStatusId) => {
-          console.log("Selected newStatus:", newStatus);
-        }}
-      />
+      {(currentUserRoleId === RolesId.ADMIN || currentUserRoleId === RolesId.STAFF) && (
+        <Tabs defaultActiveKey='1' items={items} onChange={onChangeProjectType} />
+      )}
+      {(currentUserRoleId === RolesId.CLIENT || currentUserRoleId === RolesId.TECHNICAL_MANAGER) && ticketTable}
       {/* <DrawerComponent
         isOpen={isCreateTicketDrawerOpen}
         handleClose={() => setCreateTicketDrawerOpen(false)}

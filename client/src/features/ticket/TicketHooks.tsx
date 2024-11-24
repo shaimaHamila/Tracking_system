@@ -7,7 +7,7 @@ interface FetchTicketsRequest {
   pageSize?: number | null;
   page?: number | null;
   title?: string | null;
-  projectType?: ProjectType;
+  projectType?: ProjectType | null;
   statusId?: TicketStatusId | null;
   priority?: TicketPriority | null;
   type?: TicketType;
@@ -15,12 +15,12 @@ interface FetchTicketsRequest {
   projectId?: number | null;
 }
 // Fetch Equipments
-export const useFetchTickets = ({ pageSize, page, title, statusId, priority }: FetchTicketsRequest) => {
+export const useFetchTickets = ({ pageSize, page, title, statusId, priority, projectType }: FetchTicketsRequest) => {
   return useQuery<ApiResponse<Ticket[]>>({
-    queryKey: ["equipment/fetchTickets", pageSize, page, title, statusId, priority],
+    queryKey: ["equipment/fetchTickets", pageSize, page, title, statusId, priority, projectType],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<Ticket[]>>("/ticket/", {
-        params: { pageSize, page, title, statusId, priority },
+        params: { pageSize, page, title, statusId, priority, projectType },
       });
       return data;
     },
