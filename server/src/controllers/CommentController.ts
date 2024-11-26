@@ -146,6 +146,7 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
         ticketId: Number(ticketId),
         deletedAt: null,
       },
+
       include: {
         createdby: {
           select: {

@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button, Dropdown, Menu, Pagination, Popconfirm, Select, Space, Table, Tooltip } from "antd";
-import type { TableProps } from "antd";
+import type { MenuProps, TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash, HiOutlineUserAdd } from "react-icons/hi";
 import { DownOutlined } from "@ant-design/icons";
@@ -261,27 +261,32 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
         const isManager = currentUser.role?.roleName === RoleName.ADMIN || ticket.managersId.includes(currentUser?.id!);
         const isCreator = ticket.createdBy?.id === currentUser?.id;
 
-        const menuItems = [];
+        const items: MenuProps["items"] = [];
 
         if (isManager) {
-          menuItems.push(
-            <Menu.Item key='assign'>
+          items.push({
+            key: "assign",
+            label: (
               <span onClick={() => onAssignTicket(ticket)} className='table--action-btn no-border'>
                 <HiOutlineUserAdd /> Assign To
               </span>
-            </Menu.Item>,
-          );
+            ),
+          });
         }
 
         if (isCreator) {
-          menuItems.push(
-            <>
-              <Menu.Item key='edit'>
+          items.push(
+            {
+              key: "edit",
+              label: (
                 <span onClick={() => onUpdateTicket(ticket)} className='table--action-btn no-border'>
                   <HiOutlinePencilAlt /> Edit
                 </span>
-              </Menu.Item>
-              <Menu.Item key='delete'>
+              ),
+            },
+            {
+              key: "delete",
+              label: (
                 <Popconfirm
                   title='Are you sure you want to delete this Ticket?'
                   onConfirm={() => onDeleteTicket(ticket.id!)}
@@ -290,8 +295,8 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
                     <HiOutlineTrash /> Delete
                   </span>
                 </Popconfirm>
-              </Menu.Item>
-            </>,
+              ),
+            },
           );
         }
 
@@ -302,8 +307,8 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
             </Tooltip>
 
             {(isManager || isCreator) && (
-              <Dropdown overlay={<Menu>{menuItems}</Menu>} trigger={["click"]}>
-                <a>
+              <Dropdown menu={{ items }} trigger={["click"]}>
+                <a onClick={(e) => e.preventDefault()}>
                   More <DownOutlined />
                 </a>
               </Dropdown>

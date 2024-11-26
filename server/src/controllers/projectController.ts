@@ -52,14 +52,18 @@ export const createProject = async (req: Request, res: Response) => {
       await Promise.all([
         // Validate the client
         clientId ? validateUserRole(clientId, Role.CLIENT) : null,
-
+        technicalManagerId ??
+          console.log(
+            "technicalManagerIddddddddddddddddddddddd:",
+            technicalManagerId
+          ),
         // Validate the technical manager if provided
         technicalManagerId
           ? validateUserRole(technicalManagerId, Role.TECHNICAL_MANAGER)
           : null,
 
         // Validate managers
-        ...(managers
+        ...(managers?.length
           ? managers.map((managerId: number) =>
               validateUserRole(managerId, Role.STAFF)
             )
@@ -447,7 +451,7 @@ export const updateProject = async (req: Request, res: Response) => {
     return Responses.NotFound(res, "Project not found");
   }
   if (
-    existingProject.projectType === ProjectType.INTERNAL &&
+    existingProject.projectType === ProjectType.EXTERNAL &&
     req.body.managers.length == 0
   ) {
     return Responses.BadRequest(res, "At least one manager is required");

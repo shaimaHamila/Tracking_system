@@ -56,4 +56,5 @@ export enum TicketType {
   FEATURE = "FEATURE",
   CONSULTATION = "CONSULTATION",
   REQUEST = "REQUEST",
+  OTHER = "OTHER",
 }

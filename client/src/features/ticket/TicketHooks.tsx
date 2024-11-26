@@ -1,8 +1,9 @@
 import api from "../../api/AxiosConfig";
 import { ApiResponse } from "../../types/ApiResponse";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Ticket, TicketPriority, TicketStatusId, TicketType } from "../../types/Ticket";
 import { ProjectType } from "../../types/Project";
+import { notification } from "antd";
 interface FetchTicketsRequest {
   pageSize?: number | null;
   page?: number | null;
@@ -25,5 +26,65 @@ export const useFetchTickets = ({ pageSize, page, title, statusId, priority, pro
       return data;
     },
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCreateTicket = () => {
+  return useMutation<ApiResponse<Ticket>, Error, Partial<Ticket>>({
+    mutationFn: async (ticket: Partial<Ticket>) => {
+      const { data } = await api.post<ApiResponse<Ticket>>("/ticket/", ticket);
+      return data;
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Ticket created successfully",
+      });
+    },
+  });
+};
+
+export const useUpdateTicket = () => {
+  return useMutation<ApiResponse<Ticket>, Error, { id: number; ticketToUpdate: Partial<Ticket> }>({
+    mutationFn: async ({ id, ticketToUpdate }) => {
+      const { data } = await api.put<ApiResponse<Ticket>>(`/ticket/${id}`, ticketToUpdate);
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Ticket updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
+
+export const useDeleteTicket = () => {
+  return useMutation<ApiResponse<null>, Error, number>({
+    mutationFn: async (id: number) => {
+      const { data } = await api.delete<ApiResponse<null>>(`/ticket/${id}`);
+      return data;
+    },
+    onSuccess: () => {
+      notification.success({
+        message: "Ticket deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
   });
 };
