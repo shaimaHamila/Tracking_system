@@ -14,11 +14,13 @@ import {
   TicketStatusId,
   ticketStatusOptions,
   TicketStatusType,
+  TicketType,
 } from "../../../../types/Ticket";
 import { Project } from "../../../../types/Project";
 import TicketStatusTag from "../../../atoms/TicketStatusTag/TicketStatusTag";
 import TicketPriorityTag from "../../../atoms/TicketPriorityTag/TicketPriorityTag";
 import { Typography } from "antd";
+import TicketTypeTag from "../../../atoms/TicketTypeTag/TicketTypeTag";
 
 const { Text } = Typography;
 interface TicketsTableRow {
@@ -84,6 +86,7 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
       project: ticket?.project,
       createdBy: ticket?.createdBy, //!staff
       createdAt: ticket?.createdAt,
+      ticketType: ticket?.type,
       ticket: ticket,
     }));
     setTableContent(_tableContent);
@@ -116,13 +119,22 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
       title: "Title",
       dataIndex: "title",
       key: "title",
-      width: 140,
+      width: 120,
       render: (title) => (
-        <Text ellipsis={{ tooltip: title }} style={{ maxWidth: "140px" }}>
+        <Text ellipsis={{ tooltip: title }} style={{ maxWidth: "120px" }}>
           {title}
         </Text>
       ),
     },
+
+    {
+      title: "Type",
+      dataIndex: "ticketType",
+      key: "ticketType",
+      width: 90,
+      render: (ticketType: TicketType) => <TicketTypeTag type={ticketType} />,
+    },
+
     {
       title: "Status",
       dataIndex: "status",
