@@ -472,7 +472,10 @@ export const getAllTickets = async (req: Request, res: Response) => {
     const user = await getCurrentUser(userId);
 
     const whereClause: any = {
-      ...(title && { title: { contains: title, mode: "insensitive" } }),
+      ...(title &&
+        title !== "null" && {
+          title: { contains: title, mode: "insensitive" },
+        }),
       ...(projectId && { projectId: parseInt(projectId, 10) }),
       ...(statusId && { statusId: parseInt(statusId, 10) }),
       ...(priority && { priority }),

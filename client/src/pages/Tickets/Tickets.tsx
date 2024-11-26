@@ -3,12 +3,13 @@ import TicketsTable from "../../components/organisms/Tables/TicketsTable/Tickets
 
 import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
 import { Form, Modal, notification, Select, Tabs } from "antd";
-import { useCreateTicket, useDeleteTicket, useFetchTickets } from "../../features/ticket/TicketHooks";
+import { useCreateTicket, useDeleteTicket, useFetchTickets, useUpdateTicket } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 import { RoleName, RolesId } from "../../types/Role";
 import { ProjectType } from "../../types/Project";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
-import CreateTicketForm from "../../components/templates/forms/CreateTicketForm/CreateTicketForm";
+import CreateTicketForm from "../../components/templates/forms/ticket/CreateTicketForm/CreateTicketForm";
+import UpdateTicketForm from "../../components/templates/forms/ticket/UpdateTicketForm/UpdateTicketForm";
 
 const { Option } = Select;
 
@@ -28,9 +29,11 @@ const Tickets = () => {
 
   const [clickedTicket, setClickedTicket] = useState<Partial<Ticket> | null>(null);
   const [isCreateTicketDrawerOpen, setCreateTicketDrawerOpen] = useState(false);
-  const [isUpdateTicketDrawerOpen, setUpdateTicketDrawerOpen] = useState(false);
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
+  const [isUpdateTicketDrawerOpen, setUpdateTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
+
+  const updateTicketMutation = useUpdateTicket();
   const deleteTicketMutation = useDeleteTicket();
   const createTicketMutation = useCreateTicket();
   const { data, status, isError } = useFetchTickets({
@@ -66,6 +69,7 @@ const Tickets = () => {
     setCreateTicketDrawerOpen(false);
   };
   const handleUpdateTicket = (newTicket: Partial<Ticket>) => {
+    updateTicketMutation.mutate({ id: clickedTicket?.id!, ticketToUpdate: newTicket });
     setUpdateTicketDrawerOpen(false);
     setClickedTicket(null);
   };
@@ -108,7 +112,9 @@ const Tickets = () => {
       }}
       addBtnText={"Add new Ticket"}
       onSearchChange={(searchedTicketNumber: string) => {
-        setTicketTitle(searchedTicketNumber === "" ? null : searchedTicketNumber);
+        console.log("seee", searchedTicketNumber);
+
+        setTicketTitle(searchedTicketNumber === "" ? "null" : searchedTicketNumber);
       }}
       onTicketStatusFilterChange={(filtredStatusId) => {
         setStatusId(filtredStatusId);
@@ -150,7 +156,7 @@ const Tickets = () => {
         title={"Create Ticket"}
         content={<CreateTicketForm onCreateTicket={(ticket) => handleCreateTicket(ticket)} />}
       />
-      {/*
+
       <DrawerComponent
         isOpen={isUpdateTicketDrawerOpen}
         handleClose={() => {
@@ -158,10 +164,9 @@ const Tickets = () => {
           setClickedTicket(null);
         }}
         title={"Update Ticket"}
-        content={
-          <UpdateTicketForm ticketToUpdate={clickedTicket!} onUpdateTicket={(ticket) => handleUpdateTicket(ticket)} />
-        }
+        content={<UpdateTicketForm ticket={clickedTicket!} onUpdateTicket={(ticket) => handleUpdateTicket(ticket)} />}
       />
+      {/*
       <DrawerComponent
         isOpen={isViewTicketDrawerOpen}
         handleClose={() => setViewTicketDrawerOpen(false)}

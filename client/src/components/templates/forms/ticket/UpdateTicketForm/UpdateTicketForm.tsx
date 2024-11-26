@@ -1,33 +1,43 @@
-import React, { useState } from "react";
-import "./CreateTicketForm.scss";
+import React, { useEffect, useState } from "react";
+import "./UpdateTicketForm.scss";
 import { Button, Card, Form, Input, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { ProjectType } from "../../../../types/Project";
+import { SaveOutlined } from "@ant-design/icons";
+import { ProjectType } from "../../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
 
-import { Ticket, TicketType } from "../../../../types/Ticket";
-import { useFetchProjects } from "../../../../features/project/ProjectHooks";
-import { useFetchEquipments } from "../../../../features/equipment/EquipmentHooks";
+import { Ticket, TicketType } from "../../../../../types/Ticket";
+import { useFetchProjects } from "../../../../../features/project/ProjectHooks";
+import { useFetchEquipments } from "../../../../../features/equipment/EquipmentHooks";
 const { Option } = Select;
 
-interface CreateTicketFormProps {
-  onCreateTicket: (ticket: Partial<Ticket>) => void;
+interface UpdateTicketFormProps {
+  ticket: Partial<Ticket>; // The ticket to update
+  onUpdateTicket: (updatedTicket: Partial<Ticket>) => void; // Callback for ticket update
 }
 
-const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) => {
+const UpdateTicketForm: React.FC<UpdateTicketFormProps> = ({ ticket, onUpdateTicket }) => {
   const [ticketForm] = Form.useForm();
-  const [projectType, setProjectType] = useState<ProjectType | null>(null); // Track project type selection
+  const [projectType, setProjectType] = useState<ProjectType | null>(null);
   const { data: projects } = useFetchProjects({});
   const { data: equipments } = useFetchEquipments({});
+
+  // Pre-fill form with ticket data on load
+  useEffect(() => {
+    if (ticket) {
+      ticketForm.setFieldsValue(ticket);
+      const selectedProject = projects?.data?.find((project) => project.id === ticket.projectId);
+      if (selectedProject) {
+        setProjectType(selectedProject.projectType);
+      }
+    }
+  }, [ticket, projects, ticketForm]);
+
   const handleFormSubmit = (values: Partial<Ticket>) => {
-    onCreateTicket(values);
-    ticketForm.resetFields();
-    setProjectType(null);
+    onUpdateTicket({ ...ticket, ...values });
   };
 
   const handleProjectChange = (value: number) => {
     const selectedProject = projects?.data?.find((project) => project.id === value);
-    console.log(selectedProject);
     if (selectedProject) {
       setProjectType(selectedProject.projectType);
     }
@@ -37,6 +47,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
     <Form form={ticketForm} layout='vertical' autoComplete='off' className='ticket-form' onFinish={handleFormSubmit}>
       <div className='ticket-form'>
         <Card bordered={false}>
+          {/* Project Selection */}
           <Form.Item
             className='ticket-form--input'
             label='Select a project'
@@ -52,6 +63,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
             </Select>
           </Form.Item>
 
+          {/* Ticket Title */}
           <Form.Item
             className='ticket-form--input'
             label='Ticket Title'
@@ -64,9 +76,10 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
             <Input placeholder='Enter ticket title' />
           </Form.Item>
 
+          {/* Ticket Type */}
           <Form.Item
             className='ticket-form--input'
-            label='Select thye ticket type'
+            label='Select the ticket type'
             name='type'
             rules={[{ required: true, message: "Please select the ticket type" }]}
           >
@@ -79,6 +92,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
             </Select>
           </Form.Item>
 
+          {/* Description */}
           <Form.Item
             className='ticket-form--input'
             label='Description'
@@ -107,8 +121,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
 
           {/* Submit Button */}
           <div className='ticket-form--submit-btn'>
-            <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
-              Add a ticket
+            <Button loading={false} icon={<SaveOutlined />} size='middle' type='primary' htmlType='submit'>
+              Save Changes
             </Button>
           </div>
         </Card>
@@ -117,4 +131,4 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
   );
 };
 
-export default CreateTicketForm;
+export default UpdateTicketForm;

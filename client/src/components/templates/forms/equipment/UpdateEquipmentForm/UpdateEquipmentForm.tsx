@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { Condition, Equipment } from "../../../../types/Equipment";
+import { Condition, Equipment } from "../../../../../types/Equipment";
 import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Modal, Select } from "antd";
-import { useFetchEquipmentsBrands, useFetchEquipmentsCategories } from "../../../../features/equipment/EquipmentHooks";
+import {
+  useFetchEquipmentsBrands,
+  useFetchEquipmentsCategories,
+} from "../../../../../features/equipment/EquipmentHooks";
 import TextArea from "antd/es/input/TextArea";
 const { Option } = Select;
 
