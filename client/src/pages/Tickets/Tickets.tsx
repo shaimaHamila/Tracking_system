@@ -3,7 +3,7 @@ import TicketsTable from "../../components/organisms/Tables/TicketsTable/Tickets
 
 import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
 import { Form, Modal, notification, Select, Tabs } from "antd";
-import { useCreateTicket, useFetchTickets } from "../../features/ticket/TicketHooks";
+import { useCreateTicket, useDeleteTicket, useFetchTickets } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 import { RoleName, RolesId } from "../../types/Role";
 import { ProjectType } from "../../types/Project";
@@ -31,7 +31,7 @@ const Tickets = () => {
   const [isUpdateTicketDrawerOpen, setUpdateTicketDrawerOpen] = useState(false);
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
-
+  const deleteTicketMutation = useDeleteTicket();
   const createTicketMutation = useCreateTicket();
   const { data, status, isError } = useFetchTickets({
     pageSize,
@@ -91,7 +91,7 @@ const Tickets = () => {
         setUpdateTicketDrawerOpen(true);
       }}
       onDeleteTicket={(id: number) => {
-        // deleteTicketMutation.mutate(id);
+        deleteTicketMutation.mutate(id);
         console.log(id);
       }}
       onAssignTicket={(ticket: Ticket) => {
