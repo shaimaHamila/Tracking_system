@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./CreateProjectForm.scss";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { User } from "../../../../types/User";
 import { Project, ProjectType } from "../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
 import { useFetchUsers } from "../../../../features/user/UserHooks";
@@ -12,26 +11,26 @@ interface CreateProjectFormProps {
   onCreateProject: (project: Partial<Project>) => void;
 }
 
-const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) => {
-  const [userForm] = Form.useForm();
+const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) => {
+  const [projectForm] = Form.useForm();
   const [projectType, setProjectType] = useState<ProjectType | null>(null); // Track project type selection
   const { data: technicalManagers } = useFetchUsers({ roleId: 5 });
   const { data: clients } = useFetchUsers({ roleId: 4 });
   const { data: staff } = useFetchUsers({ roleId: 3 });
-  const handleFormSubmit = (values: Partial<User>) => {
+  const handleFormSubmit = (values: Partial<Project>) => {
     onCreateProject(values);
-    userForm.resetFields();
+    projectForm.resetFields();
     setProjectType(null);
   };
 
   return (
-    <Form form={userForm} layout='vertical' autoComplete='off' className='user-form' onFinish={handleFormSubmit}>
-      <div className='user-form'>
+    <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>
+      <div className='project-form'>
         <Card bordered={false}>
           {/* Project Name and Project Type */}
           <Flex gap={16} wrap>
             <Form.Item
-              className='user-form--input'
+              className='project-form--input'
               label='Project Name'
               name='name'
               rules={[{ required: true, message: "Please enter project name" }]}
@@ -40,7 +39,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
             </Form.Item>
 
             <Form.Item
-              className='user-form--input'
+              className='project-form--input'
               label='Project Type'
               name='projectType'
               rules={[{ required: true, message: "Select the project type" }]}
@@ -54,7 +53,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
 
           {/* Description */}
           <Form.Item
-            className='user-form--input'
+            className='project-form--input'
             label='Description'
             name='description'
             rules={[{ required: true, message: "Please enter a description" }]}
@@ -65,7 +64,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
           {/* Conditionally Rendered Fields */}
           {projectType === ProjectType.INTERNAL && (
             <Form.Item
-              className='user-form--input'
+              className='project-form--input'
               label='Technical Manager'
               name='technicalManagerId'
               rules={[{ required: true, message: "Please select a Technical Manager" }]}
@@ -84,7 +83,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
             <>
               <Flex gap={16} wrap>
                 <Form.Item
-                  className='user-form--input'
+                  className='project-form--input'
                   label='Client'
                   name='clientId'
                   rules={[{ required: true, message: "Please select a client" }]}
@@ -99,7 +98,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
                 </Form.Item>
 
                 <Form.Item
-                  className='user-form--input'
+                  className='project-form--input'
                   label='Project Managers'
                   name='managers'
                   rules={[{ required: true, message: "Please select a project manager" }]}
@@ -115,7 +114,7 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
               </Flex>
 
               <Form.Item
-                className='user-form--input'
+                className='project-form--input'
                 label='Team Members'
                 name='teamMembers'
                 rules={[{ required: true, message: "Please select team members" }]}
@@ -132,9 +131,9 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
           )}
 
           {/* Submit Button */}
-          <div className='user-form--submit-btn'>
+          <div className='project-form--submit-btn'>
             <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
-              Add user
+              Add project
             </Button>
           </div>
         </Card>
@@ -143,4 +142,4 @@ const CreateUserForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) =
   );
 };
 
-export default CreateUserForm;
+export default CreateProjectForm;

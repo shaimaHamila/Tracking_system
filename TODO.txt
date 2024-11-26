@@ -8,10 +8,13 @@
 ******** Challenges ******
 1- Redirect user to dashboard when he logged in
 2- Update cashing
-3- save current user in context
+
+
 **** Features ****
 
 - We can add the assignerd equipment duration to the user
 - Auou change the equipment condtion
 
 - Filter in tickets (by client, project, creator)
+
+- Specify the ticket creation 

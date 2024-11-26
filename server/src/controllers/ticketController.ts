@@ -51,20 +51,33 @@ export const createTicket =
     }
 
     try {
-      const { projectId, statusId, priority, ...ticketData } = req.body;
+      const { projectId, equipmentId, priority, ...ticketData } = req.body;
 
-      // Get the current user's ID from the decoded token
       const createdById = res.locals.decodedToken.id;
 
-      // Verify the current user exists and handle errors
       let user;
       try {
         user = await getCurrentUser(parseInt(createdById, 10));
       } catch (error: any) {
         return Responses.BadRequest(res, error.message);
       }
+      if (equipmentId) {
+        const equipmentExists = await prisma.equipment.findUnique({
+          where: { id: equipmentId },
+        });
 
-      // Verify if the provided projectId exists in the database
+        if (!equipmentExists) {
+          return Responses.BadRequest(
+            res,
+            "Invalid equipment ID: Equipment does not exist."
+          );
+        } else {
+          await prisma.equipment.update({
+            where: { id: equipmentId },
+            data: { condition: "DAMAGED" },
+          });
+        }
+      }
       const projectExists = await prisma.project.findUnique({
         where: { id: projectId },
         include: {
@@ -95,7 +108,7 @@ export const createTicket =
       if (
         (user.role.roleName == Role.ADMIN ||
           user.role.roleName == Role.STAFF) &&
-        projectExists.projectType == ProjectType.EXTERNAL
+        projectExists.projectType == ProjectType.INTERNAL
       ) {
         // Assign the technical manager to the ticket
         ticketData.assignedUsers = [
@@ -104,7 +117,7 @@ export const createTicket =
       } else if (
         (user.role.roleName == Role.ADMIN ||
           user.role.roleName == Role.CLIENT) &&
-        projectExists.projectType == ProjectType.INTERNAL
+        projectExists.projectType == ProjectType.EXTERNAL
       ) {
         // Assign the project managers to the ticket
         ticketData.assignedUsers = projectExists.managers.map((manager) => ({
@@ -120,6 +133,7 @@ export const createTicket =
         data: {
           ...ticketData,
           project: { connect: { id: projectId } },
+          equipment: equipmentId ? { connect: { id: equipmentId } } : null,
           status: { connect: { id: defaultStatusId } },
           priority: finalPriority,
           createdBy: {
@@ -478,6 +492,9 @@ export const getAllTickets = async (req: Request, res: Response) => {
     const [tickets, totalTickets] = await Promise.all([
       prisma.ticket.findMany({
         where: whereClause,
+        orderBy: {
+          createdAt: "desc",
+        },
         include: {
           status: true,
           project: {

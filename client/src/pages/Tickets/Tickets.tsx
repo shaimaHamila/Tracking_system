@@ -3,10 +3,12 @@ import TicketsTable from "../../components/organisms/Tables/TicketsTable/Tickets
 
 import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
 import { Form, Modal, notification, Select, Tabs } from "antd";
-import { useFetchTickets } from "../../features/ticket/TicketHooks";
+import { useCreateTicket, useFetchTickets } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 import { RoleName, RolesId } from "../../types/Role";
 import { ProjectType } from "../../types/Project";
+import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
+import CreateTicketForm from "../../components/templates/forms/CreateTicketForm/CreateTicketForm";
 
 const { Option } = Select;
 
@@ -30,6 +32,7 @@ const Tickets = () => {
   const [isViewTicketDrawerOpen, setViewTicketDrawerOpen] = useState(false);
   const [isAssignUserModalVisible, setIsAssignUserModalVisible] = useState(false);
 
+  const createTicketMutation = useCreateTicket();
   const { data, status, isError } = useFetchTickets({
     pageSize,
     page,
@@ -57,6 +60,9 @@ const Tickets = () => {
     }
   };
   const handleCreateTicket = (newTicket: Partial<Ticket>) => {
+    createTicketMutation.mutate(newTicket);
+    console.log(newTicket);
+
     setCreateTicketDrawerOpen(false);
   };
   const handleUpdateTicket = (newTicket: Partial<Ticket>) => {
@@ -138,12 +144,13 @@ const Tickets = () => {
         <Tabs defaultActiveKey='1' items={items} onChange={onChangeProjectType} />
       )}
       {(currentUserRoleId === RolesId.CLIENT || currentUserRoleId === RolesId.TECHNICAL_MANAGER) && ticketTable}
-      {/* <DrawerComponent
+      <DrawerComponent
         isOpen={isCreateTicketDrawerOpen}
         handleClose={() => setCreateTicketDrawerOpen(false)}
         title={"Create Ticket"}
         content={<CreateTicketForm onCreateTicket={(ticket) => handleCreateTicket(ticket)} />}
       />
+      {/*
       <DrawerComponent
         isOpen={isUpdateTicketDrawerOpen}
         handleClose={() => {

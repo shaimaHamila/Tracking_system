@@ -202,6 +202,9 @@ export const getAllEquipments = async (req: Request, res: Response) => {
     // Fetch equipment data with pagination and filtering
     const equipments = await prisma.equipment.findMany({
       where: filters,
+      orderBy: {
+        createdAt: "desc",
+      },
       skip,
       take,
       include: {

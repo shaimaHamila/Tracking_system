@@ -13,6 +13,7 @@ export const createTicketValidator = Joi.object({
   type: ticketType,
   priority: Joi.string().optional(),
   projectId: Joi.number().integer().required(),
+  equipmentId: Joi.number().integer().optional(),
 });
 
 export const updateTicketValidator = Joi.object({
