@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "./UpdateTicketForm.scss";
 import { Button, Card, Form, Input, Select } from "antd";
 import { SaveOutlined } from "@ant-design/icons";
@@ -6,63 +6,32 @@ import { ProjectType } from "../../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
 
 import { Ticket, TicketType } from "../../../../../types/Ticket";
-import { useFetchProjects } from "../../../../../features/project/ProjectHooks";
 import { useFetchEquipments } from "../../../../../features/equipment/EquipmentHooks";
 const { Option } = Select;
 
 interface UpdateTicketFormProps {
-  ticket: Partial<Ticket>; // The ticket to update
-  onUpdateTicket: (updatedTicket: Partial<Ticket>) => void; // Callback for ticket update
+  ticket: Partial<Ticket>;
+  onUpdateTicket: (updatedTicket: Partial<Ticket>) => void;
 }
 
 const UpdateTicketForm: React.FC<UpdateTicketFormProps> = ({ ticket, onUpdateTicket }) => {
   const [ticketForm] = Form.useForm();
-  const [projectType, setProjectType] = useState<ProjectType | null>(null);
-  const { data: projects } = useFetchProjects({});
   const { data: equipments } = useFetchEquipments({});
 
-  // Pre-fill form with ticket data on load
   useEffect(() => {
     if (ticket) {
       ticketForm.setFieldsValue(ticket);
-      const selectedProject = projects?.data?.find((project) => project.id === ticket.projectId);
-      if (selectedProject) {
-        setProjectType(selectedProject.projectType);
-      }
     }
-  }, [ticket, projects, ticketForm]);
+  }, [ticket, ticketForm]);
 
   const handleFormSubmit = (values: Partial<Ticket>) => {
-    onUpdateTicket({ ...ticket, ...values });
-  };
-
-  const handleProjectChange = (value: number) => {
-    const selectedProject = projects?.data?.find((project) => project.id === value);
-    if (selectedProject) {
-      setProjectType(selectedProject.projectType);
-    }
+    onUpdateTicket(values);
   };
 
   return (
     <Form form={ticketForm} layout='vertical' autoComplete='off' className='ticket-form' onFinish={handleFormSubmit}>
       <div className='ticket-form'>
         <Card bordered={false}>
-          {/* Project Selection */}
-          <Form.Item
-            className='ticket-form--input'
-            label='Select a project'
-            name='projectId'
-            rules={[{ required: true, message: "Please select a Project" }]}
-          >
-            <Select placeholder='Select a project' onChange={handleProjectChange}>
-              {projects?.data?.map((project) => (
-                <Option key={project?.id} value={project?.id}>
-                  {project?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           {/* Ticket Title */}
           <Form.Item
             className='ticket-form--input'
@@ -103,7 +72,7 @@ const UpdateTicketForm: React.FC<UpdateTicketFormProps> = ({ ticket, onUpdateTic
           </Form.Item>
 
           {/* Conditionally Rendered Fields */}
-          {projectType === ProjectType.INTERNAL && (
+          {ticket?.project?.projectType === ProjectType.INTERNAL && (
             <Form.Item
               className='ticket-form--input'
               label='If an equipment is damaged, please specify.'

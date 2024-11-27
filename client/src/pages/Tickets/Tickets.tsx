@@ -69,6 +69,9 @@ const Tickets = () => {
     setCreateTicketDrawerOpen(false);
   };
   const handleUpdateTicket = (newTicket: Partial<Ticket>) => {
+    console.log(newTicket);
+    console.log(clickedTicket);
+
     updateTicketMutation.mutate({ id: clickedTicket?.id!, ticketToUpdate: newTicket });
     setUpdateTicketDrawerOpen(false);
     setClickedTicket(null);
@@ -112,8 +115,6 @@ const Tickets = () => {
       }}
       addBtnText={"Add new Ticket"}
       onSearchChange={(searchedTicketNumber: string) => {
-        console.log("seee", searchedTicketNumber);
-
         setTicketTitle(searchedTicketNumber === "" ? "null" : searchedTicketNumber);
       }}
       onTicketStatusFilterChange={(filtredStatusId) => {

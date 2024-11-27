@@ -176,254 +176,106 @@ export const createTicket =
 //Update ticket
 export const updateTicket =
   (io: any) => async (req: Request, res: Response) => {
-    const { error } = updateTicketValidator.validate(req.body);
-    if (error) return Responses.ValidationBadRequest(res, error);
-
     const { id } = req.params;
     if (!id) return Responses.BadRequest(res, "Ticket ID is required.");
 
+    const { title, description, type, priority, statusId, assignedUsers } =
+      req.body;
+
     try {
-      const createdById = res.locals.decodedToken.id;
-      // Verify the current user exists and handle errors
-      let user;
-      try {
-        user = await getCurrentUser(parseInt(createdById, 10));
-      } catch (error: any) {
-        return Responses.BadRequest(res, error.message);
-      }
+      // Fetch the ticket
       const ticket = await prisma.ticket.findUnique({
-        where: { id: parseInt(id, 10) },
+        where: { id: parseInt(id) },
         include: {
-          project: {
-            select: {
-              id: true,
-              technicalManagerId: true,
-              managers: true,
-            },
-          },
           assignedUsers: {
-            select: {
-              userId: true,
-            },
-          },
-          createdBy: {
-            select: {
-              id: true,
-            },
+            select: { userId: true },
           },
         },
       });
 
       if (!ticket) return Responses.NotFound(res, "Ticket not found.");
 
-      // Delegate based on user role
-      if (user.id === ticket.createdById) {
-        return updateTicketByCreator(ticket.id, req, res);
-      }
-      //updateTicketByTechnicalManager
-      else if (user.id === ticket.project.technicalManagerId) {
-        return updateTicketByTechnicalManager(ticket.id, req, res);
-      }
-      //updateTicketByProjectManager
-      else if (
-        isProjectManager(user, ticket.project) ||
-        user.role.roleName === Role.ADMIN
-      ) {
-        return updateTicketByAdminOrProjectManager(
-          ticket.assignedUsers,
+      // Build update data dynamically
+      const updateData: any = {};
+      if (title) updateData.title = title;
+      if (description) updateData.description = description;
+      if (type) updateData.type = type;
+      if (priority) updateData.priority = priority;
+      if (statusId) updateData.status = { connect: { id: statusId } };
+
+      if (assignedUsers && Array.isArray(assignedUsers)) {
+        if (assignedUsers.length === 0) {
+          return Responses.BadRequest(
+            res,
+            "The ticket must be assigned to at least one user."
+          );
+        }
+
+        // Update assigned users
+        await updateTicketAssignedUsers(
           ticket.id,
-          req,
-          res
+          assignedUsers,
+          ticket.assignedUsers
         );
       }
 
-      //
-      else {
-        return Responses.Unauthorized(
-          res,
-          "You do not have permission to update this ticket."
-        );
-      }
+      // Apply updates to the ticket
+      const updatedTicket = await prisma.ticket.update({
+        where: { id: parseInt(id) },
+        data: updateData,
+        include: {
+          status: true,
+          assignedUsers: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return Responses.UpdateSuccess(res, updatedTicket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
     }
   };
 
-const updateTicketByCreator = async (
-  ticketId: number,
-  req: Request,
-  res: Response
-) => {
-  const { title, description, type, priority } = req.body;
-  const updatedTicket = await prisma.ticket.update({
-    where: { id: ticketId },
-    data: { title, description, type, priority },
-  });
-  return Responses.UpdateSuccess(res, updatedTicket);
-};
-
-const updateTicketByTechnicalManager = async (
-  ticketId: number,
-  req: Request,
-  res: Response
-) => {
-  const { statusId, priority } = req.body;
-
-  const updateData: any = {};
-  if (statusId) updateData.status = { connect: { id: statusId } };
-  if (priority) updateData.priority = priority;
-
-  if (!statusId && !priority) {
-    return Responses.BadRequest(
-      res,
-      "Project Technical Manager can update status or priority."
-    );
-  }
-
-  const updatedTicket = await prisma.ticket.update({
-    where: { id: ticketId },
-    data: updateData,
-    include: {
-      status: true,
-      assignedUsers: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-      },
-      createdBy: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-        },
-      },
-    },
-  });
-  return Responses.UpdateSuccess(res, updatedTicket);
-};
-
-const updateTicketByAdminOrProjectManager = async (
-  oldAssignedUsers: any,
-  ticketId: number,
-  req: Request,
-  res: Response
-) => {
-  const { assignedUsers, statusId, priority } = req.body;
-
-  const updateData: any = {};
-  if (statusId) updateData.status = { connect: { id: statusId } };
-  if (priority) updateData.priority = priority;
-
-  if (!Object.keys(updateData).length && !assignedUsers) {
-    return Responses.BadRequest(
-      res,
-      "Admin or Project manager can update status, priority, or assigned users."
-    );
-  }
-
-  if (assignedUsers && Array.isArray(assignedUsers)) {
-    if (assignedUsers.length === 0) {
-      return Responses.BadRequest(
-        res,
-        "The ticket must be assigned to at least one user."
-      );
-    }
-    // Validate assignedUsers Role
-    try {
-      await Promise.all(
-        assignedUsers.map((userId: number) =>
-          validateUserRole(userId, Role.STAFF)
-        )
-      );
-    } catch (validationError: any) {
-      return Responses.BadRequest(res, validationError.message);
-    }
-
-    // Update assigned users
-    await updateTicketAssignedUsers(ticketId, assignedUsers, oldAssignedUsers);
-  }
-
-  const updatedTicket = await prisma.ticket.update({
-    where: { id: ticketId },
-    data: updateData,
-    include: {
-      project: {
-        select: {
-          id: true,
-          name: true,
-
-          technicalManagerId: true,
-          managers: true,
-        },
-      },
-      status: true,
-      assignedUsers: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-      },
-      createdBy: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-        },
-      },
-    },
-  });
-  return Responses.UpdateSuccess(res, updatedTicket);
-};
-
-// Helper to validate and update assigned users
+// Helper to update assigned users
 const updateTicketAssignedUsers = async (
   ticketId: number,
   assignedUsers: number[],
   oldAssignedUsers: any
 ) => {
-  // Get existing assigned users
   const existingAssignedUsersIds = oldAssignedUsers.map(
     (user: any) => user.userId
   );
 
-  // Determine managers to delete
-  const assignedUsersToDelete = existingAssignedUsersIds.filter(
+  const usersToDelete = existingAssignedUsersIds.filter(
     (userId: number) => !assignedUsers.includes(userId)
   );
 
-  // Determine assigned users to add
-  const assignedUsersToAdd = assignedUsers.filter(
+  const usersToAdd = assignedUsers.filter(
     (userId: number) => !existingAssignedUsersIds.includes(userId)
   );
-  // Delete old assigned users
-  if (assignedUsersToDelete.length) {
+
+  if (usersToDelete.length) {
     await prisma.user_ticket.deleteMany({
       where: {
         ticketId,
-        userId: { in: assignedUsersToDelete },
+        userId: { in: usersToDelete },
       },
     });
   }
 
-  // Add new assigned users
-  if (assignedUsersToAdd.length) {
+  if (usersToAdd.length) {
     await prisma.user_ticket.createMany({
-      data: assignedUsersToAdd.map((userId: number) => ({
+      data: usersToAdd.map((userId: number) => ({
         ticketId,
         userId,
       })),
