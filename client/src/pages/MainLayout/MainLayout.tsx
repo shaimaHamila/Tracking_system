@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SideBar from "../../components/organisms/SideBar/SideBar";
 import { adminMenuItems, MenuItems } from "./MenuItems";
 import { Layout } from "antd";
@@ -6,12 +6,14 @@ import { Content } from "antd/es/layout/layout";
 import colors from "../../styles/colors/colors";
 import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "../../components/organisms/NavBar/NavBar";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(window.innerWidth <= 900 ? true : false);
   const [pageName, setPageName] = useState<string>("");
   const [pageIcon, setPageIcon] = useState<any>(<></>);
   const location = useLocation();
+  const context = useContext(CurrentUserContext);
   useEffect(() => {
     const getPageDetails = () => {
       const path = location.pathname;
@@ -42,7 +44,14 @@ const MainLayout = () => {
       />
 
       <Layout style={{ marginLeft: !collapsed ? "245px" : "60px" }}>
-        <NavBar logout={handleLogout} userName={`Me`} pageName={pageName} userImg='' pageIcon={pageIcon} />
+        <NavBar
+          logout={handleLogout}
+          firstName={context?.currentUserContext?.firstName}
+          userName={`Me`}
+          pageName={pageName}
+          userImg=''
+          pageIcon={pageIcon}
+        />
         <Content style={{ margin: "12px" }}>
           <div
             style={{

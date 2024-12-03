@@ -11,6 +11,7 @@ import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateTicketForm from "../../components/templates/forms/ticket/CreateTicketForm/CreateTicketForm";
 import UpdateTicketForm from "../../components/templates/forms/ticket/UpdateTicketForm/UpdateTicketForm";
 import AssignUserTicket from "../../components/molecules/Modals/AssignUserTicket/AssignUserTicket";
+import TicketDetails from "../../components/templates/TicketDetails/TicketDetails";
 
 const Tickets = () => {
   const context = useContext(CurrentUserContext);
@@ -113,11 +114,9 @@ const Tickets = () => {
         setPage(1);
       }}
       onPriorityChange={(ticketId: number, newPriority: TicketPriority) => {
-        console.log("Selected priority:", newPriority);
         updateTicketMutation.mutate({ id: ticketId!, ticketToUpdate: { priority: newPriority } });
       }}
       onStatusChange={(ticketId: number, newStatus: TicketStatusId) => {
-        console.log("Selected newStatus:", newStatus);
         updateTicketMutation.mutate({ id: ticketId!, ticketToUpdate: { statusId: newStatus } });
       }}
     />
@@ -156,14 +155,14 @@ const Tickets = () => {
         title={"Update Ticket"}
         content={<UpdateTicketForm ticket={clickedTicket!} onUpdateTicket={(ticket) => handleUpdateTicket(ticket)} />}
       />
-      {/*
+
       <DrawerComponent
         isOpen={isViewTicketDrawerOpen}
         handleClose={() => setViewTicketDrawerOpen(false)}
         title={"View Ticket"}
         content={<TicketDetails ticket={clickedTicket!} />}
       />
-      {/* Modal for assign a user */}
+
       <AssignUserTicket
         isAssignUserModalVisible={isAssignUserModalVisible}
         handleAssignUser={handleAssignUser}

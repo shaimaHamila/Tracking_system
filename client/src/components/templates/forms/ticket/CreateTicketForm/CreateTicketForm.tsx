@@ -66,7 +66,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
 
           <Form.Item
             className='ticket-form--input'
-            label='Select thye ticket type'
+            label='Select the ticket type'
             name='type'
             rules={[{ required: true, message: "Please select the ticket type" }]}
           >

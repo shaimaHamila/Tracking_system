@@ -65,29 +65,35 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
       {/* Project Details Based on Type */}
       {project.projectType === ProjectType.EXTERNAL && (
         <>
-          <Card title='Client Information' className='project-details-card'>
-            <Flex align-item='center' gap={40} wrap>
-              <div className='project-details-card-header'>
-                <Avatar size={64} icon={<UserOutlined />} />
-                <div className='project-details-header-info'>
-                  <Title level={4}>
-                    {project.client?.firstName} {project.client?.lastName}
-                  </Title>
-                  <Text strong>Email:</Text> <Text copyable>{project.client?.email}</Text>
+          {project.client && (
+            <Card title='Client Information' className='project-details-card'>
+              <Flex align-item='center' gap={40} wrap>
+                <div className='project-details-card-header'>
+                  <Avatar size={64} style={{ backgroundColor: "#f3eae2", color: "#755c42" }}>
+                    <Title style={{ marginBottom: 5 }} level={3}>
+                      {project.client?.firstName?.substring(0, 2).toUpperCase()}
+                    </Title>
+                  </Avatar>
+                  <div className='project-details-header-info'>
+                    <Title level={4}>
+                      {project.client?.firstName} {project.client?.lastName}
+                    </Title>
+                    <Text strong>Email:</Text> <Text copyable>{project.client?.email}</Text>
+                  </div>
                 </div>
-              </div>
 
-              <div className='project-details-card-info'>
-                <Flex vertical gap={16}>
-                  <Text strong>Phone:</Text> <Text>{project.client?.phone || "N/A"}</Text>
-                </Flex>
+                <div className='project-details-card-info'>
+                  <Flex vertical gap={16}>
+                    <Text strong>Phone:</Text> <Text>{project.client?.phone || "N/A"}</Text>
+                  </Flex>
 
-                <Flex vertical gap={16}>
-                  <Text strong>Joined:</Text> <Text> {formatDateWithoutTime(project?.createdAt)} </Text>
-                </Flex>
-              </div>
-            </Flex>
-          </Card>
+                  <Flex vertical gap={16}>
+                    <Text strong>Joined:</Text> <Text> {formatDateWithoutTime(project?.createdAt)} </Text>
+                  </Flex>
+                </div>
+              </Flex>
+            </Card>
+          )}
 
           <Card title='Project Managers'>
             <Table
@@ -98,16 +104,17 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
               scroll={{ x: "max-content" }}
             />
           </Card>
-
-          <Card title='Team Members'>
-            <Table
-              dataSource={project.teamMembers}
-              columns={userTableColumns}
-              rowKey='id'
-              pagination={{ pageSize: 5 }}
-              scroll={{ x: "max-content" }}
-            />
-          </Card>
+          {project.teamMembers && (
+            <Card title='Team Members'>
+              <Table
+                dataSource={project.teamMembers}
+                columns={userTableColumns}
+                rowKey='id'
+                pagination={{ pageSize: 5 }}
+                scroll={{ x: "max-content" }}
+              />
+            </Card>
+          )}
         </>
       )}
 
@@ -115,7 +122,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
         <Card title='Technical Manager Information' className='project-details-card'>
           <Flex align-item='center' gap={40} wrap>
             <div className='project-details-card-header'>
-              <Avatar size={64} icon={<UserOutlined />} />
+              <Avatar size={64} style={{ backgroundColor: "#f3eae2", color: "#755c42" }}>
+                <Title style={{ marginBottom: 5 }} level={3}>
+                  {project.technicalManager?.firstName?.substring(0, 2).toUpperCase()}
+                </Title>
+              </Avatar>
               <div className='project-details-header-info'>
                 <Title level={4}>
                   {project.technicalManager?.firstName} {project.technicalManager?.lastName}

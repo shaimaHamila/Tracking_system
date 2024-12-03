@@ -96,7 +96,11 @@ const UserDetails: React.FC<UserDetailsProps> = ({ user }) => {
       <Card title='General info' className='user-details-card'>
         <Flex align-item='center' gap={40} wrap>
           <div className='user-details-card-header'>
-            <Avatar size={64} icon={<UserOutlined />} />
+            <Avatar size={64} style={{ backgroundColor: "#f3eae2", color: "#755c42" }}>
+              <Title style={{ marginBottom: 5 }} level={3}>
+                {user?.firstName?.substring(0, 2).toUpperCase()}
+              </Title>
+            </Avatar>
             <div className='user-details-header-info'>
               <Title level={4}>
                 {user.firstName} {user.lastName}

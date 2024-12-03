@@ -144,15 +144,29 @@ export const createTicket =
           },
         },
         include: {
+          status: true,
+          equipment: true,
           project: {
             select: {
               id: true,
               name: true,
+              projectType: true,
+              managers: {
+                include: {
+                  manager: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
             },
           },
-          status: true,
           assignedUsers: {
-            include: {
+            select: {
               user: {
                 select: {
                   id: true,
@@ -163,11 +177,25 @@ export const createTicket =
               },
             },
           },
+          createdBy: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
         },
       });
+      const transformedCreatedTicket = {
+        ...ticket,
+        assignedUsers: ticket.assignedUsers.map(({ user }) => user), // Flatten user details
+        assignedUsersId: ticket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
+        managersId: ticket.project.managers.map(({ manager }) => manager.id), // Extract manager IDs
+      };
       // Emit the ticketCreated event to all users in the "tickets" room
-      io.to("tickets").emit("ticketCreated", ticket);
-      return Responses.CreateSuccess(res, ticket);
+      io.to("tickets").emit("ticketCreated", transformedCreatedTicket);
+      return Responses.CreateSuccess(res, transformedCreatedTicket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
     }
@@ -225,6 +253,26 @@ export const updateTicket =
         data: updateData,
         include: {
           status: true,
+          equipment: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+              projectType: true,
+              managers: {
+                include: {
+                  manager: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           assignedUsers: {
             select: {
               user: {
@@ -237,12 +285,23 @@ export const updateTicket =
               },
             },
           },
+          createdBy: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
         },
       });
       const transformedupdatedTicket = {
         ...updatedTicket,
         assignedUsers: updatedTicket.assignedUsers.map(({ user }) => user), // Flatten user details
         assignedUsersId: updatedTicket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
+        managersId: updatedTicket.project.managers.map(
+          ({ manager }) => manager.id
+        ), // Extract manager IDs
       };
       return Responses.UpdateSuccess(res, transformedupdatedTicket);
     } catch (error) {
@@ -357,6 +416,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
         },
         include: {
           status: true,
+          equipment: true,
           project: {
             select: {
               id: true,

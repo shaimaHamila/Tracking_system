@@ -1,20 +1,22 @@
 import { Header } from "antd/es/layout/layout";
 import "./NavBar.scss";
-import { Avatar, Dropdown, Flex, MenuProps } from "antd";
+import { Avatar, Dropdown, Flex, MenuProps, Typography } from "antd";
 import React from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import Notification from "../../molecules/Notification/Notification";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import colors from "../../../styles/colors/colors";
+const { Text } = Typography;
 interface NavBarProps {
   userImg?: string;
   userName: string;
+  firstName?: string;
   pageName: string;
   pageIcon?: React.ReactNode;
   logout: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ userImg, userName, pageName, pageIcon, logout }: NavBarProps) => {
+const NavBar: React.FC<NavBarProps> = ({ firstName, userName, pageName, pageIcon, logout }: NavBarProps) => {
   const menuItems: MenuProps["items"] = [
     {
       key: "profile",
@@ -45,12 +47,12 @@ const NavBar: React.FC<NavBarProps> = ({ userImg, userName, pageName, pageIcon, 
               <h3 className='header--user-name'>Me</h3>
               <RiArrowDropDownLine />
             </Flex>
-            <Avatar
-              icon={<FaUser />}
-              src={userImg}
-              size={34}
-              style={{ backgroundColor: "#f3eae2", color: "#755c42" }}
-            />
+
+            <Avatar size={38} style={{ backgroundColor: "#f3eae2", color: "#755c42" }}>
+              <Text strong style={{ display: "flex", justifyContent: "center" }}>
+                {firstName?.substring(0, 2).toUpperCase()}
+              </Text>
+            </Avatar>
           </div>
         </Dropdown>
       </div>
