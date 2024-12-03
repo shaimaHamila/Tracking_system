@@ -415,8 +415,13 @@ export const getProjectById = async (req: Request, res: Response) => {
     if (!project) {
       return Responses.NotFound(res, "Project not found");
     }
-
-    return Responses.FetchSucess(res, project);
+    // Transform nested relationships for a simpler response structure
+    const transformedProject = {
+      ...project,
+      teamMembers: project.teamMembers.map(({ teamMember }) => teamMember),
+      managers: project.managers.map(({ manager }) => manager),
+    };
+    return Responses.FetchSucess(res, transformedProject);
   } catch (error) {
     return Responses.InternalServerError(res, "Error fetching project by ID.");
   }

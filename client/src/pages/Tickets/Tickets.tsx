@@ -2,16 +2,15 @@ import { useContext, useState } from "react";
 import TicketsTable from "../../components/organisms/Tables/TicketsTable/TicketsTable";
 
 import { TicketPriority, Ticket, TicketStatusId } from "../../types/Ticket";
-import { Form, Modal, notification, Select, Tabs } from "antd";
+import { notification, Tabs } from "antd";
 import { useCreateTicket, useDeleteTicket, useFetchTickets, useUpdateTicket } from "../../features/ticket/TicketHooks";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
-import { RoleName, RolesId } from "../../types/Role";
+import { RolesId } from "../../types/Role";
 import { ProjectType } from "../../types/Project";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
 import CreateTicketForm from "../../components/templates/forms/ticket/CreateTicketForm/CreateTicketForm";
 import UpdateTicketForm from "../../components/templates/forms/ticket/UpdateTicketForm/UpdateTicketForm";
-
-const { Option } = Select;
+import AssignUserTicket from "../../components/molecules/Modals/AssignUserTicket/AssignUserTicket";
 
 const Tickets = () => {
   const context = useContext(CurrentUserContext);
@@ -25,7 +24,6 @@ const Tickets = () => {
   const [projectType, setProjectType] = useState<ProjectType | null>(
     currentUserRoleId === RolesId.ADMIN || currentUserRoleId === RolesId.STAFF ? ProjectType.EXTERNAL : null,
   );
-  const [form] = Form.useForm();
 
   const [clickedTicket, setClickedTicket] = useState<Partial<Ticket> | null>(null);
   const [isCreateTicketDrawerOpen, setCreateTicketDrawerOpen] = useState(false);
@@ -36,6 +34,7 @@ const Tickets = () => {
   const updateTicketMutation = useUpdateTicket();
   const deleteTicketMutation = useDeleteTicket();
   const createTicketMutation = useCreateTicket();
+
   const { data, status, isError } = useFetchTickets({
     pageSize,
     page,
@@ -50,17 +49,16 @@ const Tickets = () => {
       message: "Failed to fetch Tickets, please try again",
     });
   }
-  const handleAssignUser = () => {
-    const selectedUser = form.getFieldValue("userId");
 
-    if (selectedUser && clickedTicket) {
-      setIsAssignUserModalVisible(false);
-      setClickedTicket(null);
-    } else {
-      notification.error({
-        message: "Please select a user to assign",
-      });
-    }
+  const handleAssignUser = (assignedUsersId: number[]) => {
+    console.log("Assigning user to ticket:", assignedUsersId);
+    updateTicketMutation.mutate({ id: clickedTicket?.id!, ticketToUpdate: { assignedUsersId } });
+    setIsAssignUserModalVisible(false);
+    setClickedTicket(null);
+  };
+  const onAssignTicket = (ticket: Ticket) => {
+    setClickedTicket(ticket);
+    setIsAssignUserModalVisible(true);
   };
   const handleCreateTicket = (newTicket: Partial<Ticket>) => {
     createTicketMutation.mutate(newTicket);
@@ -69,9 +67,6 @@ const Tickets = () => {
     setCreateTicketDrawerOpen(false);
   };
   const handleUpdateTicket = (newTicket: Partial<Ticket>) => {
-    console.log(newTicket);
-    console.log(clickedTicket);
-
     updateTicketMutation.mutate({ id: clickedTicket?.id!, ticketToUpdate: newTicket });
     setUpdateTicketDrawerOpen(false);
     setClickedTicket(null);
@@ -101,10 +96,7 @@ const Tickets = () => {
         deleteTicketMutation.mutate(id);
         console.log(id);
       }}
-      onAssignTicket={(ticket: Ticket) => {
-        setClickedTicket(ticket);
-        setIsAssignUserModalVisible(true);
-      }}
+      onAssignTicket={(ticket) => onAssignTicket(ticket)}
       limitTicketsPerPage={pageSize}
       onPageChange={(newPage: number) => {
         setPage(newPage);
@@ -175,27 +167,15 @@ const Tickets = () => {
         content={<TicketDetails ticket={clickedTicket!} />}
       />
       {/* Modal for assign a user */}
-      {/* <Modal
-        title='Assign a user'
-        open={isAssignUserModalVisible}
-        onOk={handleAssignUser}
+      <AssignUserTicket
+        isAssignUserModalVisible={isAssignUserModalVisible}
+        handleAssignUser={handleAssignUser}
         onCancel={() => {
           setIsAssignUserModalVisible(false);
           setClickedTicket(null);
         }}
-      >
-        <Form form={form} layout='vertical'>
-          <Form.Item className='user-form--input' label='User' name='userId'>
-            <Select placeholder='Select a user' allowClear>
-              {[...(admin?.data || []), ...(staff?.data || []), ...(technicalManagers?.data || [])].map((user) => (
-                <Option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>  */}
+        ticket={clickedTicket!}
+      />
     </>
   );
 };

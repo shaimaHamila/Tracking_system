@@ -179,7 +179,7 @@ export const updateTicket =
     const { id } = req.params;
     if (!id) return Responses.BadRequest(res, "Ticket ID is required.");
 
-    const { title, description, type, priority, statusId, assignedUsers } =
+    const { title, description, type, priority, statusId, assignedUsersId } =
       req.body;
 
     try {
@@ -203,8 +203,8 @@ export const updateTicket =
       if (priority) updateData.priority = priority;
       if (statusId) updateData.status = { connect: { id: statusId } };
 
-      if (assignedUsers && Array.isArray(assignedUsers)) {
-        if (assignedUsers.length === 0) {
+      if (assignedUsersId && Array.isArray(assignedUsersId)) {
+        if (assignedUsersId.length === 0) {
           return Responses.BadRequest(
             res,
             "The ticket must be assigned to at least one user."
@@ -214,7 +214,7 @@ export const updateTicket =
         // Update assigned users
         await updateTicketAssignedUsers(
           ticket.id,
-          assignedUsers,
+          assignedUsersId,
           ticket.assignedUsers
         );
       }
@@ -226,7 +226,7 @@ export const updateTicket =
         include: {
           status: true,
           assignedUsers: {
-            include: {
+            select: {
               user: {
                 select: {
                   id: true,
@@ -239,8 +239,12 @@ export const updateTicket =
           },
         },
       });
-
-      return Responses.UpdateSuccess(res, updatedTicket);
+      const transformedupdatedTicket = {
+        ...updatedTicket,
+        assignedUsers: updatedTicket.assignedUsers.map(({ user }) => user), // Flatten user details
+        assignedUsersId: updatedTicket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
+      };
+      return Responses.UpdateSuccess(res, transformedupdatedTicket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
     }
@@ -249,7 +253,7 @@ export const updateTicket =
 // Helper to update assigned users
 const updateTicketAssignedUsers = async (
   ticketId: number,
-  assignedUsers: number[],
+  assignedUsersId: number[],
   oldAssignedUsers: any
 ) => {
   const existingAssignedUsersIds = oldAssignedUsers.map(
@@ -257,10 +261,10 @@ const updateTicketAssignedUsers = async (
   );
 
   const usersToDelete = existingAssignedUsersIds.filter(
-    (userId: number) => !assignedUsers.includes(userId)
+    (userId: number) => !assignedUsersId.includes(userId)
   );
 
-  const usersToAdd = assignedUsers.filter(
+  const usersToAdd = assignedUsersId.filter(
     (userId: number) => !existingAssignedUsersIds.includes(userId)
   );
 
@@ -289,6 +293,7 @@ const updateTicketAssignedUsers = async (
 // with pagination
 //who can see all the tickets?
 // If Admin : can see all tickets
+// If PM : can see all tickets of his projects
 // If TM can : see all external project tickets
 // If staff or created by him : can see all tickets assigned to him
 // If client : can see all tickets of his projects
@@ -420,7 +425,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
 };
 
 // Helper function to apply role-based filtering
-const applyRoleBasedFilter = (
+const applyRoleBasedFilter = async (
   userId: number,
   userRole: RoleType,
   whereClause: any
@@ -442,7 +447,19 @@ const applyRoleBasedFilter = (
         { createdById: userId },
         { assignedUsers: { some: { userId: userId } } },
       ];
+
+      // Check if the user is a manager of any project
+      const managedProjectIds = await prisma.project_manager.findMany({
+        where: { managerId: userId },
+        select: { projectId: true },
+      });
+
+      if (managedProjectIds.length > 0) {
+        const projectIds = managedProjectIds.map((p) => p.projectId);
+        whereClause.OR.push({ projectId: { in: projectIds } });
+      }
       break;
+
     case Role.CLIENT:
       // Client can see tickets related to their projects
       whereClause.project = { ...whereClause.project, clientId: userId };

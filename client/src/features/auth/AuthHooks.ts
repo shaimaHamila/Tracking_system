@@ -34,7 +34,7 @@ export const useLogin = () => {
     onError: (error: any) => {
       notification.error({
         message: "Login Failed",
-        description: error.response?.data?.message || "Invalid email or password",
+        description: error.response?.data?.message || "Error",
       });
     },
   });
