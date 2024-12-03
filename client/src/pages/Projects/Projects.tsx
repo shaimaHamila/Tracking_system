@@ -9,8 +9,8 @@ import {
 import { Project, ProjectType } from "../../types/Project";
 import { notification } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
-import CreateProjectForm from "../../components/templates/forms/CreateProjectForm/CreateProjectForm";
-import UpdateProjectForm from "../../components/templates/forms/UpdateProjectForm/UpdateProjectForm";
+import CreateProjectForm from "../../components/templates/forms/project/CreateProjectForm/CreateProjectForm";
+import UpdateProjectForm from "../../components/templates/forms/project/UpdateProjectForm/UpdateProjectForm";
 import ProjectDetails from "../../components/templates/ProjectDetails/ProjectDetails";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 

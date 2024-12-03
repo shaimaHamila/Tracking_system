@@ -24,6 +24,20 @@ export const useFetchProjects = ({ pageSize, page, projectType, projectName }: F
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useFetchProjectById = (id: number | undefined) => {
+  return useQuery<ApiResponse<Project>>({
+    queryKey: ["project/fetchProjectById", id], // Include `id` in the key to make it unique
+    queryFn: async () => {
+      if (!id) throw new Error("Project ID is required");
+      const { data } = await api.get<ApiResponse<Project>>("/project", { params: { id } });
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: !!id, // Only enable the query if `id` is defined
+  });
+};
+
 export const useCreateProject = () => {
   return useMutation<ApiResponse<Partial<Project>>, Error, Partial<Project>>({
     mutationFn: async (newProject: Partial<Project>) => {

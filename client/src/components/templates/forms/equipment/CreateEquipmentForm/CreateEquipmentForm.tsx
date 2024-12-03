@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-import { Equipment } from "../../../../types/Equipment";
+import { Equipment } from "../../../../../types/Equipment";
 import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Modal, Select } from "antd";
 import {
   useCreateEquipmentBrand,
   useCreateEquipmentCategory,
   useFetchEquipmentsBrands,
   useFetchEquipmentsCategories,
-} from "../../../../features/equipment/EquipmentHooks";
+} from "../../../../../features/equipment/EquipmentHooks";
 import TextArea from "antd/es/input/TextArea";
 import "./CreateEquipmentForm.scss";
-import colors from "../../../../styles/colors/colors";
+import colors from "../../../../../styles/colors/colors";
 const { Option } = Select;
 
 interface CreateEquipmentFormProps {

@@ -1,33 +1,40 @@
-import React, { useState } from "react";
-import "./CreateProjectForm.scss";
+import React, { useEffect } from "react";
+import "./UpdateProjectForm.scss";
 import { Button, Card, Flex, Form, Input, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { Project, ProjectType } from "../../../../types/Project";
+import { Project } from "../../../../../types/Project";
 import TextArea from "antd/es/input/TextArea";
-import { useFetchUsers } from "../../../../features/user/UserHooks";
+import { useFetchUsers } from "../../../../../features/user/UserHooks";
 const { Option } = Select;
 
-interface CreateProjectFormProps {
-  onCreateProject: (project: Partial<Project>) => void;
+interface UpdateProjectFormProps {
+  onUpdateProject: (project: Partial<Project>) => void;
+  projectToUpdate: Partial<Project>;
 }
 
-const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }) => {
+const UpdateProjectForm: React.FC<UpdateProjectFormProps> = ({ onUpdateProject, projectToUpdate }) => {
   const [projectForm] = Form.useForm();
-  const [projectType, setProjectType] = useState<ProjectType | null>(null); // Track project type selection
   const { data: technicalManagers } = useFetchUsers({ roleId: 5 });
   const { data: clients } = useFetchUsers({ roleId: 4 });
   const { data: staff } = useFetchUsers({ roleId: 3 });
+  useEffect(() => {
+    // Ensure the correct format for managers and teamMembers (array of IDs)
+    const updatedProject = {
+      ...projectToUpdate,
+      managers: projectToUpdate.managers?.map((manager) => manager.id) || [],
+      teamMembers: projectToUpdate.teamMembers?.map((member) => member.id) || [],
+    };
+
+    projectForm.setFieldsValue(updatedProject);
+  }, [projectToUpdate, projectForm]);
+
   const handleFormSubmit = (values: Partial<Project>) => {
-    onCreateProject(values);
-    projectForm.resetFields();
-    setProjectType(null);
+    onUpdateProject(values);
   };
 
   return (
     <Form form={projectForm} layout='vertical' autoComplete='off' className='project-form' onFinish={handleFormSubmit}>
       <div className='project-form'>
         <Card bordered={false}>
-          {/* Project Name and Project Type */}
           <Flex gap={16} wrap>
             <Form.Item
               className='project-form--input'
@@ -37,21 +44,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }
             >
               <Input placeholder='Enter project name' />
             </Form.Item>
-
-            <Form.Item
-              className='project-form--input'
-              label='Project Type'
-              name='projectType'
-              rules={[{ required: true, message: "Select the project type" }]}
-            >
-              <Select placeholder='Select Project Type' onChange={(value) => setProjectType(value as ProjectType)}>
-                <Option value={ProjectType.EXTERNAL}>External</Option>
-                <Option value={ProjectType.INTERNAL}>Internal</Option>
-              </Select>
-            </Form.Item>
           </Flex>
-
-          {/* Description */}
           <Form.Item
             className='project-form--input'
             label='Description'
@@ -61,8 +54,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }
             <TextArea rows={4} />
           </Form.Item>
 
-          {/* Conditionally Rendered Fields */}
-          {projectType === ProjectType.INTERNAL && (
+          {projectToUpdate.projectType === "INTERNAL" && (
             <Form.Item
               className='project-form--input'
               label='Technical Manager'
@@ -79,7 +71,7 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }
             </Form.Item>
           )}
 
-          {projectType === ProjectType.EXTERNAL && (
+          {projectToUpdate.projectType === "EXTERNAL" && (
             <>
               <Flex gap={16} wrap>
                 <Form.Item
@@ -130,10 +122,9 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }
             </>
           )}
 
-          {/* Submit Button */}
           <div className='project-form--submit-btn'>
-            <Button loading={false} icon={<PlusOutlined />} size='middle' type='primary' htmlType='submit'>
-              Add project
+            <Button loading={false} size='middle' type='primary' htmlType='submit'>
+              Update Project
             </Button>
           </div>
         </Card>
@@ -142,4 +133,4 @@ const CreateProjectForm: React.FC<CreateProjectFormProps> = ({ onCreateProject }
   );
 };
 
-export default CreateProjectForm;
+export default UpdateProjectForm;

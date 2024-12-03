@@ -1,0 +1,15 @@
+.ticket-form {
+  margin-top: 0.5rem;
+  &--input {
+    // width: 100%;
+    min-width: 200px;
+    flex: 1;
+  }
+  &--submit-btn {
+    text-align: end;
+    width: 100%;
+    .ant-btn-variant-solid {
+      background: var(--secondary-500) !important;
+    }
+  }
+}

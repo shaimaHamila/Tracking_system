@@ -5,8 +5,8 @@ import { User } from "../../types/User";
 import { useCreateUser, useDeleteUser, useFetchUsers, useUpdateUser } from "../../features/user/UserHooks";
 import { RoleId, RolesId } from "../../types/Role";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
-import CreateUserForm from "../../components/templates/forms/CreateUserForm/CreateUserForm";
-import UpdateUserForm from "../../components/templates/forms/UpdateUserForm/UpdateUserForm";
+import CreateUserForm from "../../components/templates/forms/user/CreateUserForm/CreateUserForm";
+import UpdateUserForm from "../../components/templates/forms/user/UpdateUserForm/UpdateUserForm";
 import UserDetails from "../../components/templates/UserDetails/UserDetails";
 
 const Users: React.FC = () => {

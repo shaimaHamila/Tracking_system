@@ -10,9 +10,9 @@ import {
 import { Condition, Equipment } from "../../types/Equipment";
 import { Form, Modal, notification, Select } from "antd";
 import DrawerComponent from "../../components/molecules/Drawer/DrawerComponent";
-import { CreateEquipmentForm } from "../../components/templates/forms/CreateEquipmentForm/CreateEquipmentForm";
+import { CreateEquipmentForm } from "../../components/templates/forms/equipment/CreateEquipmentForm/CreateEquipmentForm";
 import { useFetchUsers } from "../../features/user/UserHooks";
-import { UpdateEquipmentForm } from "../../components/templates/forms/UpdateEquipmentForm/UpdateEquipmentForm";
+import { UpdateEquipmentForm } from "../../components/templates/forms/equipment/UpdateEquipmentForm/UpdateEquipmentForm";
 import EquipmentDetails from "../../components/templates/EquipmentDetails/EquipmentDetails";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
 const { Option } = Select;
