@@ -21,3 +21,14 @@ export const formatDateWithoutTime = (date: string | undefined) => {
   });
   return formattedDate;
 };
+export const formatDateWithoutYear = (date: string | undefined) => {
+  if (!date) return "-"; // Return "-" if date is undefined or null
+
+  const formattedDate = new Date(date).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  });
+  return formattedDate;
+};
