@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Button, Dropdown, Menu, Pagination, Popconfirm, Select, Space, Table, Tooltip } from "antd";
+import { Button, Dropdown, Pagination, Popconfirm, Select, Space, Table, Tooltip } from "antd";
 import type { MenuProps, TableProps } from "antd";
 import TableHeader from "../../Headers/TableHeader/TableHeader";
 import { HiOutlineEye, HiOutlinePencilAlt, HiOutlineTrash, HiOutlineUserAdd } from "react-icons/hi";
@@ -7,7 +7,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { User } from "../../../../types/User";
 import "./TicketsTable.scss";
 import { RoleName } from "../../../../types/Role";
-import { formatDate } from "../../../../helpers/date";
+import { formatDateWithoutYear } from "../../../../helpers/date";
 import {
   Ticket,
   TicketPriority,
@@ -50,8 +50,8 @@ interface EquipentsTableProps {
   onSearchChange: (searchedName: string) => void;
   onTicketStatusFilterChange: (statusId: TicketStatusId | null) => void;
   onTicketPrioritiFilterChange: (priority: TicketPriority | null) => void;
-  onPriorityChange: (priority: TicketPriority) => void;
-  onStatusChange: (status: TicketStatusId) => void;
+  onPriorityChange: (ticketId: number, priority: TicketPriority) => void;
+  onStatusChange: (ticketId: number, status: TicketStatusId) => void;
 }
 
 const TicketsTable: React.FC<EquipentsTableProps> = ({
@@ -155,7 +155,7 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
             <Select
               style={{ width: "100%" }}
               value={status.id}
-              onChange={(newStatus: TicketStatusId) => onStatusChange(newStatus)}
+              onChange={(newStatus: TicketStatusId) => onStatusChange(record?.ticket?.id, newStatus)}
             >
               {ticketStatusOptions.map((statusOption) => (
                 <Select.Option key={statusOption.id} value={statusOption.id}>
@@ -221,7 +221,7 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
                   <Select
                     style={{ width: "100%" }}
                     value={priority}
-                    onChange={(newPriority: TicketPriority) => onPriorityChange(newPriority)}
+                    onChange={(newPriority: TicketPriority) => onPriorityChange(record?.ticket?.id, newPriority)}
                   >
                     {Object.values(TicketPriority).map((prio) => (
                       <Select.Option
@@ -260,8 +260,8 @@ const TicketsTable: React.FC<EquipentsTableProps> = ({
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 180,
-      render: (createdAt) => <>{formatDate(createdAt)}</>,
+      width: 140,
+      render: (createdAt) => <>{formatDateWithoutYear(createdAt)}</>,
     },
 
     {

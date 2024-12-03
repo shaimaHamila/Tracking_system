@@ -4,7 +4,7 @@ import colors from "../../../styles/colors/colors";
 import "./NotificationItems.scss";
 import Title from "antd/es/typography/Title";
 import { MdOutlineDoneAll } from "react-icons/md";
-import { FaUser } from "react-icons/fa";
+
 import { formatDate } from "../../../helpers/date";
 interface UserItem {
   id: number;
@@ -70,12 +70,11 @@ const NotificationItems: React.FC<NotificationItemsProps> = ({
             >
               <List.Item.Meta
                 avatar={
-                  <Avatar
-                    icon={<FaUser />}
-                    size={34}
-                    src={item.picture}
-                    style={{ backgroundColor: "#f3eae2", color: "#755c42" }}
-                  />
+                  <Avatar size={38} style={{ backgroundColor: "#f3eae2", color: "#755c42" }}>
+                    <Text strong style={{ display: "flex", justifyContent: "center" }}>
+                      {item?.firstName?.substring(0, 2).toUpperCase()}
+                    </Text>
+                  </Avatar>
                 }
                 title={<span>{`${item.firstName} ${item.secondName} ${item.message}`}</span>}
                 description={

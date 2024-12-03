@@ -1,3 +1,4 @@
+import { Equipment } from "./Equipment";
 import { Project } from "./Project";
 import { User } from "./User";
 
@@ -15,6 +16,8 @@ export type Ticket = {
   deletedAt: string;
   status: TicketStatusType;
   project: Project;
+  equipment: Partial<Equipment>;
+  equipmentId: number;
   assignedUsers: User[];
   assignedUsersId: number[];
   managersId: number[];
