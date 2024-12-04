@@ -11,6 +11,7 @@ import ProjectTypeTag from "../../atoms/ProjectTypeTag/ProjectTypeTag";
 import colors from "../../../styles/colors/colors";
 import CommentSection from "../CommentSection/CommentSection";
 import { CommentType } from "../../../types/Comment";
+import { useAddComment, useDeleteComment, useFetchTicketComments } from "../../../features/comment/CommentHooks";
 
 const { Title, Text } = Typography;
 
@@ -19,40 +20,18 @@ interface TicketDetailsProps {
 }
 
 const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket }) => {
-  const fakeComments: Partial<CommentType>[] = [
-    {
-      id: 1,
-      text: "This is a great feature!",
-      createdAt: new Date().toISOString(),
-      createdby: { id: 1, firstName: "John", lastName: "Doe" },
-    },
-    {
-      id: 2,
-      text: "I think this needs some improvement.",
-      createdAt: new Date().toISOString(),
-      createdby: { id: 2, firstName: "Jane", lastName: "Smith" },
-    },
-    {
-      id: 3,
-      text: "Me too I think this needs some improvement.",
-      createdAt: new Date().toISOString(),
-      createdby: { id: 1, firstName: "Jane", lastName: "Smith" },
-    },
-  ];
+  const addCommentMutation = useAddComment();
+  const deleteCommentMutation = useDeleteComment();
+  const { data: comments, isPending } = useFetchTicketComments({ ticketId: ticket?.id! });
 
-  const [comments, setComments] = useState<Partial<CommentType>[]>(fakeComments);
   const handleAddComment = (comment: Partial<CommentType>) => {
-    const newComment = {
-      ...comment,
-      id: comments.length + 1,
-      createdAt: new Date().toISOString(),
-      createdby: { firstName: "You", lastName: "" },
-    };
-    setComments([...comments, newComment]);
+    addCommentMutation.mutate({ newComment: comment, ticketId: ticket?.id! });
   };
 
   const handleDeleteComment = (id: number) => {
-    setComments(comments.filter((comment) => comment.id !== id));
+    console.log("Deleting comment with id: ", id);
+
+    deleteCommentMutation.mutate({ commentId: id });
   };
 
   if (!ticket) {
@@ -153,7 +132,12 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket }) => {
 
       {/* Comment section  */}
       <Card title='Comments'>
-        <CommentSection comments={comments} onAddComment={handleAddComment} onDeleteComment={handleDeleteComment} />
+        <CommentSection
+          isLoading={isPending}
+          comments={comments?.data || []}
+          onAddComment={handleAddComment}
+          onDeleteComment={handleDeleteComment}
+        />
       </Card>
     </div>
   );

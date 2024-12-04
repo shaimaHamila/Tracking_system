@@ -27,7 +27,7 @@ const CommentRouter = (io: any) => {
     getCommentsByTicket
   );
   router.delete(
-    "/update/:commentId",
+    "/:commentId",
     authentication,
     allRoleAuthorization,
     deleteComment(io)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Input, Button, List, Avatar, Typography, Popconfirm } from "antd";
 import { SendOutlined, DeleteOutlined } from "@ant-design/icons";
 const { Text } = Typography;
@@ -6,26 +6,25 @@ const { TextArea } = Input;
 import "./CommentSection.scss";
 import { CommentType } from "../../../types/Comment";
 import { formatDate } from "../../../helpers/date";
+import { CurrentUserContext } from "../../../context/CurrentUserContext";
 
 interface CommentSectionProps {
   onDeleteComment: (id: number) => void;
   onAddComment: (comment: Partial<CommentType>) => void;
   comments: Partial<CommentType>[];
+  isLoading?: boolean;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ comments, onAddComment, onDeleteComment }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ comments, isLoading, onAddComment, onDeleteComment }) => {
   // State for storing comments
   const [newComment, setNewComment] = useState<string>("");
-  const currentUserId = 1;
+  const context = useContext(CurrentUserContext);
+  const currentUserId = context?.currentUserContext?.id;
   // Function to handle adding a comment
   const addComment = () => {
     if (newComment.trim() === "") return;
     onAddComment({ text: newComment });
     setNewComment("");
-  };
-
-  const deleteComment = (id: number) => {
-    onDeleteComment(id);
   };
 
   return (
@@ -55,6 +54,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onAddComment,
       <List
         itemLayout='horizontal'
         dataSource={comments}
+        loading={isLoading}
         renderItem={(comment) => (
           <List.Item
             actions={
@@ -62,7 +62,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ comments, onAddComment,
                 ? [
                     <Popconfirm
                       title='Are you sure you want to delete this comment?'
-                      onConfirm={() => comment?.id && deleteComment(comment.id)}
+                      onConfirm={() => comment?.id && onDeleteComment(comment.id)}
                       okText='Yes'
                       cancelText='No'
                     >
