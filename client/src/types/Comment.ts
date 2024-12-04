@@ -1,14 +1,14 @@
 import { RoleId } from "./Role";
 import { User } from "./User";
 
-export type Comment = {
+export type CommentType = {
   id: number;
   text: string;
   atachedFiles?: string[];
   ticketId: number;
   createdByUserId: RoleId;
-  reatedAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
-  createdby: User;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  createdby: Partial<User>;
 };

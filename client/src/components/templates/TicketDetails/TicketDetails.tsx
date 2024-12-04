@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./TicketDetails.scss";
 import { Card, Typography, Table, TableProps, Alert, Flex } from "antd";
 import { User } from "../../../types/User";
@@ -9,6 +9,8 @@ import TicketStatusTag from "../../atoms/TicketStatusTag/TicketStatusTag";
 import TicketTypeTag from "../../atoms/TicketTypeTag/TicketTypeTag";
 import ProjectTypeTag from "../../atoms/ProjectTypeTag/ProjectTypeTag";
 import colors from "../../../styles/colors/colors";
+import CommentSection from "../CommentSection/CommentSection";
+import { CommentType } from "../../../types/Comment";
 
 const { Title, Text } = Typography;
 
@@ -17,6 +19,42 @@ interface TicketDetailsProps {
 }
 
 const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket }) => {
+  const fakeComments: Partial<CommentType>[] = [
+    {
+      id: 1,
+      text: "This is a great feature!",
+      createdAt: new Date().toISOString(),
+      createdby: { id: 1, firstName: "John", lastName: "Doe" },
+    },
+    {
+      id: 2,
+      text: "I think this needs some improvement.",
+      createdAt: new Date().toISOString(),
+      createdby: { id: 2, firstName: "Jane", lastName: "Smith" },
+    },
+    {
+      id: 3,
+      text: "Me too I think this needs some improvement.",
+      createdAt: new Date().toISOString(),
+      createdby: { id: 1, firstName: "Jane", lastName: "Smith" },
+    },
+  ];
+
+  const [comments, setComments] = useState<Partial<CommentType>[]>(fakeComments);
+  const handleAddComment = (comment: Partial<CommentType>) => {
+    const newComment = {
+      ...comment,
+      id: comments.length + 1,
+      createdAt: new Date().toISOString(),
+      createdby: { firstName: "You", lastName: "" },
+    };
+    setComments([...comments, newComment]);
+  };
+
+  const handleDeleteComment = (id: number) => {
+    setComments(comments.filter((comment) => comment.id !== id));
+  };
+
   if (!ticket) {
     return (
       <Card className='ticket-details-card'>
@@ -114,7 +152,9 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket }) => {
       </Card>
 
       {/* Comment section  */}
-      <Card title='Comments'></Card>
+      <Card title='Comments'>
+        <CommentSection comments={comments} onAddComment={handleAddComment} onDeleteComment={handleDeleteComment} />
+      </Card>
     </div>
   );
 };

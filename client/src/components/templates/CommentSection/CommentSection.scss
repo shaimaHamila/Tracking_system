@@ -1,0 +1,21 @@
+.comment-input {
+  background: #f2f2f2 !important;
+  border: none !important;
+  padding: 10px !important;
+}
+.comment-btn {
+  text-align: right;
+  margin-top: 0.75rem;
+}
+.comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 1rem;
+  color: var(--gray-800);
+}
+.comment-time {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
