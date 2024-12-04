@@ -13,15 +13,20 @@ import {
 const CommentRouter = (io: any) => {
   const router = express.Router();
 
-  router.post("/", authentication, allRoleAuthorization, addComment(io));
-  router.put("/", authentication, allRoleAuthorization, updateComment(io));
+  router.post("/add/", authentication, allRoleAuthorization, addComment(io));
+  router.put(
+    "/ticket/",
+    authentication,
+    allRoleAuthorization,
+    updateComment(io)
+  );
   router.get(
-    "/:ticketId",
+    "/ticket/:ticketId",
     authentication,
     allRoleAuthorization,
     getCommentsByTicket
   );
-  router.put(
+  router.delete(
     "/:commentId",
     authentication,
     allRoleAuthorization,
