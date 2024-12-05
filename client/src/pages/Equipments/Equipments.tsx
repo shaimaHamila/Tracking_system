@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import EquipmentsTable from "../../components/organisms/Tables/EquipentsTable/EquipentsTable";
 import {
   useAssignEquipment,
@@ -52,6 +52,12 @@ const Equipments = () => {
   }
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    if (clickedEquipment) {
+      form.setFieldsValue({ userId: clickedEquipment?.assignedToId });
+    }
+  }, [clickedEquipment, form]);
+
   const handleAssignUser = () => {
     const selectedUser = form.getFieldValue("userId");
 
@@ -63,6 +69,7 @@ const Equipments = () => {
 
       setIsAssignUserModalVisible(false);
       setClickedEquipment(null);
+      form.setFieldValue("userId", undefined);
     } else {
       notification.error({
         message: "Please select a user to assign",
@@ -155,8 +162,14 @@ const Equipments = () => {
           setIsAssignUserModalVisible(false);
           setClickedEquipment(null);
         }}
+        key={clickedEquipment?.id || "modal"}
       >
-        <Form form={form} layout='vertical'>
+        <Form
+          form={form}
+          layout='vertical'
+          initialValues={{ userId: clickedEquipment?.assignedToId }}
+          onValuesChange={() => {}}
+        >
           <Form.Item className='user-form--input' label='User' name='userId'>
             <Select placeholder='Select a user' allowClear>
               {/* Combine all user roles into a single array */}

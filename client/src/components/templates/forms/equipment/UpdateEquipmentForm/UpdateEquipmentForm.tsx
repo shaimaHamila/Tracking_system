@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { Condition, Equipment } from "../../../../../types/Equipment";
-import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Modal, Select } from "antd";
+import { Button, Card, DatePicker, Flex, Form, Input, InputNumber, Select } from "antd";
 import {
   useFetchEquipmentsBrands,
   useFetchEquipmentsCategories,
@@ -23,10 +23,10 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
   useEffect(() => {
     const updatedEquipmen = {
       ...equipmentToUpdate,
-      purchaseDate: equipmentToUpdate.purchaseDate ? dayjs(equipmentToUpdate.purchaseDate) : null,
-      warrantyEndDate: equipmentToUpdate.warrantyEndDate ? dayjs(equipmentToUpdate.warrantyEndDate) : null,
-      brandId: equipmentToUpdate.brand?.id,
-      categoryId: equipmentToUpdate.category?.id,
+      purchaseDate: equipmentToUpdate?.purchaseDate ? dayjs(equipmentToUpdate?.purchaseDate) : null,
+      warrantyEndDate: equipmentToUpdate?.warrantyEndDate ? dayjs(equipmentToUpdate?.warrantyEndDate) : null,
+      brandId: equipmentToUpdate?.brand?.id,
+      categoryId: equipmentToUpdate?.category?.id,
     };
     equipmentForm.setFieldsValue(updatedEquipmen);
   }, [equipmentToUpdate, equipmentForm]);
@@ -38,6 +38,7 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
 
   return (
     <Form
+      name='Update equipment'
       form={equipmentForm}
       layout='vertical'
       autoComplete='off'
@@ -64,7 +65,7 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
             >
               <DatePicker
                 style={{ width: "100%" }}
-                value={equipmentToUpdate.purchaseDate ? dayjs(equipmentToUpdate.purchaseDate) : null}
+                value={equipmentToUpdate?.purchaseDate ? dayjs(equipmentToUpdate?.purchaseDate) : null}
               />
             </Form.Item>
 
@@ -76,7 +77,7 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
             >
               <DatePicker
                 style={{ width: "100%" }}
-                value={equipmentToUpdate.warrantyEndDate ? dayjs(equipmentToUpdate.warrantyEndDate) : null}
+                value={equipmentToUpdate?.warrantyEndDate ? dayjs(equipmentToUpdate?.warrantyEndDate) : null}
               />
             </Form.Item>
           </Flex>
@@ -91,8 +92,8 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
               rules={[{ required: true, message: "Please enter the warranty end  date" }]}
             >
               <Select placeholder='Select a condition'>
-                {Object.values(Condition).map((condition) => (
-                  <Option key={condition} value={condition}>
+                {Object.values(Condition).map((condition, key) => (
+                  <Option key={key} value={condition}>
                     {condition.charAt(0).toUpperCase() + condition.slice(1).toLowerCase()}
                   </Option>
                 ))}
@@ -107,9 +108,9 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
               rules={[{ required: true, message: "Please select a brand" }]}
             >
               <Select placeholder='Select a category'>
-                {categories?.data?.map((category) => (
-                  <Option key={category.id} value={category.id}>
-                    {category.categoryName}
+                {categories?.data?.map((category, key) => (
+                  <Option key={key} value={category?.id}>
+                    {category?.categoryName}
                   </Option>
                 ))}
               </Select>
@@ -122,9 +123,9 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
               rules={[{ required: true, message: "Please select a category" }]}
             >
               <Select placeholder='Select a brand'>
-                {brands?.data?.map((brand) => (
-                  <Option key={brand.id} value={brand.id}>
-                    {brand.brandName}
+                {brands?.data?.map((brand, key) => (
+                  <Option key={key} value={brand?.id}>
+                    {brand?.brandName}
                   </Option>
                 ))}
               </Select>

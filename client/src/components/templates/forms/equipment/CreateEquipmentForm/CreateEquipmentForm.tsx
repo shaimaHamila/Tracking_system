@@ -45,7 +45,14 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
     setIsBrandModalVisible(false);
   };
   return (
-    <Form form={userForm} layout='vertical' autoComplete='off' className='equipment-form' onFinish={handleFormSubmit}>
+    <Form
+      name='Update equipment'
+      form={userForm}
+      layout='vertical'
+      autoComplete='off'
+      className='equipment-form'
+      onFinish={handleFormSubmit}
+    >
       <div className='equipment-form'>
         <Card bordered={false}>
           <Flex gap={16} wrap>
@@ -53,11 +60,16 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
               className='equipment-form--input'
               label='Serial Number'
               name='serialNumber'
-              rules={[{ required: true, message: "Please enter project name" }]}
+              rules={[{ required: true, message: "Please enter serial number" }]}
             >
-              <Input placeholder='Enter project name' />
+              <Input placeholder='Enter serial number' />
             </Form.Item>
-            <Form.Item className='equipment-form--input' label='Equipment Name' name='name'>
+            <Form.Item
+              className='equipment-form--input'
+              label='Equipment Name'
+              name='name'
+              rules={[{ required: true, message: "Please enter equipment number" }]}
+            >
               <Input placeholder='Enter equipment name' />
             </Form.Item>
 
@@ -84,24 +96,27 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
               <DatePicker style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item className='equipment-form--input' label='Purchase Cost' name='purchaseCost'>
-              <InputNumber style={{ width: "100%" }} placeholder='Enter the purchase cost' />
+              <InputNumber min={1} type='number' style={{ width: "100%" }} placeholder='Enter the purchase cost' />
             </Form.Item>
           </Flex>
 
           <Flex gap={16} wrap>
-            <Form.Item
-              className='equipment-form--input'
-              label='Category'
-              name='categoryName'
-              rules={[{ required: true, message: "Please select a brand" }]}
-            >
-              <Select mode='tags' placeholder='Select a brand'>
-                {categories?.data?.map((category) => (
-                  <Option key={category.id} value={category.categoryName}>
-                    {category.categoryName}
-                  </Option>
-                ))}
-              </Select>
+            <div style={{ marginBottom: "24px" }}>
+              <Form.Item
+                className='equipment-form--input'
+                style={{ marginBottom: "0" }}
+                label='Category'
+                name='categoryName'
+                rules={[{ required: true, message: "Please select a categoey" }]}
+              >
+                <Select placeholder='Select a category'>
+                  {categories?.data?.map((category) => (
+                    <Option key={category.id} value={category.categoryName}>
+                      {category.categoryName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Button
                 style={{ padding: "0", color: `${colors.primary[400]}` }}
                 type='link'
@@ -109,21 +124,24 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
               >
                 + Add New Category
               </Button>
-            </Form.Item>
+            </div>
 
-            <Form.Item
-              className='equipment-form--input'
-              label='Brand'
-              name='brandName'
-              rules={[{ required: true, message: "Please select a category" }]}
-            >
-              <Select placeholder='Select a category'>
-                {brands?.data?.map((brand) => (
-                  <Option key={brand.id} value={brand.brandName}>
-                    {brand.brandName}
-                  </Option>
-                ))}
-              </Select>
+            <div style={{ marginBottom: "24px" }}>
+              <Form.Item
+                className='equipment-form--input'
+                style={{ marginBottom: "0" }}
+                label='Brand'
+                name='brandName'
+                rules={[{ required: true, message: "Please select a Brand" }]}
+              >
+                <Select placeholder='Select a brand'>
+                  {brands?.data?.map((brand) => (
+                    <Option key={brand.id} value={brand.brandName}>
+                      {brand.brandName}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Button
                 style={{ padding: "0", color: `${colors.primary[400]}` }}
                 type='link'
@@ -131,7 +149,7 @@ export const CreateEquipmentForm: React.FC<CreateEquipmentFormProps> = ({ onCrea
               >
                 + Add New Brand
               </Button>
-            </Form.Item>
+            </div>
           </Flex>
           <Flex>
             <Form.Item className='equipment-form--input' label='Description' name='description'>

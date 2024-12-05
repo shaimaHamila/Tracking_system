@@ -83,8 +83,8 @@ export const createEquipment = async (req: Request, res: Response) => {
           : undefined,
       },
       include: {
-        brand: true,
         category: true,
+        brand: true,
         assignedTo: {
           select: {
             id: true,
@@ -137,6 +137,8 @@ export const updateAssignedUser = async (req: Request, res: Response) => {
           : { disconnect: true },
       },
       include: {
+        category: true,
+        brand: true,
         assignedTo: {
           select: {
             id: true,
@@ -255,6 +257,7 @@ export const getEquipmentById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       include: {
         category: true,
+        brand: true,
         assignedTo: {
           select: {
             id: true,

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "../../types/ApiResponse";
+import { ApiResponse } from "./../../types/ApiResponse";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Condition, Equipment, EquipmentBrand, EquipmentCategory } from "../../types/Equipment";
 import api from "../../api/AxiosConfig";
 import { notification } from "antd";
@@ -25,6 +25,7 @@ export const useFetchEquipments = ({ pageSize, page, serialNumber, conditions }:
 
 // Add new category
 export const useCreateEquipmentCategory = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<EquipmentCategory>>, Error, Partial<EquipmentCategory>>({
     mutationFn: async (newCategory: Partial<EquipmentCategory>) => {
       const { data } = await api.post<ApiResponse<Partial<EquipmentCategory>>>("equipment/category/add", newCategory);
@@ -40,6 +41,9 @@ export const useCreateEquipmentCategory = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipment/categories"] });
     },
   });
 };
@@ -57,6 +61,7 @@ export const useFetchEquipmentsCategories = () => {
 
 // Add new brand
 export const useCreateEquipmentBrand = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<EquipmentBrand>>, Error, Partial<EquipmentBrand>>({
     mutationFn: async (newBrand: Partial<EquipmentBrand>) => {
       const { data } = await api.post<ApiResponse<Partial<EquipmentBrand>>>("equipment/brand/add", newBrand);
@@ -72,6 +77,9 @@ export const useCreateEquipmentBrand = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipment/brands"] });
     },
   });
 };
@@ -89,14 +97,28 @@ export const useFetchEquipmentsBrands = () => {
 
 // Create Equipment
 export const useCreateEquipment = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<Equipment>>, Error, Partial<Equipment>>({
     mutationFn: async (newEquipment: Partial<Equipment>) => {
       const { data } = await api.post<ApiResponse<Partial<Equipment>>>("/equipment", newEquipment);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (newEquipmentRes) => {
       notification.success({
         message: "Equipment created successfully",
+      });
+
+      const previousQueries = queryClient.getQueriesData<ApiResponse<Equipment[]>>({
+        queryKey: ["equipment/fetchEquipments"],
+      });
+      // Optimistically update each query's data
+      previousQueries.forEach(([queryKey, oldData]) => {
+        if (oldData) {
+          queryClient.setQueryData<ApiResponse<Partial<Equipment>[]>>(queryKey, {
+            ...oldData,
+            data: [...(oldData?.data || []), newEquipmentRes.data as Partial<Equipment>],
+          });
+        }
       });
     },
     onError: (error: any) => {
@@ -110,6 +132,7 @@ export const useCreateEquipment = () => {
 // Update Equipment
 
 export const useUpdateEquipment = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<Equipment>>, Error, { id: number; equipmentToUpdate: Partial<Equipment> }>({
     mutationFn: async ({ id, equipmentToUpdate }) => {
       const { data } = await api.put<ApiResponse<Partial<Equipment>>>(`/equipment/update`, equipmentToUpdate, {
@@ -117,9 +140,16 @@ export const useUpdateEquipment = () => {
       });
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedEquipmentRes) => {
       notification.success({
         message: "Equipment updated successfully",
+      });
+      const oldEquipments = queryClient.getQueryData<ApiResponse<Equipment[]>>(["equipment/fetchEquipments"]);
+      queryClient.setQueryData(["equipment/fetchEquipments"], {
+        ...oldEquipments,
+        data: oldEquipments?.data?.map((equipment) =>
+          equipment.id == updatedEquipmentRes?.data?.id ? updatedEquipmentRes?.data : equipment,
+        ),
       });
     },
     onError: (error: any) => {
@@ -128,11 +158,16 @@ export const useUpdateEquipment = () => {
         description: error.response?.data?.message || "Error",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipment/fetchEquipments"] });
+    },
   });
 };
 
 // Assign Equipment to user
 export const useAssignEquipment = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<ApiResponse<Partial<Equipment>>, Error, { equipmentId: number; assignedToId: number }>({
     mutationFn: async ({ equipmentId, assignedToId }) => {
       const { data } = await api.put<ApiResponse<Partial<Equipment>>>(`/equipment/assignedTo`, {
@@ -141,9 +176,16 @@ export const useAssignEquipment = () => {
       });
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedEquipmentRes) => {
       notification.success({
         message: "User assigned successfully",
+      });
+      const oldEquipments = queryClient.getQueryData<ApiResponse<Equipment[]>>(["equipment/fetchEquipments"]);
+      queryClient.setQueryData(["equipment/fetchEquipments"], {
+        ...oldEquipments,
+        data: oldEquipments?.data?.map((equipment) =>
+          equipment.id == updatedEquipmentRes?.data?.id ? updatedEquipmentRes?.data : equipment,
+        ),
       });
     },
     onError: (error: any) => {
@@ -151,26 +193,49 @@ export const useAssignEquipment = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["equipment/fetchEquipments"] });
     },
   });
 };
 
 // Delete Equipment
 export const useDeleteEquipment = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<ApiResponse<Partial<null>>, Error, number>({
     mutationFn: async (id: number) => {
       const { data } = await api.delete<ApiResponse<Partial<null>>>(`/equipment/${id}`);
       return data;
     },
-    onSuccess: () => {
+    onError: (error: any) => {
+      notification.error({
+        message: "Error deleting equipment",
+        description: error.response?.data?.message || "An unexpected error occurred",
+      });
+
+      // Rollback to the previous state if the mutation fails
+    },
+    onSuccess: (_res, id) => {
       notification.success({
         message: "Equipment deleted successfully",
       });
-    },
-    onError: (error: any) => {
-      notification.error({
-        message: "Error",
-        description: error.response?.data?.message || "Error",
+      // Snapshot of previous state
+      const previousQueries = queryClient.getQueriesData<ApiResponse<Equipment[]>>({
+        queryKey: ["equipment/fetchEquipments"],
+      });
+      console.log("previousQueries", previousQueries);
+      // Optimistically update each query's data
+      previousQueries.forEach(([queryKey, oldData]) => {
+        console.log("queryKey", queryKey);
+        console.log("oldData", oldData);
+        if (oldData) {
+          queryClient.setQueryData<ApiResponse<Equipment[]>>(queryKey, {
+            ...oldData,
+            data: oldData?.data?.filter((equipment) => equipment.id !== id),
+          });
+        }
       });
     },
   });
