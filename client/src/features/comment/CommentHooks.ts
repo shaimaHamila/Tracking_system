@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "../../types/ApiResponse";
 import { CommentType } from "../../types/Comment";
 import api from "../../api/AxiosConfig";
@@ -22,15 +22,24 @@ export const useFetchTicketComments = ({ ticketId }: FetchTicketCommentsRequest)
 
 //Add new Comment
 export const useAddComment = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<CommentType>, Error, { newComment: Partial<CommentType>; ticketId: number }>({
     mutationFn: async ({ newComment, ticketId }) => {
       const { data } = await api.post<ApiResponse<CommentType>>("/comment/add", newComment, { params: { ticketId } });
       return data;
     },
-    onSuccess: () => {
-      //   notification.success({
-      //     message: "Comment added successfully",
-      //   });
+    onSuccess: (newCommentResponse, { ticketId }) => {
+      const oldComments = queryClient.getQueryData<ApiResponse<CommentType[]>>([
+        "comment/fetchTicketComments",
+        ticketId,
+      ]);
+
+      if (oldComments) {
+        queryClient.setQueryData(["comment/fetchTicketComments", ticketId], {
+          ...oldComments,
+          data: [newCommentResponse.data, ...(oldComments?.data || [])],
+        });
+      }
     },
     onError: (error: any) => {
       notification.error({
@@ -42,19 +51,25 @@ export const useAddComment = () => {
 };
 
 //Update Comment
-
 export const useUpdateComment = () => {
-  return useMutation<ApiResponse<CommentType>, Error, { comment: Partial<CommentType> }>({
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<CommentType>, Error, { comment: Partial<CommentType>; ticketId: number }>({
     mutationFn: async ({ comment }) => {
       const { data } = await api.put<ApiResponse<CommentType>>(`/comment/update/`, comment, {
         params: { commentId: comment.id },
       });
       return data;
     },
-    onSuccess: () => {
-      //   notification.success({
-      //     message: "Comment updated successfully",
-      //   });
+    onSuccess: (updatedCommentRes, ticketId) => {
+      const oldData = queryClient.getQueryData<ApiResponse<CommentType[]>>(["comment/fetchTicketComments", ticketId]);
+      if (oldData) {
+        queryClient.setQueryData(["comment/fetchTicketComments", ticketId], {
+          ...oldData,
+          data: oldData.data?.map((comment) =>
+            comment.id === updatedCommentRes?.data?.id ? updatedCommentRes.data : comment,
+          ),
+        });
+      }
     },
     onError: (error: any) => {
       notification.error({
@@ -68,15 +83,20 @@ export const useUpdateComment = () => {
 //Delete Comment
 
 export const useDeleteComment = () => {
-  return useMutation<ApiResponse<CommentType>, Error, { commentId: number }>({
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<CommentType>, Error, { commentId: number; ticketId: number }>({
     mutationFn: async ({ commentId }) => {
       const { data } = await api.delete<ApiResponse<CommentType>>(`/comment/${commentId}`);
       return data;
     },
-    onSuccess: () => {
-      //   notification.success({
-      //     message: "Comment deleted successfully",
-      //   });
+    onSuccess: (_deletedCommentRes, { commentId, ticketId }) => {
+      const oldData = queryClient.getQueryData<ApiResponse<CommentType[]>>(["comment/fetchTicketComments", ticketId]);
+      if (oldData) {
+        queryClient.setQueryData(["comment/fetchTicketComments", ticketId], {
+          ...oldData,
+          data: oldData.data?.filter((comment) => comment.id !== commentId),
+        });
+      }
     },
     onError: (error: any) => {
       notification.error({

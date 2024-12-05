@@ -115,6 +115,17 @@ export const updateComment =
           text: text || comment.text,
           attachedFiles: attachedFiles || comment.attachedFiles,
         },
+        include: {
+          createdby: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+            },
+          },
+        },
       });
 
       return Responses.OperationSuccess(res, updatedComment);
@@ -154,6 +165,7 @@ export const getCommentsByTicket = async (req: Request, res: Response) => {
             email: true,
             firstName: true,
             lastName: true,
+            role: true,
           },
         },
       },
@@ -207,10 +219,18 @@ export const deleteComment =
       }
 
       // Soft delete the comment
-      await prisma.comment.update({
+      await prisma.comment.delete({
         where: { id: Number(commentId) },
-        data: {
-          deletedAt: new Date(),
+        include: {
+          createdby: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+            },
+          },
         },
       });
 
