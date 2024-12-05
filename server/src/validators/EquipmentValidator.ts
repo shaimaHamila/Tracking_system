@@ -23,6 +23,7 @@ export const createEquipmentValidator = Joi.object({
 export const updateEquipmentValidator = Joi.object({
   name: Joi.string().min(3).max(100).optional(),
   serialNumber: Joi.string().max(100).optional(),
+  description: Joi.string().optional(),
   purchaseDate: Joi.date().iso().optional(),
   warrantyEndDate: Joi.date().iso().greater(Joi.ref("purchaseDate")).optional(),
   purchaseCost: Joi.number().min(0).optional(),

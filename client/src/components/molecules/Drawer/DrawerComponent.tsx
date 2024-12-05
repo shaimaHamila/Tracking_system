@@ -28,7 +28,7 @@ const DrawerComponent: React.FC<DrawerComponentProps> = ({ isOpen, handleClose, 
   useEffect(() => {
     // Function to handle resize and set width accordingly
     const handleResize = () => {
-      setDrawerWidth(window.innerWidth < 700 ? "100%" : "60%");
+      setDrawerWidth(window.innerWidth < 800 ? "100%" : "60%");
     };
 
     // Initial check

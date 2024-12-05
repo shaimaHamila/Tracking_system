@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./TicketDetails.scss";
 import { Card, Typography, Table, TableProps, Alert, Flex } from "antd";
 import { User } from "../../../types/User";
@@ -29,9 +29,7 @@ const TicketDetails: React.FC<TicketDetailsProps> = ({ ticket }) => {
   };
 
   const handleDeleteComment = (id: number) => {
-    console.log("Deleting comment with id: ", id);
-
-    deleteCommentMutation.mutate({ commentId: id });
+    deleteCommentMutation.mutate({ commentId: id, ticketId: ticket?.id! });
   };
 
   if (!ticket) {
