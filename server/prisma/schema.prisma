@@ -148,7 +148,7 @@ model comment {
   attachedFiles String[]
 
   ticketId Int
-  ticket ticket @relation(fields: [ticketId], references: [id])
+  ticket ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   createdByUserId Int
 
   createdby user @relation(fields: [createdByUserId], references: [id])

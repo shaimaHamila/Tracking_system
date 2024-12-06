@@ -27,7 +27,6 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onCreateTicket }) =
 
   const handleProjectChange = (value: number) => {
     const selectedProject = projects?.data?.find((project) => project.id === value);
-    console.log(selectedProject);
     if (selectedProject) {
       setProjectType(selectedProject.projectType);
     }

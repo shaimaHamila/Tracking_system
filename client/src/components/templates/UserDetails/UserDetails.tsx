@@ -1,7 +1,6 @@
 import React from "react";
 import "./UserDetails.scss";
 import { Card, Avatar, Typography, Alert, Flex, Table, TableProps } from "antd";
-import { UserOutlined } from "@ant-design/icons";
 import { User } from "../../../types/User";
 import { RolesId } from "../../../types/Role";
 import { formatDateWithoutTime } from "../../../helpers/date";

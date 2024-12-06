@@ -4,7 +4,6 @@ import { Card, Typography, Table, TableProps, Alert, Flex, Avatar } from "antd";
 import { Project, ProjectType } from "../../../types/Project";
 import { User } from "../../../types/User";
 import { formatDateWithoutTime } from "../../../helpers/date";
-import { UserOutlined } from "@ant-design/icons";
 import ProjectTypeTag from "../../atoms/ProjectTypeTag/ProjectTypeTag";
 
 const { Title, Text } = Typography;

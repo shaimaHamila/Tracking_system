@@ -64,12 +64,10 @@ const Projects = () => {
           setViewProjectDrawerOpen(true);
         }}
         onUpdateProject={(project) => {
-          console.log(project);
           setClickedProject(project);
           setUpdateProjectDrawerOpen(true);
         }}
         onDeleteProject={(id) => {
-          console.log(id);
           deleteProjectMutation.mutate(id);
         }}
         limitProjectsPerPage={pageSize}

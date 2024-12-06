@@ -133,7 +133,11 @@ export const createTicket =
         data: {
           ...ticketData,
           project: { connect: { id: projectId } },
-          equipment: equipmentId ? { connect: { id: equipmentId } } : null,
+          ...(equipmentId && {
+            equipment: {
+              connect: { id: equipmentId },
+            },
+          }),
           status: { connect: { id: defaultStatusId } },
           priority: finalPriority,
           createdBy: {
@@ -540,16 +544,28 @@ export const getTicketById = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       include: {
         status: true,
+        equipment: true,
         project: {
           select: {
             id: true,
             name: true,
             projectType: true,
+            managers: {
+              include: {
+                manager: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
           },
         },
         assignedUsers: {
           select: {
-            userId: true,
             user: {
               select: {
                 id: true,
@@ -574,7 +590,13 @@ export const getTicketById = async (req: Request, res: Response) => {
     if (!ticket) {
       return Responses.NotFound(res, "Ticket not found");
     }
-    return Responses.OperationSuccess(res, ticket);
+    const transformedTicket = {
+      ...ticket,
+      assignedUsers: ticket.assignedUsers.map(({ user }) => user), // Flatten user details
+      assignedUsersId: ticket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
+      managersId: ticket.project.managers.map(({ manager }) => manager.id), // Extract manager IDs
+    };
+    return Responses.OperationSuccess(res, transformedTicket);
   } catch (error) {
     return Responses.InternalServerError(res, "Error fetching ticket");
   }

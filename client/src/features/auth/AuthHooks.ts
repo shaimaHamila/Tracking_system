@@ -19,12 +19,10 @@ export const useLogin = () => {
   return useMutation<UserResponse, Error, Credentials>({
     mutationFn: async (credentials) => {
       const res = await api.post<UserResponse>("/auth/login", credentials);
-      console.log(res.data);
       return res.data;
     },
     onSuccess: (data) => {
       localStorage.setItem("accessToken", data.accessToken);
-      console.log(data);
       // Additional logic on success (e.g., redirect, show a message)
       notification.success({
         message: data.message,

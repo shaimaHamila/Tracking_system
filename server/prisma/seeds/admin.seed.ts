@@ -2,7 +2,6 @@ import { Encrypt } from "../../src/helpers/Encrypt";
 
 export const InitAdmin = async (prismaClient: any) => {
   const password = await Encrypt.encryptpass("123456");
-  console.log(password);
 
   const adminEmail = "admin@gmail.com";
 

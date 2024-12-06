@@ -47,12 +47,6 @@ export const useCreateUser = () => {
       return data;
     },
     onSuccess: (data) => {
-      const getdata = queryClient.getQueryData(["user/fetchUsers"]);
-      console.log("oooooooooooooooooh", getdata);
-      queryClient.setQueryData(["user/fetchUsers"], (oldData: ApiResponse<User[]>) => {
-        console.log("oldDataooooooooh", oldData);
-      });
-
       notification.success({
         message: data.message,
         description: "User created successfully",
@@ -64,6 +58,9 @@ export const useCreateUser = () => {
         description: error.response?.data?.message || "Error",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["user/fetchUsers"] });
+    },
   });
 };
 export const useUpdateUser = () => {
@@ -74,11 +71,6 @@ export const useUpdateUser = () => {
       return data;
     },
     onSuccess: (data) => {
-      const getdata = queryClient.getQueryData(["user/fetchUsers"]);
-      console.log("ooooooooooooooooo", getdata);
-      queryClient.setQueryData(["user/fetchUsers"], (oldData: ApiResponse<User[]>) => {
-        console.log("oldDataoooooooo", oldData);
-      });
       notification.success({
         message: data.message,
         description: "User updated successfully",
@@ -89,6 +81,9 @@ export const useUpdateUser = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["user/fetchUsers"] });
     },
   });
 };
@@ -114,6 +109,11 @@ export const useDeleteUser = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["user/fetchUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["project/fetchProjects"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket/fetchTickets"] });
     },
   });
 };
