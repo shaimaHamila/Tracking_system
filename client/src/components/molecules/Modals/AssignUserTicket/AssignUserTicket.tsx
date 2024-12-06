@@ -51,8 +51,8 @@ const AssignUserTicket: React.FC<AssignUserTicketProps> = ({
         <Form form={form} layout='vertical'>
           <Form.Item className='user-form--input' label='User' name='userIds'>
             <Select placeholder='Select a user' mode='multiple' allowClear>
-              {projectData?.data?.teamMembers.map((user) => (
-                <Option key={user.id} value={user.id}>
+              {projectData?.data?.teamMembers.map((user, key) => (
+                <Option key={key} value={user.id}>
                   {user.firstName} {user.lastName}
                 </Option>
               ))}

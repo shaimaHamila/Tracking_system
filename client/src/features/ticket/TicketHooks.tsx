@@ -1,6 +1,6 @@
 import api from "../../api/AxiosConfig";
 import { ApiResponse } from "../../types/ApiResponse";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ticket, TicketPriority, TicketStatusId, TicketType } from "../../types/Ticket";
 import { ProjectType } from "../../types/Project";
 import { notification } from "antd";
@@ -15,10 +15,10 @@ interface FetchTicketsRequest {
   assignedUserId?: number | null;
   projectId?: number | null;
 }
-// Fetch Equipments
+// Fetch tickets
 export const useFetchTickets = ({ pageSize, page, title, statusId, priority, projectType }: FetchTicketsRequest) => {
   return useQuery<ApiResponse<Ticket[]>>({
-    queryKey: ["equipment/fetchTickets", pageSize, page, title, statusId, priority, projectType],
+    queryKey: ["ticket/fetchTickets", pageSize, page, title, statusId, priority, projectType],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<Ticket[]>>("/ticket/", {
         params: { pageSize, page, title, statusId, priority, projectType },
@@ -30,6 +30,7 @@ export const useFetchTickets = ({ pageSize, page, title, statusId, priority, pro
 };
 
 export const useCreateTicket = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Ticket>, Error, Partial<Ticket>>({
     mutationFn: async (ticket: Partial<Ticket>) => {
       const { data } = await api.post<ApiResponse<Ticket>>("/ticket/", ticket);
@@ -46,10 +47,14 @@ export const useCreateTicket = () => {
         message: "Ticket created successfully",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket/fetchTickets"] });
+    },
   });
 };
 
 export const useUpdateTicket = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Ticket>, Error, { id: number; ticketToUpdate: Partial<Ticket> }>({
     mutationFn: async ({ id, ticketToUpdate }) => {
       const { data } = await api.put<ApiResponse<Ticket>>(`/ticket/${id}`, ticketToUpdate);
@@ -66,10 +71,14 @@ export const useUpdateTicket = () => {
         description: error.response?.data?.message || "Error",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket/fetchTickets"] });
+    },
   });
 };
 
 export const useDeleteTicket = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<null>, Error, number>({
     mutationFn: async (id: number) => {
       const { data } = await api.delete<ApiResponse<null>>(`/ticket/${id}`);
@@ -85,6 +94,9 @@ export const useDeleteTicket = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket/fetchTickets"] });
     },
   });
 };

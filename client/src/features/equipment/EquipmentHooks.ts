@@ -225,11 +225,8 @@ export const useDeleteEquipment = () => {
       const previousQueries = queryClient.getQueriesData<ApiResponse<Equipment[]>>({
         queryKey: ["equipment/fetchEquipments"],
       });
-      console.log("previousQueries", previousQueries);
       // Optimistically update each query's data
       previousQueries.forEach(([queryKey, oldData]) => {
-        console.log("queryKey", queryKey);
-        console.log("oldData", oldData);
         if (oldData) {
           queryClient.setQueryData<ApiResponse<Equipment[]>>(queryKey, {
             ...oldData,
