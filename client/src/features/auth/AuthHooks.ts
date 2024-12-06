@@ -23,7 +23,6 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       localStorage.setItem("accessToken", data.accessToken);
-      // Additional logic on success (e.g., redirect, show a message)
       notification.success({
         message: data.message,
         description: "Welcome back",
