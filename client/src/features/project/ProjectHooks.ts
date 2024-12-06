@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "../../types/ApiResponse";
 import { Project, ProjectType } from "../../types/Project";
 import api from "../../api/AxiosConfig";
@@ -39,6 +39,7 @@ export const useFetchProjectById = (id: number | undefined) => {
 };
 
 export const useCreateProject = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<Project>>, Error, Partial<Project>>({
     mutationFn: async (newProject: Partial<Project>) => {
       const { data } = await api.post<ApiResponse<Partial<Project>>>("/project", newProject);
@@ -55,10 +56,14 @@ export const useCreateProject = () => {
         description: error.response?.data?.message || "Error",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["project/fetchProjects"] });
+    },
   });
 };
 
 export const useUpdateProject = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<Project>>, Error, { id: number; projectToUpdate: Partial<Project> }>({
     mutationFn: async ({ id, projectToUpdate }) => {
       const { data } = await api.put<ApiResponse<Partial<Project>>>(`/project/`, projectToUpdate, { params: { id } });
@@ -75,10 +80,14 @@ export const useUpdateProject = () => {
         description: error.response?.data?.message || "Error",
       });
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["project/fetchProjects"] });
+    },
   });
 };
 
 export const useDeleteProject = () => {
+  const queryClient = useQueryClient();
   return useMutation<ApiResponse<Partial<null>>, Error, number>({
     mutationFn: async (id: number) => {
       const { data } = await api.delete<ApiResponse<Partial<null>>>(`/project/${id}`);
@@ -94,6 +103,10 @@ export const useDeleteProject = () => {
         message: "Error",
         description: error.response?.data?.message || "Error",
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["project/fetchProjects"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket/fetchTickets"] });
     },
   });
 };
