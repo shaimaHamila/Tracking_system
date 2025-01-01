@@ -2,17 +2,7 @@ import { Request, Response } from "express";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Responses } from "../helpers/Responses";
 import prisma from "../prisma";
-
-export enum NotificationType {
-  COMMENT = "comment",
-  TICKET_CREATED = "ticket_created",
-  TICKET_UPDATED = "ticket_updated",
-  TICKET_DELETED = "ticket_deleted",
-  TICKET_STATUS_CHANGED = "ticket_status_changed",
-  TICKET_ASSIGNED = "ticket_assigned",
-  PROJECT_ASSIGNED = "project_assigned",
-  OTHER = "other",
-}
+import { NotificationType } from "../types/Notification";
 
 interface NotificationProps {
   recipientId: number;
@@ -67,7 +57,7 @@ export const createNotification = async ({
       data: {
         recipientId,
         senderId,
-        type: type as any,
+        type: type,
         referenceId,
         message,
       },

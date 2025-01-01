@@ -9,6 +9,8 @@ import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Role, RoleType } from "../types/Roles";
 import { ProjectType } from "../types/Project";
 import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
+import { createNotification } from "./NotificationController";
+import { NotificationType } from "../types/Notification";
 
 // Get all ticket Priorities
 export const getTicketPriorities = async (_req: Request, res: Response) => {
@@ -189,12 +191,30 @@ export const createTicket =
           },
         },
       });
+
+      const ticketTitle = ticket.title;
+      const projectTitle = ticket.project.name;
+
+      // Notify assigned users
+      ticket.assignedUsers.forEach(({ user: assignedUser }) => {
+        createNotification({
+          recipientId: assignedUser.id,
+          senderId: user.id,
+          type: NotificationType.TICKET_CREATED,
+          referenceId: ticket.id,
+          senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.firstName}`,
+          ticketTitle,
+          projectTitle,
+        });
+      });
+
       const transformedCreatedTicket = {
         ...ticket,
         assignedUsers: ticket.assignedUsers.map(({ user }) => user), // Flatten user details
         assignedUsersId: ticket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
         managersId: ticket.project.managers.map(({ manager }) => manager.id), // Extract manager IDs
       };
+
       // Emit the ticketCreated event to all users in the "tickets" room
       io.to("tickets").emit("ticketCreated", transformedCreatedTicket);
       return Responses.CreateSuccess(res, transformedCreatedTicket);
