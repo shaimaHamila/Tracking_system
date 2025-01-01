@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -14,7 +13,6 @@ model user_role {
   // One-to-many relationship: a role can have many users
   users    user[]
 }
-
 model user {
   id           Int       @id @default(autoincrement())
   email        String    @unique
@@ -39,12 +37,14 @@ model user {
   comments comment[]
   equipments equipment[]
   clientProjects           project[] @relation("ClientProjects")
+  // Notification
+  notificationsReceived notification[] @relation("Recipient")  
+  notificationsSent notification[] @relation("Sender")
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 }
-
 model project {
   id Int @id @default(autoincrement())
   name String 
@@ -64,12 +64,13 @@ model project {
   managers       project_manager[]
   tickets        ticket[]  
 
-
+  startdate DateTime?   
+  endDate DateTime?   
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
   deletedAt DateTime?
 }
-
 enum ProjectType {
   INTERNAL
   EXTERNAL
@@ -113,7 +114,6 @@ model ticket {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 }
-
 model user_ticket {
   userId   Int
   ticketId Int
@@ -135,7 +135,6 @@ model ticket_status{
   statusName String
   tickets ticket[]
 }
-
 enum ticketPriority {
   LOW         
   MEDIUM      
@@ -203,4 +202,29 @@ enum EquipmentCondition {
   DAMAGED
   UNDER_MAINTENANCE
   REPAIRED
+}
+
+enum NotificationType {
+  COMMENT
+  TICKET_CREATED
+  TICKET_UPDATED
+  TICKET_DELETED
+  TICKET_STATUS_CHANGED
+  TICKET_ASSIGNED
+  PROJECT_ASSIGNED
+  OTHER
+}
+
+model notification {
+  id          Int             @id @default(autoincrement())
+  recipientId Int
+  senderId    Int
+  unread      Boolean         @default(true)
+  type        NotificationType
+  message  String
+  referenceId Int
+  createdAt   DateTime        @default(now())
+
+  recipient   user           @relation("Recipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      user           @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
 }

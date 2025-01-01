@@ -1,9 +1,26 @@
 ********** To DO *********
--Display tickets
+-Notification system
 
 
+Sami commented to your ticket
+Ahmed Created new ticket
+Ahmed updated a ticket
+Ahmed Deleted a ticked
+Sami changed ticket status
+Sami assigned a ticked to you
+Sami assigned you to a project
 
-
++--------+-----------+--------+-----------------+-------------------------------------------+
+| unread | recipient | sender | type            | reference                                 |
++--------+-----------+--------+-----------------+-------------------------------------------+
+| true   | me        | James  | ticket          | Math 1 + 1                                |
++--------+-----------+--------+-----------------+-------------------------------------------+
+| true   | me        | Jane   | ticket.comment  | Im sick of school                         |
++--------+-----------+--------+-----------------+-------------------------------------------+
+| true   | me        | John   | project         | Im sick of school                         |
++--------+-----------+--------+-----------------+-------------------------------------------+
+| false  | me        | system | message         | The School is closed on independence day. |
++--------+-----------+--------+-----------------+-------------------------------------------+
 
 ******** Challenges ******
 1- Redirect user to dashboard when he logged in
@@ -13,7 +30,6 @@
 **** Features ****
 
 - We can add the assignerd equipment duration to the user
-- Auou change the equipment condtion
 
 - Filter in tickets (by client, project, creator)
 

@@ -27,7 +27,7 @@ const MyProfile: React.FC = () => {
     <div style={{ height: "100%", overflowY: "auto", padding: "6px" }}>
       <div className='profile-container'>
         <Card title='Profile Details'>
-          <Form form={profileForm} layout='vertical' size='large' onFinish={handleFormSubmit}>
+          <Form form={profileForm} layout='vertical' onFinish={handleFormSubmit}>
             <div className='profile-details'>
               <div className='profile-details-image'>
                 <Avatar size={94} icon={<UserOutlined />} />

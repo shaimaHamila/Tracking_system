@@ -9,8 +9,6 @@ import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Role, RoleType } from "../types/Roles";
 import { ProjectType } from "../types/Project";
 import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
-import { isProjectManager } from "../helpers/IsProjectManager ";
-import { validateUserRole } from "./RoleController";
 
 // Get all ticket Priorities
 export const getTicketPriorities = async (_req: Request, res: Response) => {

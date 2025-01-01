@@ -8,31 +8,31 @@ const AdminDashboard: React.FC = () => {
   const stats = [
     {
       label: "Total Projects",
-      value: 10,
+      value: 2,
       bgColor: "#e3f2fd",
       icon: <GoProjectRoadmap className='stat-card-icon' />,
     },
     {
       label: "Tickets Opened",
-      value: 40,
+      value: 2,
       bgColor: "#f1f8e9",
       icon: <RiBugLine className='stat-card-icon' />,
     },
     {
       label: "Tickets In Progress",
-      value: 31,
+      value: 1,
       bgColor: "#e8f5e9",
       icon: <RiTimerLine className='stat-card-icon' />,
     },
     {
       label: "Tickets Resolved",
-      value: 740,
+      value: 1,
       bgColor: "#fffde7",
       icon: <RiCheckboxCircleLine className='stat-card-icon' />,
     },
     {
       label: "Tickets Closed",
-      value: 205,
+      value: 0,
       bgColor: "#fbe9e7",
       icon: <RiCloseCircleLine className='stat-card-icon' />,
     },
