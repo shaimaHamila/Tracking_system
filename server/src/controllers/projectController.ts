@@ -208,6 +208,7 @@ export const getAllProjects = async (req: Request, res: Response) => {
           OR: [
             { managers: { some: { managerId: user.id } } },
             { teamMembers: { some: { teamMemberId: user.id } } },
+            { projectType: ProjectType.INTERNAL },
           ],
         };
         break;
