@@ -243,6 +243,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         totalItems={totalProjects}
         totalItemsText={"Total projects:"}
         searchPlaceholder={"Search by project name"}
+        withBtn={currentUserRole === RoleName.ADMIN}
       />
       <Table<ProjectsTableRow>
         loading={status == "pending"}
