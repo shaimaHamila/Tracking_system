@@ -30,4 +30,8 @@
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.3s ease;
   }
+  .notification-message {
+    font-weight: 500;
+    color: var(--gray-600);
+  }
 }

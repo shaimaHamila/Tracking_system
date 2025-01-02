@@ -15,6 +15,7 @@ const MainLayout = () => {
   const [pageIcon, setPageIcon] = useState<any>(<></>);
   const location = useLocation();
   const context = useContext(CurrentUserContext);
+
   useEffect(() => {
     const getPageDetails = () => {
       const path = location.pathname;
@@ -29,6 +30,7 @@ const MainLayout = () => {
     };
     getPageDetails();
   }, [location.pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -54,7 +56,7 @@ const MainLayout = () => {
         <NavBar
           logout={handleLogout}
           firstName={context?.currentUserContext?.firstName}
-          userName={context?.currentUserContext?.firstName!}
+          userName={context?.currentUserContext?.firstName! + " " + context?.currentUserContext?.lastName!}
           pageName={pageName}
           userImg=''
           pageIcon={pageIcon}

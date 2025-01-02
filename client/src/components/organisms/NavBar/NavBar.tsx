@@ -16,12 +16,12 @@ interface NavBarProps {
   logout: () => void;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ firstName, userName, pageName, pageIcon, logout }: NavBarProps) => {
+const NavBar: React.FC<NavBarProps> = ({ firstName, pageName, pageIcon, logout }: NavBarProps) => {
   const menuItems: MenuProps["items"] = [
     {
       key: "profile",
       icon: <FaUser />,
-      label: <a href='/profile'>{userName ? userName : "Mon profil"}</a>,
+      label: <a href='/profile'>{"My profil"}</a>,
     },
     {
       key: "logout",
@@ -44,7 +44,7 @@ const NavBar: React.FC<NavBarProps> = ({ firstName, userName, pageName, pageIcon
         <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
           <div className='header--user' style={{ cursor: "pointer" }}>
             <Flex align='center'>
-              <h3 className='header--user-name'>Me</h3>
+              <h3 className='header--user-name'>{firstName ? firstName : "Me"}</h3>
               <RiArrowDropDownLine />
             </Flex>
 

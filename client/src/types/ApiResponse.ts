@@ -7,5 +7,6 @@ export interface ApiResponse<T = any> {
     pageSize?: number;
     totalCount?: number;
     totalPages?: number;
+    unseenNotifications?: number;
   };
 }

@@ -6,88 +6,23 @@ import "./Notification.scss";
 
 const { Text } = Typography;
 import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
-
-interface UserItem {
-  id: number;
-  firstName: string;
-  secondName: string;
-  role: string;
-  picture?: string;
-  message: string;
-  link?: string;
-  isRead: boolean;
-  timestamp: string; // Added timestamp for date and time
-}
+import { useFetchNotifications } from "../../../features/notification/NotificationHooks";
 
 const Notification: React.FC = () => {
-  const [notifications, setNotifications] = useState<UserItem[]>([
-    {
-      id: 1,
-      firstName: "John",
-      secondName: "Doe",
-      role: "Admin",
-      message: "Assigned you a ticket",
-      link: "/messages/1",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 2,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: false,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 3,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: false,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 4,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 5,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-  ]);
-
-  const notificationCount = notifications.length > 12 ? "+12" : notifications.length;
+  const { data: notifications } = useFetchNotifications({ pageSize: 10, page: 1 });
+  console.log(notifications);
+  let unseenNotifications = notifications?.meta?.unseenNotifications || 0;
+  const notificationCount = unseenNotifications > 12 ? "+12" : unseenNotifications?.toString();
 
   const handleNotificationClick = (id: number, link?: string) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id ? { ...notification, isRead: true } : notification,
-      ),
-    );
-    if (link) {
-      window.location.href = link;
-    }
+    // setNotifications((prevNotifications) =>
+    //   prevNotifications.map((notification) =>
+    //     notification.id === id ? { ...notification, isRead: true } : notification,
+    //   ),
+    // );
+    // if (link) {
+    //   window.location.href = link;
+    // }
   };
 
   const handleMarkAllAsRead = () => {
@@ -98,7 +33,7 @@ const Notification: React.FC = () => {
     <Dropdown
       dropdownRender={() => (
         <NotificationItems
-          notifications={notifications}
+          notifications={notifications?.data || []}
           notificationCount={notificationCount.toString()}
           handleNotificationClick={handleNotificationClick}
           handleMarkAllAsRead={handleMarkAllAsRead}

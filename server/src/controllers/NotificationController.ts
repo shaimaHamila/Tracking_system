@@ -129,8 +129,10 @@ export const getNotifications = async (req: Request, res: Response) => {
     });
     // Prepare the response payload with pagination metadata
     const responsePayload = {
-      data: { ...notifications, unseenNotifications },
+      data: notifications,
+
       meta: {
+        unseenNotifications,
         totalCount: totalCount,
         totalPages: Math.ceil(totalCount / (take ?? 1)),
         currentPage: Number(page) || 1,
