@@ -1,10 +1,10 @@
 ********** To DO *********
--Notification scroll fetch (10)
--Notification ticket update delete
--Notification comment
+
+ 
 -Notification project create
--Notification unread update
+
 -Notification real time socket
+
 -Stats api
 -Stats api integration
 -Profile update

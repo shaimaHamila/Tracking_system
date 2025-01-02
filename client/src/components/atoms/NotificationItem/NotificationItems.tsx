@@ -6,12 +6,12 @@ import Title from "antd/es/typography/Title";
 import { MdOutlineDoneAll } from "react-icons/md";
 
 import { formatDate } from "../../../helpers/date";
-import { Notification } from "../../../types/Notification";
+import { Notification, NotificationType } from "../../../types/Notification";
 
 interface NotificationItemsProps {
   notifications: Notification[];
   notificationCount: string;
-  handleNotificationClick: (id: number, link?: string) => void;
+  handleNotificationClick: (id: number, notificationType: NotificationType) => void;
   handleMarkAllAsRead: () => void;
 }
 const { Text } = Typography;
@@ -48,7 +48,7 @@ const NotificationItems: React.FC<NotificationItemsProps> = ({
             <List.Item
               className='notifications-list'
               key={notification?.id}
-              onClick={() => handleNotificationClick(notification?.id, notification?.referenceId)}
+              onClick={() => handleNotificationClick(notification?.id, notification?.type)}
               style={{
                 backgroundColor: notification.unread ? `${colors.gray[50]}` : "transparent",
               }}

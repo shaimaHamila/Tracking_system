@@ -22,7 +22,7 @@ function buildMessage(
 ): string {
   switch (type) {
     case NotificationType.COMMENT:
-      return `${senderName} commented on your ticket: "${ticketTitle}"`;
+      return `${senderName} commented on ticket: "${ticketTitle}"`;
     case NotificationType.TICKET_CREATED:
       return `${senderName} created a new ticket: "${ticketTitle}"`;
     case NotificationType.TICKET_UPDATED:
@@ -141,6 +141,34 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
     }
     const updatedNotification = await prisma.notification.update({
       where: { id: Number(notificationId) },
+      data: { unread: false },
+    });
+
+    return Responses.UpdateSuccess(res, updatedNotification);
+  } catch (error) {
+    console.error(error);
+    return Responses.InternalServerError(
+      res,
+      "Error marking notification as read."
+    );
+  }
+};
+export const markAllUserNotificationsAsRead = async (
+  _req: Request,
+  res: Response
+) => {
+  const currentUserId = res.locals.decodedToken.id;
+
+  // Verify the current user exists and handle errors
+  let user;
+  try {
+    user = await getCurrentUser(parseInt(currentUserId, 10));
+  } catch (error: any) {
+    return Responses.BadRequest(res, error.message);
+  }
+  try {
+    const updatedNotification = await prisma.notification.updateMany({
+      where: { recipientId: Number(user.id), unread: true },
       data: { unread: false },
     });
 

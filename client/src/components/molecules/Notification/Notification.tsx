@@ -6,27 +6,35 @@ import "./Notification.scss";
 
 const { Text } = Typography;
 import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
-import { useFetchNotifications } from "../../../features/notification/NotificationHooks";
+import {
+  useFetchNotifications,
+  useMarkAllUserNotificationsAsRead,
+} from "../../../features/notification/NotificationHooks";
+import { NotificationType } from "../../../types/Notification";
 
 const Notification: React.FC = () => {
   const { data: notifications } = useFetchNotifications();
-  console.log(notifications);
-  let unseenNotifications = notifications?.meta?.unseenNotifications || 0;
+  const markAllUserNotificationsAsRead = useMarkAllUserNotificationsAsRead(); // Initialize mutation hook
+
+  const unseenNotifications = notifications?.meta?.unseenNotifications || 0;
   const notificationCount = unseenNotifications > 12 ? "+12" : unseenNotifications?.toString();
 
-  const handleNotificationClick = (id: number, link?: string) => {
-    // setNotifications((prevNotifications) =>
-    //   prevNotifications.map((notification) =>
-    //     notification.id === id ? { ...notification, isRead: true } : notification,
-    //   ),
-    // );
-    // if (link) {
-    //   window.location.href = link;
-    // }
+  const handleNotificationClick = (_id: number, notificationType: NotificationType) => {
+    if (notificationType === NotificationType.PROJECT_ASSIGNED) {
+      window.location.href = "/projects";
+    } else {
+      window.location.href = "/tickets";
+    }
   };
 
   const handleMarkAllAsRead = () => {
     console.log("All notifications marked as read");
+  };
+
+  const handleVisibleChange = (visible: boolean) => {
+    if (!visible && unseenNotifications > 0) {
+      markAllUserNotificationsAsRead.mutate();
+    }
   };
 
   return (
@@ -41,6 +49,7 @@ const Notification: React.FC = () => {
       )}
       trigger={["click"]}
       placement='bottomRight'
+      onOpenChange={handleVisibleChange} // Call mutation when dropdown becomes visible
     >
       <Badge count={notificationCount} offset={[6, 1]} style={{ cursor: "pointer" }}>
         <Flex style={{ cursor: "pointer" }} gap={"0.25rem"}>

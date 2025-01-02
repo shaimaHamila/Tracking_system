@@ -3,6 +3,7 @@ import { authentication } from "../middlewares/authMiddleware";
 import { allRoleAuthorization } from "../middlewares/checkUserRole";
 import {
   getNotifications,
+  markAllUserNotificationsAsRead,
   markNotificationAsRead,
 } from "../controllers/NotificationController";
 
@@ -19,5 +20,11 @@ NotificationRouter.post(
   authentication,
   allRoleAuthorization,
   markNotificationAsRead
+);
+NotificationRouter.put(
+  "/mark-all-as-read",
+  authentication,
+  allRoleAuthorization,
+  markAllUserNotificationsAsRead
 );
 export default NotificationRouter;
