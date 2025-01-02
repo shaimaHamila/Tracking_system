@@ -6,6 +6,7 @@ import "./Notification.scss";
 
 const { Text } = Typography;
 import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
+
 interface UserItem {
   id: number;
   firstName: string;

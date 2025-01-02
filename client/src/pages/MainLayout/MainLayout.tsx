@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import SideBar from "../../components/organisms/SideBar/SideBar";
-import { adminMenuItems, MenuItems } from "./MenuItems";
+import { ClientMenuItems, MenuItems, UserMenuItems } from "./MenuItems";
 import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import colors from "../../styles/colors/colors";
 import { Outlet, useLocation } from "react-router-dom";
 import NavBar from "../../components/organisms/NavBar/NavBar";
 import { CurrentUserContext } from "../../context/CurrentUserContext";
+import { RoleName } from "../../types/Role";
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(window.innerWidth <= 900 ? true : false);
@@ -34,20 +35,26 @@ const MainLayout = () => {
     window.location.href = "login";
     window.location.reload();
   };
+  let menuItems;
+  switch (context?.currentUserContext?.role?.roleName) {
+    case RoleName.ADMIN:
+      menuItems = MenuItems;
+      break;
+    case RoleName.CLIENT:
+      menuItems = ClientMenuItems;
+      break;
+    default:
+      menuItems = UserMenuItems;
+  }
   return (
     <Layout style={{ height: "100vh" }}>
-      <SideBar
-        menuItems={adminMenuItems}
-        collapsed={collapsed}
-        onCollapse={() => setCollapsed(!collapsed)}
-        width={245}
-      />
+      <SideBar menuItems={menuItems} collapsed={collapsed} onCollapse={() => setCollapsed(!collapsed)} width={245} />
 
       <Layout style={{ marginLeft: !collapsed ? "245px" : "60px" }}>
         <NavBar
           logout={handleLogout}
           firstName={context?.currentUserContext?.firstName}
-          userName={`Me`}
+          userName={context?.currentUserContext?.firstName!}
           pageName={pageName}
           userImg=''
           pageIcon={pageIcon}
