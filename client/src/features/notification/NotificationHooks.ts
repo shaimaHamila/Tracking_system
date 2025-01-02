@@ -3,18 +3,11 @@ import { Notification } from "../../types/Notification";
 import { ApiResponse } from "../../types/ApiResponse";
 import api from "../../api/AxiosConfig";
 
-interface FetchNotificationsRequest {
-  pageSize?: number | null;
-  page?: number | null;
-}
-
-export const useFetchNotifications = ({ pageSize, page }: FetchNotificationsRequest) => {
+export const useFetchNotifications = () => {
   return useQuery<ApiResponse<Notification[]>>({
-    queryKey: ["notification/fetchNotifications", pageSize, page],
+    queryKey: ["notification/fetchNotifications"],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<Notification[]>>("/notification", {
-        params: { pageSize, page },
-      });
+      const { data } = await api.get<ApiResponse<Notification[]>>("/notification");
       return data;
     },
     staleTime: 5 * 60 * 1000,

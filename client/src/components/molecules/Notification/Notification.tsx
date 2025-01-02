@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Badge, Dropdown, Flex, Typography } from "antd";
 import { IoNotifications } from "react-icons/io5";
 import colors from "../../../styles/colors/colors";
@@ -9,7 +9,7 @@ import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
 import { useFetchNotifications } from "../../../features/notification/NotificationHooks";
 
 const Notification: React.FC = () => {
-  const { data: notifications } = useFetchNotifications({ pageSize: 10, page: 1 });
+  const { data: notifications } = useFetchNotifications();
   console.log(notifications);
   let unseenNotifications = notifications?.meta?.unseenNotifications || 0;
   const notificationCount = unseenNotifications > 12 ? "+12" : unseenNotifications?.toString();

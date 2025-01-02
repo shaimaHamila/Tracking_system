@@ -69,7 +69,7 @@ export const createNotification = async ({
   }
 };
 
-export const getNotifications = async (req: Request, res: Response) => {
+export const getNotifications = async (_req: Request, res: Response) => {
   // Get the current user's ID from the decoded token
   const createdById = res.locals.decodedToken.id;
 
@@ -81,18 +81,11 @@ export const getNotifications = async (req: Request, res: Response) => {
   }
 
   try {
-    // Fetch unread notifications for the user with pagination
-    const { page, pageSize } = req.query;
-    const skip = page && pageSize ? (Number(page) - 1) * Number(pageSize) : 0;
-    const take = page && pageSize ? Number(pageSize) : 10;
-
     // Fetch unread notifications where the recipient is the current user and unread is true
     const notifications = await prisma.notification.findMany({
       where: {
         recipientId: user.id,
       },
-      skip,
-      take,
       orderBy: {
         createdAt: "desc",
       },
@@ -122,24 +115,13 @@ export const getNotifications = async (req: Request, res: Response) => {
         unread: true,
       },
     });
-    const totalCount = await prisma.notification.count({
-      where: {
-        recipientId: user.id,
-      },
-    });
-    // Prepare the response payload with pagination metadata
+
     const responsePayload = {
       data: notifications,
-
       meta: {
         unseenNotifications,
-        totalCount: totalCount,
-        totalPages: Math.ceil(totalCount / (take ?? 1)),
-        currentPage: Number(page) || 1,
-        pageSize: Number(pageSize) || 10,
       },
     };
-
     // Send the response back to the client
     return Responses.FetchPagedSucess(res, responsePayload);
   } catch (error) {
