@@ -10,6 +10,8 @@ import { Responses } from "../helpers/Responses";
 import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { ProjectType } from "../types/Project";
 import { Role } from "../types/Roles";
+import { createNotification } from "./NotificationController";
+import { NotificationType } from "../types/Notification";
 
 // Controller to get the enum values
 export const getProjectTypes = (_req: Request, res: Response) => {
@@ -52,13 +54,9 @@ export const createProject = async (req: Request, res: Response) => {
       await Promise.all([
         // Validate the client
         clientId ? validateUserRole(clientId, Role.CLIENT) : null,
-        technicalManagerId ??
-          console.log(
-            "technicalManagerIddddddddddddddddddddddd:",
-            technicalManagerId
-          ),
+        (technicalManagerId ??
         // Validate the technical manager if provided
-        technicalManagerId
+        technicalManagerId)
           ? validateUserRole(technicalManagerId, Role.TECHNICAL_MANAGER)
           : null,
 
@@ -156,6 +154,53 @@ export const createProject = async (req: Request, res: Response) => {
         },
       },
     });
+    if (newProject.projectType === ProjectType.INTERNAL) {
+      if (
+        newProject?.technicalManagerId &&
+        newProject?.technicalManagerId !== user.id
+      ) {
+        createNotification({
+          recipientId: newProject?.technicalManagerId,
+          senderId: user.id,
+          type: NotificationType.PROJECT_ASSIGNED,
+          referenceId: newProject?.id,
+          senderName: `${user?.firstName} ${user?.lastName}`,
+          role: "technical_manager",
+          projectTitle: newProject?.name,
+        });
+      }
+    } else if (newProject.projectType === ProjectType.EXTERNAL) {
+      if (newProject.managers.length > 0) {
+        newProject.managers.forEach((manager) => {
+          if (manager.managerId !== user.id) {
+            createNotification({
+              recipientId: manager.managerId,
+              senderId: user.id,
+              type: NotificationType.PROJECT_ASSIGNED,
+              referenceId: newProject.id,
+              senderName: `${user?.firstName} ${user?.lastName}`,
+              role: "manager",
+              projectTitle: newProject.name,
+            });
+          }
+        });
+      }
+      if (newProject?.teamMembers.length > 0) {
+        newProject.teamMembers.forEach((teamMember) => {
+          if (teamMember.teamMemberId !== user.id) {
+            createNotification({
+              recipientId: teamMember.teamMemberId,
+              senderId: user.id,
+              type: NotificationType.PROJECT_ASSIGNED,
+              referenceId: newProject.id,
+              senderName: `${user?.firstName} ${user?.lastName}`,
+              role: "team_member",
+              projectTitle: newProject.name,
+            });
+          }
+        });
+      }
+    }
 
     return Responses.CreateSuccess(res, newProject);
   } catch (error: any) {
@@ -444,7 +489,16 @@ export const updateProject = async (req: Request, res: Response) => {
   if (isNaN(parsedProjectId)) {
     return Responses.BadRequest(res, "Invalid project ID");
   }
+  // Get the current user's ID from the decoded token
+  const createdById = res.locals.decodedToken.id;
 
+  // Verify the current user exists and handle errors
+  let user;
+  try {
+    user = await getCurrentUser(parseInt(createdById, 10));
+  } catch (error: any) {
+    return Responses.BadRequest(res, error.message);
+  }
   const existingProject = await prisma.project.findUnique({
     where: { id: parsedProjectId },
     include: {
@@ -540,6 +594,20 @@ export const updateProject = async (req: Request, res: Response) => {
           managerId,
         })),
       });
+      // send notification to new assigned managers
+      if (managersToAdd.length > 0) {
+        managersToAdd.forEach((managerId: number) => {
+          createNotification({
+            recipientId: managerId,
+            senderId: user.id,
+            type: NotificationType.PROJECT_ASSIGNED,
+            referenceId: existingProject.id,
+            senderName: `${user?.firstName} ${user?.lastName}`,
+            role: "manager",
+            projectTitle: existingProject.name,
+          });
+        });
+      }
     }
 
     // Step 2: Handle team members updates if provided
@@ -583,6 +651,20 @@ export const updateProject = async (req: Request, res: Response) => {
           teamMemberId,
         })),
       });
+      // send notification to new assigned team members
+      if (teamMembersToAdd.length > 0) {
+        teamMembersToAdd.forEach((teamMember: number) => {
+          createNotification({
+            recipientId: teamMember,
+            senderId: user.id,
+            type: NotificationType.PROJECT_ASSIGNED,
+            referenceId: existingProject.id,
+            senderName: `${user?.firstName} ${user?.lastName}`,
+            role: "team_member",
+            projectTitle: existingProject.name,
+          });
+        });
+      }
     }
 
     // Step 3: Update the project with the dynamic updateData object

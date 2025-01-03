@@ -12,13 +12,15 @@ interface NotificationProps {
   senderName: string;
   ticketTitle?: string;
   projectTitle?: string;
+  role?: string;
 }
 
 function buildMessage(
   type: NotificationType,
   senderName: string,
   ticketTitle?: string,
-  projectTitle?: string
+  projectTitle?: string,
+  role?: string
 ): string {
   switch (type) {
     case NotificationType.COMMENT:
@@ -34,7 +36,14 @@ function buildMessage(
     case NotificationType.TICKET_ASSIGNED:
       return `${senderName} assigned you to the ticket: "${ticketTitle}"`;
     case NotificationType.PROJECT_ASSIGNED:
-      return `${senderName} assigned you to the project: "${projectTitle}"`;
+    case NotificationType.PROJECT_ASSIGNED:
+      if (role === "manager") {
+        return `${senderName} assigned you to the project Managers: "${projectTitle}"`;
+      } else if (role === "technical_manager") {
+        return `${senderName} assigned you to the project as technical manager: "${projectTitle}"`;
+      } else if (role === "team_member") {
+        return `${senderName} assigned you to the project team: "${projectTitle}"`;
+      }
     default:
       return `${senderName} performed an action`;
   }
@@ -49,8 +58,15 @@ export const createNotification = async ({
   senderName,
   ticketTitle,
   projectTitle,
+  role,
 }: NotificationProps) => {
-  const message = buildMessage(type, senderName, ticketTitle, projectTitle);
+  const message = buildMessage(
+    type,
+    senderName,
+    ticketTitle,
+    projectTitle,
+    role
+  );
 
   try {
     const notification = await prisma.notification.create({

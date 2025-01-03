@@ -1,7 +1,6 @@
 ********** To DO *********
 
  
--Notification project create
 
 -Notification real time socket
 
