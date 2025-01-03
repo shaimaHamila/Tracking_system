@@ -11,6 +11,7 @@ import CommentRouter from "./routes/CommentRouter";
 import EquipmentRouter from "./routes/EquipmentRouter";
 import TicketRouter from "./routes/TicketRouter";
 import UserRouter from "./routes/UserRouter";
+import NotificationRouter from "./routes/NotificationRouter";
 //For env File
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.use(
   cors({
     origin: [
       `${process.env.FRONTEND_URL}`, // Allow requests from your frontend URL
-      "http://localhost:3000", // Allow requests from localhost:3000
+      "http://localhost:3001", // Allow requests from localhost:3000
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
@@ -51,6 +52,7 @@ app.use("/api/v1/equipment", EquipmentRouter);
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/ticket", TicketRouter(io));
 app.use("/api/v1/comment", CommentRouter(io));
+app.use("/api/v1/notification", NotificationRouter);
 
 server.listen(port, () => {
   console.log(`Express is runnung attt http://localhost:${port} 🥳`);

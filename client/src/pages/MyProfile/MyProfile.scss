@@ -1,0 +1,36 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.profile-details {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+.profile-details-image {
+  width: 150px;
+  text-align: center;
+}
+.profile--delete-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  .profile--delete-text {
+    color: var(--primary-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+.profile-container-psw {
+  display: flex;
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  flex-wrap: wrap;
+  .profile-form--row-item {
+    min-width: 250px;
+    width: 40%;
+  }
+}

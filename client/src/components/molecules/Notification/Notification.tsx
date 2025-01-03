@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Badge, Dropdown, Flex, Typography } from "antd";
 import { IoNotifications } from "react-icons/io5";
 import colors from "../../../styles/colors/colors";
@@ -6,86 +6,24 @@ import "./Notification.scss";
 
 const { Text } = Typography;
 import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
-interface UserItem {
-  id: number;
-  firstName: string;
-  secondName: string;
-  role: string;
-  picture?: string;
-  message: string;
-  link?: string;
-  isRead: boolean;
-  timestamp: string; // Added timestamp for date and time
-}
+import {
+  useFetchNotifications,
+  useMarkAllUserNotificationsAsRead,
+} from "../../../features/notification/NotificationHooks";
+import { NotificationType } from "../../../types/Notification";
 
 const Notification: React.FC = () => {
-  const [notifications, setNotifications] = useState<UserItem[]>([
-    {
-      id: 1,
-      firstName: "John",
-      secondName: "Doe",
-      role: "Admin",
-      message: "Assigned you a ticket",
-      link: "/messages/1",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 2,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: false,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 3,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: false,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 4,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-    {
-      id: 5,
-      firstName: "Jane",
-      secondName: "Smith",
-      role: "User",
-      message: "Created new ticket",
-      picture: "https://randomuser.me/api/portraits/women/2.jpg",
-      link: "/profile",
-      isRead: true,
-      timestamp: "2024-10-27 13:45",
-    },
-  ]);
+  const { data: notifications } = useFetchNotifications();
+  const markAllUserNotificationsAsRead = useMarkAllUserNotificationsAsRead(); // Initialize mutation hook
 
-  const notificationCount = notifications.length > 12 ? "+12" : notifications.length;
+  const unseenNotifications = notifications?.meta?.unseenNotifications || 0;
+  const notificationCount = unseenNotifications > 12 ? "+12" : unseenNotifications?.toString();
 
-  const handleNotificationClick = (id: number, link?: string) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id ? { ...notification, isRead: true } : notification,
-      ),
-    );
-    if (link) {
-      window.location.href = link;
+  const handleNotificationClick = (_id: number, notificationType: NotificationType) => {
+    if (notificationType === NotificationType.PROJECT_ASSIGNED) {
+      window.location.href = "/projects";
+    } else {
+      window.location.href = "/tickets";
     }
   };
 
@@ -93,11 +31,17 @@ const Notification: React.FC = () => {
     console.log("All notifications marked as read");
   };
 
+  const handleVisibleChange = (visible: boolean) => {
+    if (!visible && unseenNotifications > 0) {
+      markAllUserNotificationsAsRead.mutate();
+    }
+  };
+
   return (
     <Dropdown
       dropdownRender={() => (
         <NotificationItems
-          notifications={notifications}
+          notifications={notifications?.data || []}
           notificationCount={notificationCount.toString()}
           handleNotificationClick={handleNotificationClick}
           handleMarkAllAsRead={handleMarkAllAsRead}
@@ -105,6 +49,7 @@ const Notification: React.FC = () => {
       )}
       trigger={["click"]}
       placement='bottomRight'
+      onOpenChange={handleVisibleChange} // Call mutation when dropdown becomes visible
     >
       <Badge count={notificationCount} offset={[6, 1]} style={{ cursor: "pointer" }}>
         <Flex style={{ cursor: "pointer" }} gap={"0.25rem"}>

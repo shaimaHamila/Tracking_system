@@ -9,8 +9,8 @@ import { getCurrentUser } from "../helpers/GetCurrentUser";
 import { Role, RoleType } from "../types/Roles";
 import { ProjectType } from "../types/Project";
 import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
-import { isProjectManager } from "../helpers/IsProjectManager ";
-import { validateUserRole } from "./RoleController";
+import { createNotification } from "./NotificationController";
+import { NotificationType } from "../types/Notification";
 
 // Get all ticket Priorities
 export const getTicketPriorities = async (_req: Request, res: Response) => {
@@ -191,12 +191,32 @@ export const createTicket =
           },
         },
       });
+
+      const ticketTitle = ticket.title;
+      const projectTitle = ticket.project.name;
+
+      // Notify assigned users
+      ticket.assignedUsers.forEach(({ user: assignedUser }) => {
+        if (assignedUser.id !== user.id) {
+          createNotification({
+            recipientId: assignedUser.id,
+            senderId: user.id,
+            type: NotificationType.TICKET_CREATED,
+            referenceId: ticket.id,
+            senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
+            ticketTitle,
+            projectTitle,
+          });
+        }
+      });
+
       const transformedCreatedTicket = {
         ...ticket,
         assignedUsers: ticket.assignedUsers.map(({ user }) => user), // Flatten user details
         assignedUsersId: ticket.assignedUsers.map(({ user }) => user.id), // Extract user IDs
         managersId: ticket.project.managers.map(({ manager }) => manager.id), // Extract manager IDs
       };
+
       // Emit the ticketCreated event to all users in the "tickets" room
       io.to("tickets").emit("ticketCreated", transformedCreatedTicket);
       return Responses.CreateSuccess(res, transformedCreatedTicket);
@@ -215,6 +235,9 @@ export const updateTicket =
       req.body;
 
     try {
+      const userId = res.locals.decodedToken.id; // Get user ID from token
+      const user = await getCurrentUser(userId);
+
       // Fetch the ticket
       const ticket = await prisma.ticket.findUnique({
         where: { id: parseInt(id) },
@@ -244,11 +267,58 @@ export const updateTicket =
         }
 
         // Update assigned users
-        await updateTicketAssignedUsers(
+        const newAssignedUsers = await updateTicketAssignedUsers(
           ticket.id,
           assignedUsersId,
           ticket.assignedUsers
         );
+        if (newAssignedUsers) {
+          const ticketAssignedUsersUpdate = await prisma.ticket.findUnique({
+            where: { id: Number(id) },
+            include: {
+              project: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              assignedUsers: {
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+              createdBy: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          });
+          // Notify assigned users
+          ticketAssignedUsersUpdate?.assignedUsers.forEach(
+            ({ user: assignedUser }) => {
+              if (assignedUser.id !== user.id) {
+                createNotification({
+                  recipientId: assignedUser.id,
+                  senderId: user.id,
+                  type: NotificationType.TICKET_ASSIGNED,
+                  referenceId: ticketAssignedUsersUpdate?.id,
+                  senderName: `${ticketAssignedUsersUpdate?.createdBy?.firstName} ${ticketAssignedUsersUpdate?.createdBy?.lastName}`,
+                  ticketTitle: ticketAssignedUsersUpdate?.title,
+                  projectTitle: ticketAssignedUsersUpdate?.project?.name,
+                });
+              }
+            }
+          );
+        }
       }
 
       // Apply updates to the ticket
@@ -263,6 +333,7 @@ export const updateTicket =
               id: true,
               name: true,
               projectType: true,
+              clientId: true,
               managers: {
                 include: {
                   manager: {
@@ -307,6 +378,36 @@ export const updateTicket =
           ({ manager }) => manager.id
         ), // Extract manager IDs
       };
+      if (statusId) {
+        // Notify assigned users
+        updatedTicket?.assignedUsers.forEach(({ user: assignedUser }) => {
+          if (assignedUser.id !== user.id) {
+            createNotification({
+              recipientId: assignedUser.id,
+              senderId: user.id,
+              type: NotificationType.TICKET_STATUS_CHANGED,
+              referenceId: updatedTicket?.id,
+              senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
+              ticketTitle: updatedTicket?.title,
+              projectTitle: updatedTicket?.project?.name,
+            });
+          }
+        });
+        if (
+          updatedTicket?.project?.clientId &&
+          updatedTicket?.project?.projectType == ProjectType.EXTERNAL
+        ) {
+          createNotification({
+            recipientId: updatedTicket?.project?.clientId,
+            senderId: user.id,
+            type: NotificationType.TICKET_STATUS_CHANGED,
+            referenceId: updatedTicket?.id,
+            senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
+            ticketTitle: updatedTicket?.title,
+            projectTitle: updatedTicket?.project?.name,
+          });
+        }
+      }
       return Responses.UpdateSuccess(res, transformedupdatedTicket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
@@ -347,6 +448,7 @@ const updateTicketAssignedUsers = async (
         userId,
       })),
     });
+    return usersToAdd;
   }
 };
 
@@ -613,7 +715,30 @@ export const deleteTicket =
       const ticket = await prisma.ticket.findUnique({
         where: { id: Number(id) },
         include: {
-          project: true,
+          project: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          assignedUsers: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
       });
 
@@ -644,7 +769,20 @@ export const deleteTicket =
       await prisma.ticket.delete({
         where: { id: Number(id) },
       });
-
+      // Notify assigned users
+      ticket.assignedUsers.forEach(({ user: assignedUser }) => {
+        if (assignedUser.id !== user.id) {
+          createNotification({
+            recipientId: assignedUser.id,
+            senderId: user.id,
+            type: NotificationType.TICKET_DELETED,
+            referenceId: ticket?.id,
+            senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
+            ticketTitle: ticket?.title,
+            projectTitle: ticket?.project?.name,
+          });
+        }
+      });
       return Responses.DeleteSuccess(res);
     } catch (error) {
       return Responses.InternalServerError(res, "Error deleting ticket");

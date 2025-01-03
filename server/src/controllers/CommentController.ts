@@ -6,6 +6,8 @@ import {
   createCommentValidator,
   updateCommentValidator,
 } from "../validators/CommentValidator";
+import { NotificationType } from "../types/Notification";
+import { createNotification } from "./NotificationController";
 
 export const addComment = (io: any) => async (req: Request, res: Response) => {
   const { error } = createCommentValidator.validate(req.body);
@@ -34,6 +36,32 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
     // Ensure the ticket exists before adding a comment
     const ticket = await prisma.ticket.findUnique({
       where: { id: Number(ticketId) },
+      include: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        assignedUsers: {
+          select: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
 
     if (!ticket) {
@@ -60,7 +88,19 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
         },
       },
     });
-
+    ticket?.assignedUsers.forEach(({ user: assignedUser }) => {
+      if (assignedUser.id !== user.id) {
+        createNotification({
+          recipientId: assignedUser.id,
+          senderId: user.id,
+          type: NotificationType.COMMENT,
+          referenceId: ticket?.id,
+          senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
+          ticketTitle: ticket?.title,
+          projectTitle: ticket?.project?.name,
+        });
+      }
+    });
     return Responses.OperationSuccess(res, newComment);
   } catch (error) {
     console.error(error);
