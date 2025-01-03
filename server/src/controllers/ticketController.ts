@@ -309,7 +309,7 @@ export const updateTicket =
                 createNotification({
                   recipientId: assignedUser.id,
                   senderId: user.id,
-                  type: NotificationType.TICKET_STATUS_CHANGED,
+                  type: NotificationType.TICKET_ASSIGNED,
                   referenceId: ticketAssignedUsersUpdate?.id,
                   senderName: `${ticketAssignedUsersUpdate?.createdBy?.firstName} ${ticketAssignedUsersUpdate?.createdBy?.lastName}`,
                   ticketTitle: ticketAssignedUsersUpdate?.title,
@@ -385,7 +385,7 @@ export const updateTicket =
             createNotification({
               recipientId: assignedUser.id,
               senderId: user.id,
-              type: NotificationType.TICKET_DELETED,
+              type: NotificationType.TICKET_STATUS_CHANGED,
               referenceId: updatedTicket?.id,
               senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
               ticketTitle: updatedTicket?.title,

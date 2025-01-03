@@ -1,7 +1,5 @@
 ********** To DO *********
 
- 
-
 -Notification real time socket
 
 -Stats api
