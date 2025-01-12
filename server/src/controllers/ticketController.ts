@@ -11,6 +11,7 @@ import { ProjectType } from "../types/Project";
 import { TicketPriority, TicketStatus, TicketType } from "../types/Ticket";
 import { createNotification } from "./NotificationController";
 import { NotificationType } from "../types/Notification";
+import chalk from "chalk";
 
 // Get all ticket Priorities
 export const getTicketPriorities = async (_req: Request, res: Response) => {
@@ -198,7 +199,7 @@ export const createTicket =
       // Notify assigned users
       ticket.assignedUsers.forEach(({ user: assignedUser }) => {
         if (assignedUser.id !== user.id) {
-          createNotification({
+          const notification = createNotification({
             recipientId: assignedUser.id,
             senderId: user.id,
             type: NotificationType.TICKET_CREATED,
@@ -207,6 +208,16 @@ export const createTicket =
             ticketTitle,
             projectTitle,
           });
+          io.to(assignedUser.id.toString()).emit(
+            "newNotification",
+            notification
+          );
+          console.log(
+            chalk.green(
+              "sendddddddddddddddddddddddddddddddd io assignedUser.id.toString()",
+              assignedUser.id.toString()
+            )
+          );
         }
       });
 
@@ -218,7 +229,6 @@ export const createTicket =
       };
 
       // Emit the ticketCreated event to all users in the "tickets" room
-      io.to("tickets").emit("ticketCreated", transformedCreatedTicket);
       return Responses.CreateSuccess(res, transformedCreatedTicket);
     } catch (error) {
       return Responses.InternalServerError(res, "Internal server error.");
