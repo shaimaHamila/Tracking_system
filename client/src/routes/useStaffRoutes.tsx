@@ -3,7 +3,6 @@ import MainLayout from "../pages/MainLayout/MainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import useSharedRoutes from "./useSharedRoutes";
 import Equipments from "../pages/Equipments/Equipments";
-import StaffDashboard from "../pages/StaffDashboard/StaffDashboard";
 
 // to implement nested routes with the new approch , check useUserRoutes
 const useStaffRoutes = () => {
@@ -18,7 +17,7 @@ const useStaffRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route path='dashboard' element={<StaffDashboard />} />
+        {/* <Route path='dashboard' element={<StaffDashboard />} /> */}
         <Route path='equipments' element={<Equipments />} />
 
         {/* Add more nested routes here if needed */}
