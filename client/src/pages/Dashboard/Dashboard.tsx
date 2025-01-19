@@ -3,6 +3,7 @@ import { RiBugLine, RiTimerLine, RiCheckboxCircleLine, RiCloseCircleLine } from 
 import "./Dashboard.scss";
 import StatCard from "../../components/molecules/StatCard/StatCard";
 import { GoProjectRoadmap } from "react-icons/go";
+import { useFetchStats } from "../../features/stats/StatsHooks";
 const quotes = [
   { text: "“The best way to predict the future is to create it.”", author: "- Peter Drucker" },
   { text: "“Success is not the key to happiness. Happiness is the key to success.”", author: "- Albert Schweitzer" },
@@ -13,39 +14,43 @@ const quotes = [
   { text: "“Don’t watch the clock; do what it does. Keep going.”", author: "- Sam Levenson" },
   { text: "“Action is the foundational key to all success.”", author: "- Pablo Picasso" },
 ];
-const AdminDashboard: React.FC = () => {
-  const stats = [
-    {
-      label: "Total Projects",
-      value: 2,
-      bgColor: "#e3f2fd",
-      icon: <GoProjectRoadmap className='stat-card-icon' />,
-    },
-    {
-      label: "Tickets Opened",
-      value: 2,
-      bgColor: "#f1f8e9",
-      icon: <RiBugLine className='stat-card-icon' />,
-    },
-    {
-      label: "Tickets In Progress",
-      value: 1,
-      bgColor: "#e8f5e9",
-      icon: <RiTimerLine className='stat-card-icon' />,
-    },
-    {
-      label: "Tickets Resolved",
-      value: 1,
-      bgColor: "#fffde7",
-      icon: <RiCheckboxCircleLine className='stat-card-icon' />,
-    },
-    {
-      label: "Tickets Closed",
-      value: 0,
-      bgColor: "#fbe9e7",
-      icon: <RiCloseCircleLine className='stat-card-icon' />,
-    },
-  ];
+const Dashboard: React.FC = () => {
+  const { data: satsData } = useFetchStats();
+
+  const stats = satsData?.data
+    ? [
+        {
+          label: "Total Projects",
+          value: satsData.data.totalProjects,
+          bgColor: "#e3f2fd",
+          icon: <GoProjectRoadmap className='stat-card-icon' />,
+        },
+        {
+          label: "Tickets Opened",
+          value: satsData?.data?.tickets?.opened,
+          bgColor: "#f1f8e9",
+          icon: <RiBugLine className='stat-card-icon' />,
+        },
+        {
+          label: "Tickets In Progress",
+          value: satsData.data.tickets.inProgress,
+          bgColor: "#e8f5e9",
+          icon: <RiTimerLine className='stat-card-icon' />,
+        },
+        {
+          label: "Tickets Resolved",
+          value: satsData.data.tickets.resolved,
+          bgColor: "#fffde7",
+          icon: <RiCheckboxCircleLine className='stat-card-icon' />,
+        },
+        {
+          label: "Tickets Closed",
+          value: satsData.data.tickets.closed,
+          bgColor: "#fbe9e7",
+          icon: <RiCloseCircleLine className='stat-card-icon' />,
+        },
+      ]
+    : [];
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
   useEffect(() => {
@@ -79,4 +84,4 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default AdminDashboard;
+export default Dashboard;

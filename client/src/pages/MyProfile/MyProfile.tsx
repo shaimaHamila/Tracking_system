@@ -32,7 +32,7 @@ const MyProfile: React.FC = () => {
               <div className='profile-details-image'>
                 <Avatar size={94} icon={<UserOutlined />} />
               </div>
-              <div style={{ flex: "1" }} className='test'>
+              <div style={{ flex: "1", minWidth: "180px" }} className='test'>
                 <Form.Item label='First Name' name='firstName'>
                   <Input id='firstName' placeholder='Enter your first name' type='text' />
                 </Form.Item>
@@ -41,7 +41,7 @@ const MyProfile: React.FC = () => {
                   <Input id='email' placeholder='Enter your email' type='text' />
                 </Form.Item>
               </div>
-              <div style={{ flex: "1" }} className='test'>
+              <div style={{ flex: "1", minWidth: "180px" }} className='test'>
                 <Form.Item label='Last Name' name='lastName'>
                   <Input id='lastName' placeholder='Enter your last name' type='text' />
                 </Form.Item>
@@ -62,7 +62,7 @@ const MyProfile: React.FC = () => {
         </Card>
 
         <Card title='Reset Password'>
-          <Form form={passwordForm} layout='vertical' size='large' onFinish={handleChangePsw}>
+          <Form form={passwordForm} layout='vertical' onFinish={handleChangePsw}>
             <div className='profile-container-psw'>
               <Form.Item
                 className='profile-form--row-item'
