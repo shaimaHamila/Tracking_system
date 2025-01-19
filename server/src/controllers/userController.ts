@@ -409,6 +409,39 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
+// Update user password
+export const updateUserPassword = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    if (!newPassword || !id) {
+      return Responses.NotFound(res, "User not found.");
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!user) {
+      return Responses.NotFound(res, "User not found.");
+    }
+    if (newPassword?.length < 8) {
+      const hashedPassword = await Encrypt.encryptpass(newPassword);
+
+      await prisma.user.update({
+        where: { id: Number(id) },
+        data: {
+          password: hashedPassword,
+        },
+      });
+    }
+    return Responses.UpdateSuccess(res, "Password updated successfully.");
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return Responses.InternalServerError(res, "Internal server error.");
+  }
+};
+
 // Delete user
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;

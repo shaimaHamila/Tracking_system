@@ -1,26 +1,58 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Avatar, Button, Card, Form, Input } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import "./MyProfile.scss";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
+import { useUpdateUser, useUpdateUserPassword } from "../../features/user/UserHooks";
+import { User } from "../../types/User";
 const MyProfile: React.FC = () => {
+  const currentUser = useContext(CurrentUserContext)?.currentUserContext;
+
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
 
-  const handleFormSubmit = (values: any) => {
-    // mutateProfile(values);
+  const updateUserMutation = useUpdateUser();
+  const updateUserPasswordMutation = useUpdateUserPassword();
+
+  useEffect(() => {
+    if (currentUser) {
+      profileForm.setFieldsValue({
+        firstName: currentUser?.firstName,
+        lastName: currentUser?.lastName,
+        email: currentUser?.email,
+        phone: currentUser?.phone,
+      });
+    }
+  }, [currentUser, profileForm]);
+
+  const handleCancel = () => {
+    profileForm.setFieldsValue({
+      firstName: currentUser?.firstName,
+      lastName: currentUser?.lastName,
+      email: currentUser?.email,
+      phone: currentUser?.phone,
+    });
+  };
+
+  const handleFormSubmit = (user: Partial<User>) => {
+    updateUserMutation.mutate({
+      id: currentUser?.id!,
+      userData: {
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        phone: user?.phone,
+      },
+    });
   };
 
   const handleChangePsw = (values: any) => {
+    updateUserPasswordMutation.mutate({
+      id: currentUser?.id!,
+      newPassword: values.password.toString(),
+    });
+    console.log("Password updated with values:", values.password);
     // mutatePassword(values);
-  };
-
-  // Custom phone number validation
-  const validatePhone = (_: any, value: string) => {
-    if (!value || /^[0-9]+$/.test(value)) {
-      return Promise.resolve();
-    }
-    return Promise.reject(new Error("Please enter a valid phone number."));
   };
 
   return (
@@ -32,26 +64,56 @@ const MyProfile: React.FC = () => {
               <div className='profile-details-image'>
                 <Avatar size={94} icon={<UserOutlined />} />
               </div>
-              <div style={{ flex: "1", minWidth: "180px" }} className='test'>
-                <Form.Item label='First Name' name='firstName'>
+              <div className='input-container'>
+                <Form.Item
+                  label='First Name'
+                  name='firstName'
+                  rules={[
+                    {
+                      required: true,
+                      message: "Firstame required",
+                    },
+                  ]}
+                  hasFeedback
+                >
                   <Input id='firstName' placeholder='Enter your first name' type='text' />
                 </Form.Item>
 
-                <Form.Item label='Email' name='email'>
-                  <Input id='email' placeholder='Enter your email' type='text' />
+                <Form.Item
+                  label='Email'
+                  name='email'
+                  rules={[
+                    {
+                      required: true,
+                      message: "Email required",
+                    },
+                  ]}
+                  hasFeedback
+                >
+                  <Input id='email' placeholder='Enter your email' type='text' disabled />
                 </Form.Item>
               </div>
-              <div style={{ flex: "1", minWidth: "180px" }} className='test'>
-                <Form.Item label='Last Name' name='lastName'>
+              <div className='input-container'>
+                <Form.Item
+                  label='Last Name'
+                  name='lastName'
+                  rules={[
+                    {
+                      required: true,
+                      message: "Lasstname required",
+                    },
+                  ]}
+                  hasFeedback
+                >
                   <Input id='lastName' placeholder='Enter your last name' type='text' />
                 </Form.Item>
-                <Form.Item label='Phone Number' name='phone' rules={[{ validator: validatePhone }]} hasFeedback>
+                <Form.Item label='Phone Number' name='phone'>
                   <Input id='phone' placeholder='Enter your phone number' type='text' />
                 </Form.Item>
               </div>
             </div>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "end", marginTop: "1rem" }}>
-              <Button onClick={() => profileForm.resetFields()} variant='outlined' size='middle'>
+              <Button onClick={handleCancel} variant='outlined' size='middle'>
                 Cancel
               </Button>
               <Button htmlType='submit' color='primary' variant='outlined' loading={false} size='middle'>

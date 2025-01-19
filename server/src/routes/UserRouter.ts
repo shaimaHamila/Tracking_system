@@ -6,6 +6,7 @@ import {
   getAllUsers,
   getUserById,
   updateUser,
+  updateUserPassword,
 } from "../controllers/UserController";
 import { authentication } from "../middlewares/authMiddleware";
 import {
@@ -27,6 +28,12 @@ UserRouter.get(
   getUserById
 );
 UserRouter.put("/:id", authentication, allRoleAuthorization, updateUser);
+UserRouter.put(
+  "/updatePassword/:id",
+  authentication,
+  allRoleAuthorization,
+  updateUserPassword
+);
 UserRouter.delete("/:id", authentication, allRoleAuthorization, deleteUser);
 
 export default UserRouter;

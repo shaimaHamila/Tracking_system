@@ -87,6 +87,26 @@ export const useUpdateUser = () => {
     },
   });
 };
+export const useUpdateUserPassword = () => {
+  return useMutation<ApiResponse<Partial<User>>, Error, { id: number; newPassword: string }>({
+    mutationFn: async ({ id, newPassword }) => {
+      const { data } = await api.put<ApiResponse<Partial<User>>>(`/user/updatePassword/${id}`, { newPassword });
+      return data;
+    },
+    onSuccess: (data) => {
+      notification.success({
+        message: data.message,
+        description: "Password updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      notification.error({
+        message: "Error",
+        description: error.response?.data?.message || "Error",
+      });
+    },
+  });
+};
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
