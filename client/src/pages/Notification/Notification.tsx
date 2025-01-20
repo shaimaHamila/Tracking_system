@@ -26,7 +26,6 @@ const Notification: React.FC = () => {
       window.location.href = "/tickets";
     }
   };
-  console.log("notifications from page", notifications);
   const handleMarkAllAsRead = () => {
     console.log("All notifications marked as read");
   };

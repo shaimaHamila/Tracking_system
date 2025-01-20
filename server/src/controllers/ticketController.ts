@@ -199,7 +199,7 @@ export const createTicket =
       // Notify assigned users
       ticket.assignedUsers.forEach(({ user: assignedUser }) => {
         if (assignedUser.id !== user.id) {
-          const notification = createNotification({
+          createNotification({
             recipientId: assignedUser.id,
             senderId: user.id,
             type: NotificationType.TICKET_CREATED,
@@ -207,17 +207,18 @@ export const createTicket =
             senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
             ticketTitle,
             projectTitle,
+          }).then((notification) => {
+            io.to(assignedUser.id.toString()).emit(
+              "newNotification",
+              notification
+            );
+            console.log(
+              chalk.green(
+                "senddddddddddddddddddddddddddddddddddddddddddd io notification",
+                notification
+              )
+            );
           });
-          io.to(assignedUser.id.toString()).emit(
-            "newNotification",
-            notification
-          );
-          console.log(
-            chalk.green(
-              "sendddddddddddddddddddddddddddddddd io assignedUser.id.toString()",
-              assignedUser.id.toString()
-            )
-          );
         }
       });
 
@@ -512,12 +513,16 @@ export const getAllTickets = async (req: Request, res: Response) => {
       ...(statusId && { statusId: parseInt(statusId, 10) }),
       ...(priority && { priority }),
       ...(type && { type }),
-      ...(projectType && { project: { projectType } }),
-      ...(assignedUserId && {
-        assignedUsers: {
-          some: { userId: parseInt(assignedUserId, 10) },
-        },
-      }),
+      ...(user.role.roleName != Role.TECHNICAL_MANAGER &&
+        projectType && { project: { projectType } }),
+      ...(user.role.roleName == Role.TECHNICAL_MANAGER &&
+        projectType && { project: { projectType: "INTERNAL" } }),
+      ...(user.role.roleName != Role.ADMIN &&
+        assignedUserId && {
+          assignedUsers: {
+            some: { userId: parseInt(assignedUserId, 10) },
+          },
+        }),
     };
 
     // Apply role-based filtering
@@ -614,7 +619,7 @@ const applyRoleBasedFilter = async (
       // TM can see only external project tickets
       whereClause.project = {
         ...whereClause.project,
-        projectType: ProjectType.EXTERNAL,
+        projectType: ProjectType.INTERNAL,
       };
       break;
     case Role.STAFF:

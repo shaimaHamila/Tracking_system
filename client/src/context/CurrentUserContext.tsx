@@ -3,7 +3,7 @@ import { User } from "../types/User";
 
 interface CurrentUserContextType {
   currentUserContext: User | null;
-  setCurrentUserContext?: (user: User | null) => void;
+  setCurrentUserContext: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export const CurrentUserContext = createContext<CurrentUserContextType | undefined>(undefined);

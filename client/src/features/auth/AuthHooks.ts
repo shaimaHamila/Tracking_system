@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import api from "../../api/AxiosConfig";
 import { notification } from "antd";
 import { User } from "../../types/User";
+import { useContext } from "react";
+import { CurrentUserContext } from "../../context/CurrentUserContext";
 
 interface Credentials {
   email: string;
@@ -16,6 +18,7 @@ interface UserResponse {
   succss: boolean;
 }
 export const useLogin = () => {
+  const context = useContext(CurrentUserContext);
   return useMutation<UserResponse, Error, Credentials>({
     mutationFn: async (credentials) => {
       const res = await api.post<UserResponse>("/auth/login", credentials);
@@ -23,6 +26,9 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       localStorage.setItem("accessToken", data.accessToken);
+      if (context?.setCurrentUserContext) {
+        context.setCurrentUserContext(data?.data);
+      }
       notification.success({
         message: data.message,
         description: "Welcome back",

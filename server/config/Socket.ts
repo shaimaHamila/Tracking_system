@@ -1,10 +1,9 @@
 import express from "express";
 import { Server, Socket } from "socket.io";
 import http from "http";
-import { socketAuthentication } from "../src/middlewares/authMiddleware";
-
-import { Encrypt } from "../src/helpers/Encrypt";
 import chalk from "chalk";
+import { Encrypt } from "../src/helpers/Encrypt";
+
 const SocketConnect = (app: express.Application) => {
   console.log("Socket is running... 🥳");
 
@@ -18,35 +17,31 @@ const SocketConnect = (app: express.Application) => {
     },
   });
 
-  // // Use socket authentication middleware
-  // io.use((socket: Socket, next) => {
-  //   socketAuthentication(socket, (error) => {
-  //     if (error) {
-  //       socket.emit("error", { message: "Authentication failed 🤦‍♀️", error });
-  //       socket.disconnect(true);
-  //     } else {
-  //       next();
-  //     }
-  //   });
-  // });
-
   io.on("connection", (socket: Socket) => {
-    console.log(chalk.green("Connect User", socket.id));
+    console.log(chalk.green("Connect Userrrr", socket.id));
     socket.on("joinRoom", () => {
       const token = socket.handshake.auth.token;
-      console.log(chalk.green("Connect User", socket.id));
+      if (!token) {
+        console.error(chalk.red("Missing token during connection."));
+        socket.emit("error", "Authentication token required");
+        return socket.disconnect(true);
+      }
+      console.log(chalk.green("Connect User with tocken", socket.id));
       try {
-        if (token) {
-          const currentUser = Encrypt.verifyAccessToken(token);
-          if (currentUser) {
-            socket.join(currentUser.id?.toString());
-            console.log(chalk.bgBlue("Joined User", currentUser.id.toString()));
-            socket.data.currentUser = currentUser;
-          }
+        // Verify token and extract user details
+        const currentUser = Encrypt.verifyAccessToken(token);
+
+        if (currentUser) {
+          console.log(chalk.blue("User authenticated:", "currentUser.id"));
+          socket.join(currentUser.id.toString()); // Join the user-specific room
+        } else {
+          throw new Error("Invalid token: User not found");
         }
-      } catch (error) {
-        console.log("User has encountered an error! 😱");
-        socket.emit("error", error);
+      } catch (error: any) {
+        console.log(
+          chalk.red("User has encountered an error! 😱", error.message)
+        );
+        socket.emit("error", "Authentication failed. Please check your token.");
         socket.disconnect(true);
       }
     });

@@ -10,6 +10,6 @@ export const useFetchStats = () => {
       const { data } = await api.get<ApiResponse<Stat>>("/stats/dashboard");
       return data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 };

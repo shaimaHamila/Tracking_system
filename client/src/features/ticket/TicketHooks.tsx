@@ -16,12 +16,20 @@ interface FetchTicketsRequest {
   projectId?: number | null;
 }
 // Fetch tickets
-export const useFetchTickets = ({ pageSize, page, title, statusId, priority, projectType }: FetchTicketsRequest) => {
+export const useFetchTickets = ({
+  pageSize,
+  page,
+  title,
+  statusId,
+  priority,
+  projectType,
+  assignedUserId,
+}: FetchTicketsRequest) => {
   return useQuery<ApiResponse<Ticket[]>>({
-    queryKey: ["ticket/fetchTickets", pageSize, page, title, statusId, priority, projectType],
+    queryKey: ["ticket/fetchTickets", pageSize, page, title, statusId, priority, projectType, assignedUserId],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<Ticket[]>>("/ticket/", {
-        params: { pageSize, page, title, statusId, priority, projectType },
+        params: { pageSize, page, title, statusId, priority, projectType, assignedUserId },
       });
       return data;
     },

@@ -7,10 +7,6 @@ import { Responses } from "../helpers/Responses";
 export const getStats = async (req: Request, res: Response) => {
   // Get the current user's ID from the decoded token
   const currentUserId = res.locals.decodedToken.id;
-  console.log(
-    "Decoded TokenvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:",
-    currentUserId
-  );
 
   if (!currentUserId) {
     return Responses.BadRequest(res, "User ID not found in token.");
