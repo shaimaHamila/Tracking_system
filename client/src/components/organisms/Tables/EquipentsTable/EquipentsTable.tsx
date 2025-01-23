@@ -236,6 +236,7 @@ const EquipmentsTable: React.FC<EquipentsTableProps> = ({
         totalItems={totalEquipments}
         totalItemsText={"Total Equipments:"}
         searchPlaceholder={"Search by serial number"}
+        withBtn={currentUserRole == RoleName.TECHNICAL_MANAGER || currentUserRole == RoleName.ADMIN}
       />
       <Table<EquipentsTableRow>
         loading={status == "pending"}

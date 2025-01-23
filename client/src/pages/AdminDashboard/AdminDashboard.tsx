@@ -1,5 +1,5 @@
 import React from "react";
-import { RiProjectorLine, RiBugLine, RiTimerLine, RiCheckboxCircleLine, RiCloseCircleLine } from "react-icons/ri";
+import { RiBugLine, RiTimerLine, RiCheckboxCircleLine, RiCloseCircleLine } from "react-icons/ri";
 import "./AdminDashboard.scss";
 import StatCard from "../../components/molecules/StatCard/StatCard";
 import { GoProjectRoadmap } from "react-icons/go";

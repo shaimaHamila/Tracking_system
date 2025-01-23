@@ -24,15 +24,17 @@ export const getStats = async (req: Request, res: Response) => {
     if (role === Role.ADMIN) {
       // Admin: Fetch all projects and tickets
       totalProjects = await prisma.project.count();
-      ticketsOpened = await prisma.ticket.count();
+      ticketsOpened = await prisma.ticket.count({
+        where: { status: { statusName: "OPEN" } },
+      });
       ticketsInProgress = await prisma.ticket.count({
-        where: { status: { statusName: "In Progress" } },
+        where: { status: { statusName: "IN_PROGRESS" } },
       });
       ticketsResolved = await prisma.ticket.count({
-        where: { status: { statusName: "Resolved" } },
+        where: { status: { statusName: "RESOLVED" } },
       });
       ticketsClosed = await prisma.ticket.count({
-        where: { status: { statusName: "Closed" } },
+        where: { status: { statusName: "CLOSED" } },
       });
     } else if (role === Role.TECHNICAL_MANAGER) {
       // Technical Manager: Fetch tickets where assigned or managed
