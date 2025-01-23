@@ -518,6 +518,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
       ...(user.role.roleName == Role.TECHNICAL_MANAGER &&
         projectType && { project: { projectType: "INTERNAL" } }),
       ...(user.role.roleName != Role.ADMIN &&
+        user.role.roleName != Role.CLIENT &&
         assignedUserId && {
           assignedUsers: {
             some: { userId: parseInt(assignedUserId, 10) },
