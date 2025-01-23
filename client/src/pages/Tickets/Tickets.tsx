@@ -43,6 +43,7 @@ const Tickets = () => {
     priority,
     statusId,
     projectType,
+    assignedUserId: context?.currentUserContext?.id!,
   });
 
   if (isError) {

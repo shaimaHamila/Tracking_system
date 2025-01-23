@@ -3,7 +3,7 @@ import "./NavBar.scss";
 import { Avatar, Dropdown, Flex, MenuProps, Typography } from "antd";
 import React from "react";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
-import Notification from "../../molecules/Notification/Notification";
+import Notification from "../../../pages/Notification/Notification";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import colors from "../../../styles/colors/colors";
 const { Text } = Typography;

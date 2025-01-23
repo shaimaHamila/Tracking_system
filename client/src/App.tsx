@@ -10,10 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 import { RolesId } from "./types/Role";
 import { CurrentUserContext } from "./context/CurrentUserContext";
 import { useState } from "react";
+import { SocketProvider } from "./socket/socket";
+import { User } from "./types/User";
 
 function App() {
   const token = localStorage.getItem("accessToken");
-  const [currentUserContext, setCurrentUserContext] = useState(null);
+  const [currentUserContext, setCurrentUserContext] = useState<null | User>(null);
   // Fetch current user data
   const {
     isLoading,
@@ -29,7 +31,6 @@ function App() {
     },
     enabled: !!token,
   });
-  // console.log("Loading", isLoading);
 
   if (error) {
     localStorage.removeItem("accessToken");
@@ -42,23 +43,27 @@ function App() {
   const clientRoutes = useClientRoutes();
   const techManagerRoutes = useTechManagerRoutes();
   return (
-    <CurrentUserContext.Provider value={{ currentUserContext }}>
+    <CurrentUserContext.Provider value={{ currentUserContext, setCurrentUserContext }}>
       {isLoading ? (
         <Loading />
       ) : (
         <Router>
           {!currentUser || !token ? (
             publicRoutes
-          ) : currentUser.role.id === RolesId.ADMIN ? (
-            adminRoutes
-          ) : currentUser.role.id === RolesId.STAFF ? (
-            staffRoutes
-          ) : currentUser.role.id === RolesId.CLIENT ? (
-            clientRoutes
-          ) : currentUser.role.id === RolesId.TECHNICAL_MANAGER ? (
-            techManagerRoutes
           ) : (
-            <Route path='*' element={<Navigate to='/not-found' />} />
+            <SocketProvider>
+              {currentUser.role.id === RolesId.ADMIN ? (
+                adminRoutes
+              ) : currentUser.role.id === RolesId.STAFF ? (
+                staffRoutes
+              ) : currentUser.role.id === RolesId.CLIENT ? (
+                clientRoutes
+              ) : currentUser.role.id === RolesId.TECHNICAL_MANAGER ? (
+                techManagerRoutes
+              ) : (
+                <Route path='*' element={<Navigate to='/not-found' />} />
+              )}
+            </SocketProvider>
           )}
         </Router>
       )}

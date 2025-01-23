@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "../pages/MainLayout/MainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import useSharedRoutes from "./useSharedRoutes";
-import AdminDashboard from "../pages/AdminDashboard/AdminDashboard";
 import Equipments from "../pages/Equipments/Equipments";
 import Users from "../pages/Users/Users";
 
@@ -20,7 +19,7 @@ const useAdminRoutes = () => {
         }
       >
         <Route path='users' element={<Users />} />
-        <Route path='dashboard' element={<AdminDashboard />} />
+        {/* <Route path='dashboard' element={<AdminDashboard />} /> */}
         <Route path='equipments' element={<Equipments />} />
 
         {/* Add more nested routes here if needed */}

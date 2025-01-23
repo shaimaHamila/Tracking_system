@@ -38,11 +38,11 @@ function buildMessage(
     case NotificationType.PROJECT_ASSIGNED:
     case NotificationType.PROJECT_ASSIGNED:
       if (role === "manager") {
-        return `${senderName} assigned you to the project Managers: "${projectTitle}"`;
+        return `${senderName} Add you to the project as a Manager: "${projectTitle}"`;
       } else if (role === "technical_manager") {
-        return `${senderName} assigned you to the project as technical manager: "${projectTitle}"`;
+        return `${senderName} Added you to the project as Technical Manager: "${projectTitle}"`;
       } else if (role === "team_member") {
-        return `${senderName} assigned you to the project team: "${projectTitle}"`;
+        return `${senderName} Added you to the project team: "${projectTitle}"`;
       }
     default:
       return `${senderName} performed an action`;

@@ -1,16 +1,16 @@
 import React from "react";
 import { Badge, Dropdown, Flex, Typography } from "antd";
 import { IoNotifications } from "react-icons/io5";
-import colors from "../../../styles/colors/colors";
+import colors from "../../styles/colors/colors";
 import "./Notification.scss";
 
 const { Text } = Typography;
-import NotificationItems from "../../atoms/NotificationItem/NotificationItems";
+import NotificationItems from "../../components/atoms/NotificationItem/NotificationItems";
 import {
   useFetchNotifications,
   useMarkAllUserNotificationsAsRead,
-} from "../../../features/notification/NotificationHooks";
-import { NotificationType } from "../../../types/Notification";
+} from "../../features/notification/NotificationHooks";
+import { NotificationType } from "../../types/Notification";
 
 const Notification: React.FC = () => {
   const { data: notifications } = useFetchNotifications();
@@ -26,7 +26,6 @@ const Notification: React.FC = () => {
       window.location.href = "/tickets";
     }
   };
-
   const handleMarkAllAsRead = () => {
     console.log("All notifications marked as read");
   };

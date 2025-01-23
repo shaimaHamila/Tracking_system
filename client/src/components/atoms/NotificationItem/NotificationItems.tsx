@@ -36,7 +36,12 @@ const NotificationItems: React.FC<NotificationItemsProps> = ({
           <Text type='secondary'> | </Text>
           <Text type='secondary'> Unread ({notificationCount})</Text>
         </Flex>
-        <Button icon={<MdOutlineDoneAll />} type='link' onClick={handleMarkAllAsRead} style={{ padding: 0 }}>
+        <Button
+          icon={<MdOutlineDoneAll />}
+          type='link'
+          onClick={handleMarkAllAsRead}
+          style={{ padding: 0, display: "none" }}
+        >
           Mark All as Read
         </Button>
       </div>

@@ -5,8 +5,17 @@
 }
 .profile-details {
   display: flex;
-  gap: 3rem;
+  row-gap: 1rem;
+  column-gap: 3rem;
   flex-wrap: wrap;
+  .input-container {
+    min-width: 180px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 .profile-details-image {
   width: 150px;

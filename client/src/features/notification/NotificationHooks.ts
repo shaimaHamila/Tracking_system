@@ -33,3 +33,15 @@ export const useMarkAllUserNotificationsAsRead = () => {
     },
   });
 };
+export const useAddNotificationFromSocket = (newNotification: Notification) => {
+  console.log("newNotification hooooook", newNotification);
+  const queryClient = useQueryClient();
+  const oldNotifications = queryClient.getQueryData<ApiResponse<Notification[]>>(["notification/fetchNotifications"]);
+
+  if (oldNotifications && newNotification) {
+    queryClient.setQueryData(["notification/fetchNotifications"], {
+      ...oldNotifications,
+      data: [oldNotifications.data, newNotification],
+    });
+  }
+};

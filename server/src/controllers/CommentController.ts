@@ -90,7 +90,7 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
     });
     ticket?.assignedUsers.forEach(({ user: assignedUser }) => {
       if (assignedUser.id !== user.id) {
-        createNotification({
+        const notification = createNotification({
           recipientId: assignedUser.id,
           senderId: user.id,
           type: NotificationType.COMMENT,

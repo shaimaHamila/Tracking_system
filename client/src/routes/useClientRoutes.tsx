@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "../pages/MainLayout/MainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import useSharedRoutes from "./useSharedRoutes";
-import { ClientDashboard } from "../pages/ClientDashboard/ClientDashboard";
 
 // to implement nested routes with the new approch , check useUserRoutes
 const useClientRoutes = () => {
@@ -17,7 +16,7 @@ const useClientRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route path='dashboard' element={<ClientDashboard />} />
+        {/* <Route path='dashboard' element={<ClientDashboard />} /> */}
 
         {/* Add more nested routes here if needed */}
         {sharedRoutes}

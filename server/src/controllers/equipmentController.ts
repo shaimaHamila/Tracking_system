@@ -185,7 +185,9 @@ export const getAllEquipments = async (req: Request, res: Response) => {
         : {}),
     };
     switch (user.role.roleName) {
-      case Role.ADMIN || Role.TECHNICAL_MANAGER:
+      case Role.ADMIN:
+        break;
+      case Role.TECHNICAL_MANAGER:
         break;
 
       case Role.STAFF:
@@ -198,7 +200,7 @@ export const getAllEquipments = async (req: Request, res: Response) => {
       default:
         return Responses.Forbidden(
           res,
-          "You do not have permission to view projects."
+          "You do not have permission to view Equipments."
         );
     }
     // Fetch equipment data with pagination and filtering
