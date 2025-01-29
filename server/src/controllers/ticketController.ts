@@ -108,7 +108,8 @@ export const createTicket =
       const finalPriority = priority || defaultPriority;
       if (
         (user.role.roleName == Role.ADMIN ||
-          user.role.roleName == Role.STAFF) &&
+          user.role.roleName == Role.STAFF ||
+          user.role.roleName == Role.TECHNICAL_MANAGER) &&
         projectExists.projectType == ProjectType.INTERNAL
       ) {
         // Assign the technical manager to the ticket
@@ -126,7 +127,10 @@ export const createTicket =
         }));
       } else {
         // If neither condition matches, return a Bad Request response
-        return Responses.BadRequest(res, "Bad Request.");
+        return Responses.BadRequest(
+          res,
+          "Bad Request you dont have the prmession to create a ticket."
+        );
       }
 
       //statusId and priority if not exist then set default values
