@@ -36,61 +36,60 @@ export const getStats = async (req: Request, res: Response) => {
       ticketsClosed = await prisma.ticket.count({
         where: { status: { statusName: "CLOSED" } },
       });
-    } else if (role === Role.TECHNICAL_MANAGER) {
-      totalProjects = await prisma.project.count({
-        where: { technicalManagerId: currentUserId },
-      });
-      // Technical Manager: Fetch tickets where assigned or managed
-      const managedProjectIds = await prisma.project
-        .findMany({
-          where: { technicalManagerId: currentUserId },
-          select: { id: true },
-        })
-        .then((projects) => projects.map((project) => project.id));
+    } else {
+      let relevantProjectIds: number[] = [];
+      if (role === Role.TECHNICAL_MANAGER) {
+        // Technical Manager: Fetch tickets where assigned or managed
+        relevantProjectIds = await prisma.project
+          .findMany({
+            where: { technicalManagerId: currentUserId },
+            select: { id: true },
+          })
+          .then((projects) => projects.map((project) => project.id));
+      } else if (role === Role.CLIENT) {
+        // Client: Fetch projects assigned as a client and related tickets
+        relevantProjectIds = await prisma.project
+          .findMany({
+            where: { clientId: currentUserId },
+            select: { id: true },
+          })
+          .then((projects) => projects.map((project) => project.id));
+      } else if (role === Role.STAFF) {
+        // Staff: Fetch projects they are team members or managers and related tickets
+        relevantProjectIds = await prisma.project
+          .findMany({
+            where: {
+              OR: [
+                { teamMembers: { some: { teamMemberId: currentUserId } } },
+                { managers: { some: { managerId: currentUserId } } },
+              ],
+            },
+            select: { id: true },
+          })
+          .then((projects) => projects.map((project) => project.id));
+      }
+      totalProjects = relevantProjectIds.length;
 
-      ticketsOpened = await prisma.ticket.count({
-        where: {
-          OR: [
-            { projectId: { in: managedProjectIds } },
-            { assignedUsers: { some: { userId: currentUserId } } },
-          ],
-        },
-      });
-    } else if (role === Role.CLIENT) {
-      // Client: Fetch projects assigned as a client and related tickets
-      const clientProjects = await prisma.project
-        .findMany({
-          where: { clientId: currentUserId },
-          select: { id: true },
-        })
-        .then((projects) => projects.map((project) => project.id));
+      // Define the filtering conditions for tickets
+      const ticketFilter = {
+        OR: [
+          { projectId: { in: relevantProjectIds } },
+          { assignedUsers: { some: { userId: currentUserId } } },
+        ],
+      };
 
-      totalProjects = clientProjects.length;
+      // Count tickets based on status
       ticketsOpened = await prisma.ticket.count({
-        where: { projectId: { in: clientProjects } },
+        where: { ...ticketFilter, status: { statusName: "OPEN" } },
       });
-    } else if (role === Role.STAFF) {
-      // Staff: Fetch projects they are team members or managers and related tickets
-      const staffProjects = await prisma.project
-        .findMany({
-          where: {
-            OR: [
-              { teamMembers: { some: { teamMemberId: currentUserId } } },
-              { managers: { some: { managerId: currentUserId } } },
-            ],
-          },
-          select: { id: true },
-        })
-        .then((projects) => projects.map((project) => project.id));
-
-      totalProjects = staffProjects.length;
-      ticketsOpened = await prisma.ticket.count({
-        where: {
-          OR: [
-            { projectId: { in: staffProjects } },
-            { assignedUsers: { some: { userId: currentUserId } } },
-          ],
-        },
+      ticketsInProgress = await prisma.ticket.count({
+        where: { ...ticketFilter, status: { statusName: "IN_PROGRESS" } },
+      });
+      ticketsResolved = await prisma.ticket.count({
+        where: { ...ticketFilter, status: { statusName: "RESOLVED" } },
+      });
+      ticketsClosed = await prisma.ticket.count({
+        where: { ...ticketFilter, status: { statusName: "CLOSED" } },
       });
     }
 
