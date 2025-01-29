@@ -27,6 +27,7 @@ export const UpdateEquipmentForm: React.FC<UpdateEquipmentFormProps> = ({ onUpda
       warrantyEndDate: equipmentToUpdate?.warrantyEndDate ? dayjs(equipmentToUpdate?.warrantyEndDate) : null,
       brandId: equipmentToUpdate?.brand?.id,
       categoryId: equipmentToUpdate?.category?.id,
+      description: equipmentToUpdate?.description || "",
     };
     equipmentForm.setFieldsValue(updatedEquipmen);
   }, [equipmentToUpdate, equipmentForm]);
