@@ -216,12 +216,6 @@ export const createTicket =
               "newNotification",
               notification
             );
-            console.log(
-              chalk.green(
-                "senddddddddddddddddddddddddddddddddddddddddddd io notification",
-                notification
-              )
-            );
           });
         }
       });
@@ -329,6 +323,11 @@ export const updateTicket =
                   senderName: `${ticketAssignedUsersUpdate?.createdBy?.firstName} ${ticketAssignedUsersUpdate?.createdBy?.lastName}`,
                   ticketTitle: ticketAssignedUsersUpdate?.title,
                   projectTitle: ticketAssignedUsersUpdate?.project?.name,
+                }).then((notification) => {
+                  io.to(assignedUser.id.toString()).emit(
+                    "newNotification",
+                    notification
+                  );
                 });
               }
             }
@@ -405,6 +404,11 @@ export const updateTicket =
               senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
               ticketTitle: updatedTicket?.title,
               projectTitle: updatedTicket?.project?.name,
+            }).then((notification) => {
+              io.to(assignedUser.id.toString()).emit(
+                "newNotification",
+                notification
+              );
             });
           }
         });
@@ -420,6 +424,11 @@ export const updateTicket =
             senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
             ticketTitle: updatedTicket?.title,
             projectTitle: updatedTicket?.project?.name,
+          }).then((notification) => {
+            io.to(updatedTicket.project.clientId?.toString()).emit(
+              "newNotification",
+              notification
+            );
           });
         }
       }
