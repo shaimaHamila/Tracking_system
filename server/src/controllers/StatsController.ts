@@ -37,6 +37,9 @@ export const getStats = async (req: Request, res: Response) => {
         where: { status: { statusName: "CLOSED" } },
       });
     } else if (role === Role.TECHNICAL_MANAGER) {
+      totalProjects = await prisma.project.count({
+        where: { technicalManagerId: currentUserId },
+      });
       // Technical Manager: Fetch tickets where assigned or managed
       const managedProjectIds = await prisma.project
         .findMany({
