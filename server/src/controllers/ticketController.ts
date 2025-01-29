@@ -108,7 +108,8 @@ export const createTicket =
       const finalPriority = priority || defaultPriority;
       if (
         (user.role.roleName == Role.ADMIN ||
-          user.role.roleName == Role.STAFF) &&
+          user.role.roleName == Role.STAFF ||
+          user.role.roleName == Role.TECHNICAL_MANAGER) &&
         projectExists.projectType == ProjectType.INTERNAL
       ) {
         // Assign the technical manager to the ticket
@@ -126,7 +127,10 @@ export const createTicket =
         }));
       } else {
         // If neither condition matches, return a Bad Request response
-        return Responses.BadRequest(res, "Bad Request.");
+        return Responses.BadRequest(
+          res,
+          "Bad Request you dont have the prmession to create a ticket."
+        );
       }
 
       //statusId and priority if not exist then set default values
@@ -211,12 +215,6 @@ export const createTicket =
             io.to(assignedUser.id.toString()).emit(
               "newNotification",
               notification
-            );
-            console.log(
-              chalk.green(
-                "senddddddddddddddddddddddddddddddddddddddddddd io notification",
-                notification
-              )
             );
           });
         }
@@ -325,6 +323,11 @@ export const updateTicket =
                   senderName: `${ticketAssignedUsersUpdate?.createdBy?.firstName} ${ticketAssignedUsersUpdate?.createdBy?.lastName}`,
                   ticketTitle: ticketAssignedUsersUpdate?.title,
                   projectTitle: ticketAssignedUsersUpdate?.project?.name,
+                }).then((notification) => {
+                  io.to(assignedUser.id.toString()).emit(
+                    "newNotification",
+                    notification
+                  );
                 });
               }
             }
@@ -401,6 +404,11 @@ export const updateTicket =
               senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
               ticketTitle: updatedTicket?.title,
               projectTitle: updatedTicket?.project?.name,
+            }).then((notification) => {
+              io.to(assignedUser.id.toString()).emit(
+                "newNotification",
+                notification
+              );
             });
           }
         });
@@ -416,6 +424,11 @@ export const updateTicket =
             senderName: `${updatedTicket?.createdBy?.firstName} ${updatedTicket?.createdBy?.lastName}`,
             ticketTitle: updatedTicket?.title,
             projectTitle: updatedTicket?.project?.name,
+          }).then((notification) => {
+            io.to(updatedTicket.project.clientId?.toString()).emit(
+              "newNotification",
+              notification
+            );
           });
         }
       }
@@ -520,9 +533,12 @@ export const getAllTickets = async (req: Request, res: Response) => {
       ...(user.role.roleName != Role.ADMIN &&
         user.role.roleName != Role.CLIENT &&
         assignedUserId && {
-          assignedUsers: {
-            some: { userId: parseInt(assignedUserId, 10) },
-          },
+          OR: [
+            {
+              assignedUsers: { some: { userId: parseInt(assignedUserId, 10) } },
+            },
+            { createdById: user.id }, // Also return tickets created by the user
+          ],
         }),
     };
 

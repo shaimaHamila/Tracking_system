@@ -8,6 +8,7 @@ import {
 } from "../validators/CommentValidator";
 import { NotificationType } from "../types/Notification";
 import { createNotification } from "./NotificationController";
+import { ProjectType } from "../types/Project";
 
 export const addComment = (io: any) => async (req: Request, res: Response) => {
   const { error } = createCommentValidator.validate(req.body);
@@ -41,6 +42,20 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
           select: {
             id: true,
             name: true,
+            projectType: true,
+            clientId: true,
+            managers: {
+              include: {
+                manager: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
           },
         },
         assignedUsers: {
@@ -48,6 +63,7 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
             user: {
               select: {
                 id: true,
+                email: true,
                 firstName: true,
                 lastName: true,
               },
@@ -59,6 +75,7 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
             id: true,
             firstName: true,
             lastName: true,
+            email: true,
           },
         },
       },
@@ -88,9 +105,9 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
         },
       },
     });
-    ticket?.assignedUsers.forEach(({ user: assignedUser }) => {
+    ticket?.assignedUsers?.forEach(({ user: assignedUser }) => {
       if (assignedUser.id !== user.id) {
-        const notification = createNotification({
+        createNotification({
           recipientId: assignedUser.id,
           senderId: user.id,
           type: NotificationType.COMMENT,
@@ -98,9 +115,33 @@ export const addComment = (io: any) => async (req: Request, res: Response) => {
           senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
           ticketTitle: ticket?.title,
           projectTitle: ticket?.project?.name,
+        }).then((notification) => {
+          io.to(assignedUser?.id?.toString()).emit(
+            "newNotification",
+            notification
+          );
         });
       }
     });
+    if (
+      ticket?.project?.clientId &&
+      ticket?.project?.projectType == ProjectType.EXTERNAL
+    ) {
+      createNotification({
+        recipientId: ticket?.project?.clientId,
+        senderId: user.id,
+        type: NotificationType.TICKET_STATUS_CHANGED,
+        referenceId: ticket?.id,
+        senderName: `${ticket?.createdBy?.firstName} ${ticket?.createdBy?.lastName}`,
+        ticketTitle: ticket?.title,
+        projectTitle: ticket?.project?.name,
+      }).then((notification) => {
+        io.to(ticket.project.clientId?.toString()).emit(
+          "newNotification",
+          notification
+        );
+      });
+    }
     return Responses.OperationSuccess(res, newComment);
   } catch (error) {
     console.error(error);

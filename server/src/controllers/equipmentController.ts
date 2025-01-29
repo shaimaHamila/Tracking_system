@@ -289,7 +289,8 @@ export const updateEquipment = async (req: Request, res: Response) => {
     return Responses.ValidationBadRequest(res, error);
   }
   try {
-    const { categoryId, brandId, ...updatedEquipmentData } = req.body;
+    const { categoryId, brandId, description, ...updatedEquipmentData } =
+      req.body;
 
     // Verify if the provided categoryId exists in the database
     if (categoryId) {
@@ -305,7 +306,7 @@ export const updateEquipment = async (req: Request, res: Response) => {
       }
     }
     if (brandId) {
-      const brandExists = await prisma.equipmentCategory.findUnique({
+      const brandExists = await prisma.equipmentBrand.findUnique({
         where: { id: brandId },
       });
 

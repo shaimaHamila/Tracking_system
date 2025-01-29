@@ -27,7 +27,12 @@ const TicketRouter = (io: any) => {
   router.post(
     "/",
     authentication,
-    userAuthorization([Role.ADMIN, Role.CLIENT, Role.STAFF]),
+    userAuthorization([
+      Role.ADMIN,
+      Role.CLIENT,
+      Role.STAFF,
+      Role.TECHNICAL_MANAGER,
+    ]), // Only these roles can create tickets
     createTicket(io)
   );
   router.put("/:id", authentication, allRoleAuthorization, updateTicket(io));
